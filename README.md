@@ -33,6 +33,11 @@ To also build the unit tests call **cmake .. -DBUILD_TESTS=ON** instead of
 Once the project is built a ./bin directory will be create containing the 
 binary. To run it from the project root directory simply call **./bin/gdev**.
 
+## See ##
+
+[Standards Document](https://github
+.com/invaderjon/gdev/blob/master/docs/standards.pdf)
+
 ## References ##
 
 I used the following repo to help me figure out how to set up the GTest 
