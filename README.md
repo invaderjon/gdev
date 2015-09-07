@@ -13,7 +13,7 @@ This project is currently only confirmed to support Ubuntu 15.*.
 
 ## Requirements ##
 
-  * CMake 3.0+
+  * CMake 2.8+
   * gcc 4.9.2+
 
 ## Build Steps ##
