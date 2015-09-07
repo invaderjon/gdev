@@ -6,6 +6,6 @@ compiler:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DBUILD_TEST=YES
+  - cmake .. -DBUILD_TESTS=ON
   - make
   - ./tests
