@@ -1,6 +1,11 @@
 cmake_minimum_required( VERSION 2.8 )
 project( gdev )
 
+# IGNORE NEW VERSION POLICY
+if(POLICY CMP0048)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 # PRE-REQS
 find_package( Threads REQUIRED )
 
