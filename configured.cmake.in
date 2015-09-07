@@ -1,0 +1,2 @@
+// ${CONFIGURED}.cpp
+#include "${CONFIGURED}.h"
