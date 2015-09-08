@@ -42,6 +42,6 @@ I used [this repo](https://github.com/bast/gtest-demo)
 to figure out how to set up the GTest library and how to integrate 
 it into Travis-CI.
 
-[Standards]: https://github.com/invaderjon/gdev/blob/master/docs/standards.pdf
+[Standards]: https://goo.gl/BE4d1N
 [Travis Badge]: https://travis-ci.org/invaderjon/gdev.svg?branch=master
 [Travis Link]: https://travis-ci.org/invaderjon/gdev
