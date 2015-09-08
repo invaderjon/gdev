@@ -4,8 +4,7 @@
 
 ## Overview ##
 
-This is my project for CS 585: Introduction to Game Development. This is my
-implementation of the assignments given to us.
+This is my project for CS 585: Introduction to Game Development.
 
 ## Support ##
 
@@ -30,19 +29,19 @@ To also build the unit tests call **cmake .. -DBUILD_TESTS=ON** instead of
 
 ## Usage ##
 
-Once the project is built a ./bin directory will be create containing the 
-binary. To run it from the project root directory simply call **./bin/gdev**.
+To run it from the project root directory simply call **./build/gdev**.
+To run the tests call **./build/tests**.
 
 ## See ##
 
-[Standards Document](https://github
-.com/invaderjon/gdev/blob/master/docs/standards.pdf)
+[Standards Document][Standards]
 
 ## References ##
 
-I used the following repo to help me figure out how to set up the GTest 
-library and how to integrate it into travis ci:
-[Here](https://github.com/bast/gtest-demo/blob/master/.travis.yml])
+I used [this repo](https://github.com/bast/gtest-demo)
+to figure out how to set up the GTest library and how to integrate 
+it into Travis-CI.
 
+[Standards]: https://github.com/invaderjon/gdev/blob/master/docs/standards.pdf
 [Travis Badge]: https://travis-ci.org/invaderjon/gdev.svg?branch=master
 [Travis Link]: https://travis-ci.org/invaderjon/gdev
