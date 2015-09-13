@@ -1,5 +1,5 @@
 // game.m.cpp
-#include "build.h"
+#include "engine/build.gen.h"
 #include <iostream>
 
 int main( int argc, char *argv[] )
