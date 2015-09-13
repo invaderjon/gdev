@@ -2,10 +2,10 @@
 #ifndef INCLUDED_DYNAMIC_ARRAY
 #define INCLUDED_DYNAMIC_ARRAY
 
-#include <stdexcept>
-#include <string.h>
 #include "../memory/default_allocator.h"
 #include "../memory/iallocator.h"
+#include <stdexcept>
+#include <string.h>
 
 namespace StevensDev
 {
