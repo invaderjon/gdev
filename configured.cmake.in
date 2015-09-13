@@ -1,2 +1,2 @@
-// ${CONFIGURED}.cpp
-#include "${CONFIGURED}.h"
+// ${CONFIGURED}.gen.cpp
+#include "${CONFIGURED}.gen.h"
