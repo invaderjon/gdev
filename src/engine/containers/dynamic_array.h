@@ -33,9 +33,8 @@ class DynamicArray
       // Grows the array to twice the current size.
       // Doubles the size each time room is needed to avoid a large number of
       // re-allocations. If it is known ahead of time that a capacity of
-      // muge greater than 32 will be needed then the constructor specifying a
-      // large enough capacity should be used to prevent rapid initial
-      // reallocation.
+      // greater than 32 will be needed then the pre-size constructor should
+      // be used.
 
     unsigned int wrap( int index ) const;
       // Wraps the index inside of the circular bounds.
@@ -77,13 +76,13 @@ class DynamicArray
     T& operator[]( int index ) const;
       // Gets the element at the given index.
       //
-      // Behavior is  undefined when:
+      // Behavior is undefined when:
       // index is out of bounds
 
     T operator[]( int index );
       // Sets the element at the given index.
       //
-      // Behavior undefined when:
+      // Behavior is undefined when:
       // index is out of bounds
 
     // MEMBER FUNCTIONS
@@ -121,7 +120,7 @@ class DynamicArray
     T insertAt( unsigned int index, const T& elem );
       // Inserts an element at the given index.
       //
-      // Throws runtime_error  when:
+      // Throws runtime_error when:
       // index is out of bounds
 
     unsigned int size() const;
