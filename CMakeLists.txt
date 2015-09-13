@@ -40,7 +40,7 @@ configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.gen.h )
 configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.gen.cpp )
 
 # CMAKE CONFIGURATION
-set( CMAKE_CXX_FLAGS "-std=c++11" )
+set( CMAKE_CXX_FLAGS "-std=c++0x" )
 
 # INCLUDES
 include_directories(
