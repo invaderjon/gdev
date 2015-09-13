@@ -2,19 +2,29 @@ cmake_minimum_required( VERSION 2.8 )
 project( gdev )
 
 # IGNORE NEW VERSION POLICY
-if(POLICY CMP0048)
-    cmake_policy(SET CMP0048 OLD)
+if ( POLICY CMP0048 )
+    cmake_policy( SET CMP0048 OLD )
 endif()
 
 # PRE-REQS
 find_package( Threads REQUIRED )
 
 # PROJECT INFORMATION
-set( PROJECT_VERSION_MAJOR 0 )
-set( PROJECT_VERSION_MINOR 0 )
-set( PROJECT_VERSION_PATCH 0 )
-set( PROJECT_VERSION
-    ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
+set( PROJ_PREFIX GAME )
+set( PROJ_VERSION_MAJOR 0 )
+set( PROJ_VERSION_MINOR 1 )
+set( PROJ_VERSION_PATCH 0 )
+set( PROJ_VERSION
+    ${PROJ_VERSION_MAJOR}.${PROJ_VERSION_MINOR}.${PROJ_VERSION_PATCH}
+)
+
+if ( CMAKE_BUILD_TYPE MATCHES Debug )
+    set( PROJ_BUILD GAME_BUILD_DEBUG )
+elseif ( CMAKE_BUILD_TYPE MATCHES RelWithDebInfo )
+    set( PROJ_BUILD GAME_BUILD_STAGE )
+else()
+    set( PROJ_BUILD GAME_BUILD_RELEASE )
+endif()
 
 # DIRECTORIES
 set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
@@ -26,8 +36,11 @@ set( OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin )
 
 # FILE CONFIGURATIONS
 set( CONFIGURED build )
-configure_file( build.cmake.in ${SOURCE_DIR}/build.h )
-configure_file( configured.cmake.in ${SOURCE_DIR}/build.cpp )
+configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.gen.h )
+configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.gen.cpp )
+
+# CMAKE CONFIGURATION
+set( CMAKE_CXX_FLAGS "-std=c++11" )
 
 # INCLUDES
 include_directories(
@@ -35,16 +48,28 @@ include_directories(
     ${SOURCE_DIR}
 )
 
-# SOURCES
-file( GLOB SOURCE_GLOB ${SOURCE_DIR}/main/*.cpp )
-set( SOURCE_FILES game.m.cpp )
-list( APPEND SOURCE_FILES ${SOURCE_GLOB} )
+# ENGINE SOURCES
+set( ENGINE_FILES
+    src/engine/build.gen.cpp
+    src/engine/build.gen.h
+    src/engine/memory/iallocator.cpp
+    src/engine/memory/iallocator.h
+    src/engine/memory/default_allocator.cpp
+    src/engine/memory/default_allocator.h
+    src/engine/memory/counting_allocator.cpp
+    src/engine/memory/counting_allocator.h
+    src/engine/containers/dynamic_array.cpp
+    src/engine/containers/dynamic_array.h )
 
-# BUILD
+set( SOURCE_FILES
+    game.m.cpp
+    ${ENGINE_FILES} )
+
+# BUILD GAME
 add_executable( gdev ${SOURCE_FILES} )
 
 # TESTS
-if ( BUILD_TESTS )
+if ( BUILD_TESTS OR CLION )
     # TEST INCLUDES
     include_directories(
         ${INCLUDE_DIR}
@@ -57,16 +82,17 @@ if ( BUILD_TESTS )
     # SUB-DIRECTORIES
     add_subdirectory( ${EXT_DIR}/googletest )
 
-    # SOURCES
-    set( TEST_FILES test.m.cpp )
-    file( GLOB TEST_GLOB ${TEST_DIR}/*.cpp )
-    list( APPEND TEST_FILES ${TEST_GLOB} )
+    # TEST SOURCES
+    set( TEST_FILES
+        test.m.cpp
+        ${ENGINE_FILES}
+        test/trival_tests.cpp
+        test/engine/memory/counting_allocator.t.cpp
+        test/engine/containers/dynamic_array.t.cpp
+        test/engine/memory/default_allocator.t.cpp )
 
     # BUILD
-    add_executable(
-        tests
-        ${TEST_FILES}
-    )
+    add_executable( tests ${TEST_FILES} )
 
     target_link_libraries( tests gtest )
 
