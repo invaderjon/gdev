@@ -8,10 +8,11 @@ TEST( DynamicArrayTest, ConstructionAndAssignment )
     using namespace StevensDev::sgdc;
     using namespace StevensDev::sgdm;
 
-    CountingAllocator<int> alloc;
+    DefaultAllocator<int> alloc;
 
     DynamicArray<int> array( &alloc );
     DynamicArray<int> copy( array );
+    DynamicArray<int> capacity( &alloc, ( unsigned int )100 );
     DynamicArray<int> def;
 
     def = copy;
@@ -25,7 +26,7 @@ TEST( DynamicArrayTest, PushAndPop )
     int i;
     int tmp;
 
-    CountingAllocator<int> alloc;
+    DefaultAllocator<int> alloc;
     DynamicArray<int> array( &alloc );
 
     // push
@@ -81,7 +82,7 @@ TEST( DynamicArrayTest, At )
 
     int i;
 
-    CountingAllocator<int> alloc;
+    DefaultAllocator<int> alloc;
     DynamicArray<int> array( &alloc );
 
     for ( i = 0; i < 64; ++i )
@@ -105,7 +106,7 @@ TEST( DynamicArrayTest, InsertAndRemove )
     int i;
     int tmp;
 
-    CountingAllocator<int> alloc;
+    DefaultAllocator<int> alloc;
     DynamicArray<int> array( &alloc );
 
     // force wrap

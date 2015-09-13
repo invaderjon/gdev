@@ -31,6 +31,11 @@ class DynamicArray
     // HELPER FUNCTIONS
     void grow();
       // Grows the array to twice the current size.
+      // Doubles the size each time room is needed to avoid a large number of
+      // re-allocations. If it is known ahead of time that a capacity of
+      // muge greater than 32 will be needed then the constructor specifying a
+      // large enough capacity should be used to prevent rapid initial
+      // reallocation.
 
     unsigned int wrap( int index ) const;
       // Wraps the index inside of the circular bounds.
@@ -51,6 +56,10 @@ class DynamicArray
 
     DynamicArray( sgdm::IAllocator<T>* allocator );
       // Constructs a new dynamic array using the given allocator.
+
+    DynamicArray( sgdm::IAllocator<T>* allocation, unsigned int capacity );
+      // Constructs a new dynamic array using the given allocator with the
+      // given initial capacity.
 
     DynamicArray( const DynamicArray<T>& other );
       // Constructs a copy of the other dynamic array.
@@ -129,6 +138,15 @@ DynamicArray<T>::DynamicArray() : d_first( 0 ), d_size( 0 ), d_capacity( 32 ),
 template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator )
     : d_allocator( allocator ), d_first( 0 ), d_size( 0 ), d_capacity( 32 )
+{
+    d_array = d_allocator->get( d_capacity );
+}
+
+template<typename T>
+DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator,
+                               unsigned int capacity )
+    : d_allocator( allocator ), d_first( 0 ), d_size( 0 ),
+      d_capacity( capacity )
 {
     d_array = d_allocator->get( d_capacity );
 }
