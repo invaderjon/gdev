@@ -3,3 +3,7 @@
 
 # Build Output
 build/*
+
+# CMake Generated Files
+*.gen.h
+*.gen.cpp
