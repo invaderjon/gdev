@@ -37,7 +37,7 @@ class DynamicArray
       // be used.
       // This reallocates the entire block when growing to avoid memory
       // fragmentation. This is to abide by the expectation that an array
-      // be contiguous in memory. This reduces the number of cache flushes
+      // be contiguous in memory. This reduces the number of cache clears
       // during iteration to at most one which is due to the wrapped nature of
       // the array.
 
