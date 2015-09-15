@@ -247,6 +247,8 @@ DynamicArray<T>& DynamicArray<T>::operator=( DynamicArray<T>&& source )
     source.d_first = 0;
     source.d_size = 0;
     source.d_capacity = 0;
+
+    return *this;
 }
 
 template<typename T>
