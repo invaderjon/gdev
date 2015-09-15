@@ -68,6 +68,9 @@ class DynamicArray
     DynamicArray( const DynamicArray<T>& other );
       // Constructs a copy of the other dynamic array.
 
+    DynamicArray( DynamicArray<T>&& source );
+      // Moves the resources from the source to this instance.
+
     virtual ~DynamicArray();
       // Releases the dynamic array and all of its resources.
 
@@ -77,6 +80,9 @@ class DynamicArray
       //
       // Requirements:
       // other is not this
+
+    DynamicArray<T>& operator=( DynamicArray<T>&& source );
+      // Moves the resources from the source to this instance.
 
     T& operator[]( int index ) const;
       // Gets the element at the given index.
@@ -156,7 +162,7 @@ DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator,
 }
 
 template<typename T>
-DynamicArray<T>::DynamicArray( const sgdc::DynamicArray<T> &other )
+DynamicArray<T>::DynamicArray( const DynamicArray<T>& other )
     : d_allocator( other.d_allocator ),
       d_first( other.d_first ), d_size( other.d_size ),
       d_capacity( other.d_capacity )
@@ -167,10 +173,33 @@ DynamicArray<T>::DynamicArray( const sgdc::DynamicArray<T> &other )
 }
 
 template<typename T>
+DynamicArray<T>::DynamicArray( DynamicArray<T>&& source )
+{
+    if ( d_allocator != nullptr && d_array != nullptr )
+    {
+        d_allocator->release( d_array, d_capacity );
+    }
+
+    d_allocator = source.d_allocator;
+    d_array = source.d_array;
+    d_first = source.d_first;
+    d_size = source.d_size;
+    d_capacity = source.d_capacity;
+
+    source.d_allocator = nullptr;
+    source.d_array = nullptr;
+    source.d_first = 0;
+    source.d_size = 0;
+    source.d_capacity = 0;
+}
+
+template<typename T>
 DynamicArray<T>::~DynamicArray()
 {
     if ( d_allocator == nullptr || d_array == nullptr )
+    {
         return;
+    }
 
     d_allocator->release( d_array, d_capacity );
 }
@@ -178,8 +207,7 @@ DynamicArray<T>::~DynamicArray()
 
 // OPERATORS
 template<typename T>
-DynamicArray<T>& DynamicArray<T>::operator=(
-    const sgdc::DynamicArray<T> &other )
+DynamicArray<T>& DynamicArray<T>::operator=( const DynamicArray<T>& other )
 {
     assert( &other != this );
 
@@ -198,6 +226,27 @@ DynamicArray<T>& DynamicArray<T>::operator=(
     memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
 
     return *this;
+}
+
+template<typename T>
+DynamicArray<T>& DynamicArray<T>::operator=( DynamicArray<T>&& source )
+{
+    if ( d_allocator != nullptr && d_array != nullptr )
+    {
+        d_allocator->release( d_array, d_capacity );
+    }
+
+    d_allocator = source.d_allocator;
+    d_array = source.d_array;
+    d_first = source.d_first;
+    d_size = source.d_size;
+    d_capacity = source.d_capacity;
+
+    source.d_allocator = nullptr;
+    source.d_array = nullptr;
+    source.d_first = 0;
+    source.d_size = 0;
+    source.d_capacity = 0;
 }
 
 template<typename T>
