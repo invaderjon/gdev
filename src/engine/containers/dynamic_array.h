@@ -76,7 +76,7 @@ class DynamicArray
 
     // OPERATORS
     DynamicArray<T>& operator=( const DynamicArray<T>& other );
-      // Makes this a copy of the other allocator.
+      // Makes this a copy of the other dynamic array.
       //
       // Requirements:
       // other is not this
