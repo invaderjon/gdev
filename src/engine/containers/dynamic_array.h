@@ -138,6 +138,20 @@ class DynamicArray
       // Gets the size of the array.
 };
 
+// FREE OPERATORS
+template<typename T>
+inline
+std::ostream& operator<<( std::ostream& stream,
+                          const DynamicArray<T>& array )
+{
+    return stream <<
+           "{ first: " << array.d_first <<
+           ", size: " << array.d_size <<
+           ", capacity: " << array.d_capacity << " }";
+
+
+}
+
 // CONSTRUCTORS
 template<typename T>
 DynamicArray<T>::DynamicArray() : d_first( 0 ), d_size( 0 ), d_capacity( 32 ),
