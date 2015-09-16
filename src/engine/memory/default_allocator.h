@@ -29,7 +29,7 @@ class DefaultAllocator : public IAllocator<T>
 
     // OPERATORS
     DefaultAllocator<T>& operator=( const DefaultAllocator<T>& other );
-    // Makes this a copy of the other allocator.
+      // Makes this a copy of the other allocator.
 
     // MEMBER FUNCTIONS
     virtual T* get( int count );
