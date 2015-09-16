@@ -90,7 +90,7 @@ class DynamicArray
       // Behavior is undefined when:
       // index is out of bounds
 
-    T operator[]( int index );
+    T& operator[]( int index );
       // Sets the element at the given index.
       //
       // Behavior is undefined when:
@@ -116,7 +116,7 @@ class DynamicArray
       // Requirements:
       // array is not empty
 
-    T at( unsigned int index ) const;
+    T& at( unsigned int index ) const;
       // Gets the element at the given index.
       //
       // Throws runtime_error when:
@@ -272,7 +272,7 @@ T& DynamicArray<T>::operator[]( int index ) const
 }
 
 template<typename T>
-T DynamicArray<T>::operator[]( int index )
+T& DynamicArray<T>::operator[]( int index )
 {
     return d_array[wrap( ( unsigned int )index )];
 }
@@ -332,7 +332,7 @@ T DynamicArray<T>::popFront()
 }
 
 template<typename T>
-T DynamicArray<T>::at( unsigned int index ) const
+T& DynamicArray<T>::at( unsigned int index ) const
 {
     if ( index >= d_size )
     {
