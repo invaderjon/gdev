@@ -59,7 +59,9 @@ set( ENGINE_FILES
     src/engine/memory/counting_allocator.cpp
     src/engine/memory/counting_allocator.h
     src/engine/containers/dynamic_array.cpp
-    src/engine/containers/dynamic_array.h )
+    src/engine/containers/dynamic_array.h
+    src/engine/containers/map.cpp
+    src/engine/containers/map.h )
 
 set( SOURCE_FILES
     game.m.cpp
