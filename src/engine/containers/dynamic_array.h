@@ -181,9 +181,16 @@ DynamicArray<T>::DynamicArray( const DynamicArray<T>& other )
       d_first( other.d_first ), d_size( other.d_size ),
       d_capacity( other.d_capacity )
 {
-    // create copy of source array.
-    d_array = d_allocator->get( d_capacity );
-    memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
+    if ( other.d_array != nullptr )
+    {
+        // create copy of source array.
+        d_array = d_allocator->get( d_capacity );
+        memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
+    }
+    else
+    {
+        d_array = nullptr;
+    }
 }
 
 template<typename T>
@@ -235,9 +242,16 @@ DynamicArray<T>& DynamicArray<T>::operator=( const DynamicArray<T>& other )
     d_size = other.d_size;
     d_capacity = other.d_capacity;
 
-    // create copy of source array
-    d_array = d_allocator->get( d_capacity );
-    memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
+    if ( other.d_array != nullptr )
+    {
+        // create copy of source array
+        d_array = d_allocator->get( d_capacity );
+        memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
+    }
+    else
+    {
+        d_array = nullptr;
+    }
 
     return *this;
 }

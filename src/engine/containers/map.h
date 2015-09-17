@@ -8,48 +8,162 @@
 #include <string>
 #include <search.h>
 
-#define INVALID_MAP_INDEX ( ( unsigned int )-1 )
-#define FNV_PRIME_32
-
 namespace StevensDev
 {
 
 namespace sgdc
 {
 
+// ANONYMOUS HELPER
 namespace
 {
 
+// TYPES
+typedef std::string Key;
+  // Defines a hash-able key. This is used so the key can be easily
+  // templated or changed (not sure if std::string or const char*).
+
+typedef int Bin;
+  // Defines a bin. The bin value is the index of the value in the array.
+  // Only positive values are valid where-as certain negative values have
+  // special meanings.
+
 typedef unsigned int HashCode;
+  // Defines a hash code. This is used so that the integer size can be
+  // easily changed.
 
-// Use a bin structure to minimize the waste from empty bins and to improve
-// grow operation performance.
-typedef struct
+// CONSTANTS
+const Bin BIN_EMPTY = -1;
+  // Defines a bin that is empty.
+
+const Bin BIN_DELETED = -2;
+  // Defines a bin that was deleted.
+
+const Bin BIN_INVALID = -3;
+  // Defines a bin that is invalid.
+
+const unsigned int FNV_OFFSET = 2166136261;
+  // Defines the initial offset used by the FNV-1A hashing function.
+  // From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
+
+const unsigned int FNV_PRIME_32 = 16777619;
+  // Defines the prime number used by the FNV-1A hashing function.
+  // From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
+
+const unsigned int GROW_THRESHOLD = 75;
+  // Grows once more than 75% full.
+
+const unsigned int SHRINK_THRESHOLD = 30;
+  // Shrink once less than 25% full.
+
+const unsigned int MIN_TRANSFER = 16;
+  // The minimum number of items that must be transferred with each
+  // progressive copy pass.
+
+const unsigned int MIN_BINS = 32;
+  // The minimum number of bins.
+
+// FUNCTIONS
+inline
+unsigned int jump( unsigned int probes )
 {
-    unsigned int index;
-      // The index of the entry in the entries array. If there is no item
-      // associated with the bin then this is equal to INVALID_MAP_INDEX.
-} Bin;
+    return probes;
+}
 
-// Uses an entry structure to detect collisions.
-typedef struct
+inline
+unsigned int wrap( int index, unsigned int count )
 {
-    HashCode hashCode;
-      // The hash code associated with the entry. This is used for collision
-      // detection.
+    return index & ( count - 1 );
+}
 
-    unsigned int index;
-      // The index of the item in the values array.
+inline
+unsigned int getCopyCount( unsigned int count, unsigned int oldCount )
+{
+    // The following is an equation can be use to calculate the minimum
+    // number of items that must be copied per progressive pass.
+    //
+    // This is calculated based on the fact that you can only insert or
+    // remove one item at a time so thus this will be called at least once
+    // per insert/removal.
+    //
+    // The following are a few of the sizes that can be observed and
+    // information regarding them:
+    //
+    // Count    75%      30%
+    // 32        24       -- <- irrelevant because can't shrink past 32
+    // 64        48     19.2
+    // 128       96     38.4
+    // 256      192     76.8
+    //
+    // When the in use count hits the 75% mark it grows, when it hits the
+    // 30% mark it shrinks. Therefore before that time the old bins must have
+    // been completely copied by that time.
+    //
+    // Since you can only insert/remove exactly one item per step you have
+    // exactly the number of steps equal to the difference between the current
+    // in use count and the nearest threshold to finish transferring the old
+    // bins. The number of steps for each transition can be seen below.
+    //
+    // Note: The thresholds are rounded down since you can't insert or remove
+    //       part of an item.
+    //
+    // Transition  Count   LTH   UTH   ST
+    // 32->64         24    19    48    4
+    // 64->128        48    38    96    9
+    // 128->256       64    76   192   19
+    // ...
+    // 256->128       76    38    96   19
+    // 128->64        38    19    48    9
+    // 64->32         19    --    24    4
+    //
+    // LTH = Lower Threshold, UTH = Upper Threshold, ST = Steps Available
+    //
+    // Note: The copy operation must be done at least one step in advance of
+    //       when the next change is necessary.
+    //
+    // From that data I noticed th following pattern:
+    //
+    // steps = ( 5 * ( min( oldCount, newCount ) >> 4 ) ) - 1
+    //
+    // Then using that number to copy per step can be calculated as:
+    //
+    // oldCount / steps
+    //
+    // Finally for safety I ensured a minimum copy count was enforced.
+    //
+    return std::max( ( 5 * ( std::min( oldCount, count ) >> 4 ) - 1),
+                     MIN_TRANSFER );
+}
 
-    unsigned int next;
-      // The index of the next item in the bin. If there are no more items in
-      // the bin then this is equal to INVALID_MAP_INDEX.
-} Entry;
+inline
+bool isEmpty( Bin bin )
+{
+    return bin == BIN_EMPTY;
+}
 
+inline
+bool wasDeleted( Bin bin )
+{
+    return bin == BIN_DELETED;
+}
 
-// ANONYMOUS HELPER FUNCTIONS
-unsigned int mapToBinIndex( HashCode code, unsigned int binCount );
-  // Maps a hash code to a bin index.
+inline
+bool isAvailable( Bin bin )
+{
+    return isEmpty( bin ) || wasDeleted( bin );
+}
+
+inline
+bool shouldGrow( unsigned int inUse, unsigned int count )
+{
+    return ( ( inUse * 100 ) / count ) > GROW_THRESHOLD;
+}
+
+inline
+bool shouldShrink( unsigned int inUse, unsigned int count )
+{
+    return ( ( inUse * 100 ) / count ) < SHRINK_THRESHOLD && count > MIN_BINS;
+}
 
 } // End nspc anonymous
 
@@ -57,10 +171,10 @@ template<typename T>
 class Map
 {
     sgdm::CountingAllocator<Bin> d_binAllocator;
-    // Allocator used to obtain new bins.
+      // The allocator used for obtaining new bins.
 
-    sgdm::CountingAllocator<Entry> d_entryAllocator;
-    // Allocator used to obtain new entries.
+    sgdm::CountingAllocator<HashCode> d_entryAllocator;
+      // The allocator used by the dynamic entry array to obtain new entries.
 
     DynamicArray<std::string> d_keys;
       // The set of keys.
@@ -68,11 +182,9 @@ class Map
     DynamicArray<T> d_values;
       // The set of values.
 
-    DynamicArray<Entry> d_entries;
-      // The set of entries. These are stored in the order they that the
-      // key-value pairs are created. This is used instead of bins
-      // maintaining pointers to arrays of entries to reduce dynamic memory
-      // allocation.
+    DynamicArray<HashCode> d_entries;
+      // The set of pre-hashed key entries. This is maintained to avoid the
+      // overhead of rehashing the keys during every equals operation.
 
     Bin* d_bins;
       // The set of available bins.
@@ -83,6 +195,9 @@ class Map
       // there are no more full bins, at which point the old bins are
       // released. If there are no old bins then this is equal to nullptr
       // (zero).
+
+    unsigned int d_binsInUse;
+    // The number of bins currently in use.
 
     unsigned int d_binCount;
       // The number of available bins.
@@ -95,35 +210,31 @@ class Map
       // The number of old bins.
 
     // HELPER FUNCTIONS
-    HashCode hash( const std::string& key ) const;
-      // Gets the hash code of a given key using FNV-1A.
+    void grow();
+      // Grows the map to todo: say how much it grows.
 
-    const Entry& mapToEntry( HashCode code ) const;
-      // Maps a hash code to a mutable entry.
-
-    Entry& mapToEntry( HashCode code );
-      // Maps a hash code to a mutable entry. This will create the entry if
-      // it is not found.
-
-    Entry* getEntry( const Bin& bin, HashCode code, Entry*& collided ) const;
-      // Gets the entry from the bin with the given hash code. If the entry
-      // cannot be found then nullptr (zero) is returned. This will store the
-      // last known collision in collided if one is encountered.
-
-    unsigned int getEntryIndex( const Bin& bin, HashCode code,
-                          Entry*& collided ) const;
-      // Gets the index of the entry from the given bin with the given hash
-      // code. If the entry cannot be found INVALID_MAP_INDEX is returned.
-      // This will store the last known collision in collided if one is
-      // encountered.
-
-    Entry& createEntry( HashCode code, Entry* collided );
-      // Creates a new entry and adds it to the set of entries. This will
-      // also set the collided entry's next index to itself if provided.
+    void shrink();
+      // Shrinks the map to todo: say how much it shrinks.
 
     void reduceOldBins();
       // Copy some more items over from the old bin set to the new bin set.
       // This will release the old bins if there are non remaining.
+
+    int find( HashCode code, Bin* bins, unsigned int count ) const;
+      // Checks for the the specified hash in the specified set of bins and
+      // gets the index of the bin that contains it.
+      // If it is not found this will return BIN_INVALID.
+
+    int probe( HashCode code, Bin* bins, unsigned int count ) const;
+      // Probes for an available bin for the given hash in the specified set of
+      // bins. If one is found this returnes its index, otherwise this
+      // returns BIN_INVALID.
+
+    bool doesContain( Bin bin, HashCode code ) const;
+      // Checks if the given bin contains the given key.
+
+    HashCode hash( const std::string& key ) const;
+      // Gets the hash code of a given key using FNV-1A.
 
   public:
     // CONSTRUCTORS
@@ -148,7 +259,7 @@ class Map
       // Makes this a copy of the other map.
 
     Map<T>& operator=( Map<T>&& source );
-     // Moves the resources from the source to this instance.
+      // Moves the resources from the source to this instance.
 
     const T& operator[]( const std::string& key ) const;
       // Gets the value that is mapped to the given key.
@@ -157,17 +268,20 @@ class Map
       // There must be a mapping for the key.
 
     T& operator[]( const std::string& key );
-     // Sets the mapping for the given key.
+      // Sets the mapping for the given key.
 
     // MEMBER FUNCTIONS
     bool has( const std::string& key ) const;
       // Checks if there is a key-value mapping for the given value.
 
     T remove( const std::string& key );
-     // Removes the key-value mapping for the specified key.
-     //
-     // Given the nature of the dynamic array implementation this is the
-     // slowest operation.
+      // Removes the key-value mapping for the specified key.
+      //
+      // Given the nature of the dynamic array implementation this is the
+      // slowest operation.
+      //
+      // Requirements:
+      // A mapping for the given key must exist.
 
     const DynamicArray<std::string>& keys() const;
       // Gets all of the mapped keys.
@@ -198,8 +312,16 @@ std::ostream& operator<<( std::ostream& stream,
 // CONSTRUCTORS
 template<typename T>
 inline
-Map<T>::Map() : d_keys(), d_values(), d_entries(), d_bins( nullptr ),
-                d_binCount( 0 ), d_oldBins( nullptr ), d_oldBinIndex( 0 ),
+Map<T>::Map() : d_binAllocator(),
+                d_entryAllocator(),
+                d_keys(),
+                d_values(),
+                d_entries(),
+                d_bins( nullptr ),
+                d_binsInUse( 0 ),
+                d_binCount( 0 ),
+                d_oldBins( nullptr ),
+                d_oldBinIndex( 0 ),
                 d_oldBinCount( 0 )
 {
 }
@@ -207,10 +329,18 @@ Map<T>::Map() : d_keys(), d_values(), d_entries(), d_bins( nullptr ),
 template<typename T>
 inline
 Map<T>::Map( sgdm::IAllocator<T>* allocator )
-    : d_keys( allocator ), d_values( allocator ),
+    : d_binAllocator(),
+      d_entryAllocator(),
+      d_keys( allocator ),
+      d_values( allocator ),
       d_entries( &d_entryAllocator ),
-      d_oldBinIndex( 0 ), d_oldBinCount( 0 )
+      d_binsInUse( 0 ),
+      d_binCount( MIN_BINS ),
+      d_oldBins( nullptr ),
+      d_oldBinIndex( 0 ),
+      d_oldBinCount( 0 )
 {
+    d_bins = d_binAllocator.get( d_binCount );
 }
 
 template<typename T>
@@ -220,17 +350,30 @@ Map<T>::Map( const Map<T>& other )
       d_entryAllocator( other.d_entryAllocator ),
       d_keys( other.d_keys ),
       d_values( other.d_values ),
-      d_entries( other.d_entries ), d_binCount( other.d_binCount ),
+      d_entries( other.d_entries ),
+      d_binsInUse( other.d_binsInUse ),
+      d_binCount( other.d_binCount ),
       d_oldBinIndex( other.d_oldBinIndex ),
       d_oldBinCount( other.d_oldBinCount )
 {
-    d_bins = d_binAllocator.get( d_binCount );
-    memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+    if ( other.d_bins != nullptr )
+    {
+        d_bins = d_binAllocator.get( d_binCount );
+        memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+    }
+    else
+    {
+        d_bins = nullptr;
+    }
 
-    if ( d_oldBinCount > 0 )
+    if ( other.d_oldBins != nullptr )
     {
         d_oldBins = d_binAllocator.get( d_oldBinCount );
         memcpy( d_oldBins, other.d_oldBins, sizeof( Bin ) * d_oldBinCount );
+    }
+    else
+    {
+        d_oldBins = nullptr;
     }
 }
 
@@ -243,6 +386,7 @@ Map<T>::Map( Map<T>&& source ) : d_keys( std::move( source.d_keys ) ),
     d_binAllocator = std::move( source.d_binAllocator );
 
     d_bins = source.d_bins;
+    d_binsInUse = source.d_binsInUse;
     d_binCount = source.d_binCount;
 
     d_oldBins = source.d_oldBins;
@@ -250,10 +394,11 @@ Map<T>::Map( Map<T>&& source ) : d_keys( std::move( source.d_keys ) ),
     d_oldBinCount = source.d_oldBinCount;
 
     source.d_bins = nullptr;
+    source.d_binsInUse = 0;
     source.d_binCount = 0;
 
     source.d_oldBins = nullptr;
-    source.d_oldBinIndex = INVALID_MAP_INDEX;
+    source.d_oldBinIndex = 0;
     source.d_oldBinCount = 0;
 
     d_entryAllocator = std::move( source.d_entryAllocator );
@@ -281,32 +426,41 @@ Map<T>& Map<T>::operator=( const Map<T>& other )
     if ( d_bins != nullptr )
     {
         d_binAllocator.release( d_bins, d_binCount );
-        d_binCount = 0;
     }
 
     if ( d_oldBins != nullptr )
     {
         d_binAllocator.release( d_oldBins, d_binCount );
-        d_oldBinCount = 0;
-        d_oldBinIndex = INVALID_MAP_INDEX;
     }
 
     d_keys = other.d_keys;
     d_values = other.d_values;
     d_entries = other.d_values;
 
+    d_binsInUse = other.d_binsInUse;
     d_binCount = other.d_binCount;
 
     d_oldBinIndex = other.d_oldBinIndex;
     d_oldBinCount = other.d_oldBinCount;
 
-    d_bins = d_binAllocator.get( d_binCount );
-    memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+    if ( other.d_bins != nullptr )
+    {
+        d_bins = d_binAllocator.get( d_binCount );
+        memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+    }
+    else
+    {
+        d_bins = nullptr;
+    }
 
-    if ( d_oldBinCount > 0 )
+    if ( other.d_oldBins != nullptr )
     {
         d_oldBins = d_binAllocator.get( d_oldBinCount );
         memcpy( d_oldBins, other.d_oldBins, sizeof( Bin ) * d_oldBinCount );
+    }
+    else
+    {
+        d_oldBins = nullptr;
     }
 
     d_binAllocator = other.d_binAllocator;
@@ -335,6 +489,7 @@ Map<T>& Map<T>::operator=( Map<T>&& source )
     d_entries = std::move( source.d_values );
 
     d_bins = source.d_bins;
+    d_binsInUse = source.d_binsInUse;
     d_binCount = source.d_binCount;
 
     d_oldBins = source.d_oldBins;
@@ -342,10 +497,11 @@ Map<T>& Map<T>::operator=( Map<T>&& source )
     d_oldBinCount = source.d_oldBinCount;
 
     source.d_bins = nullptr;
+    source.d_binsInUse = 0;
     source.d_binCount = 0;
 
     source.d_oldBins = nullptr;
-    source.d_oldBinIndex = INVALID_MAP_INDEX;
+    source.d_oldBinIndex = 0;
     source.d_oldBinCount = 0;
 
     d_entryAllocator = std::move( source.d_entryAllocator );
@@ -354,111 +510,131 @@ Map<T>& Map<T>::operator=( Map<T>&& source )
 }
 
 template<typename T>
-inline
 const T& Map<T>::operator[]( const std::string& key ) const
 {
-    return d_values[mapToEntry( hash(key) ).index];
+    HashCode code = hash( key );
+
+    int index = find( code, d_bins, d_binCount );
+
+    if ( index == BIN_INVALID && d_oldBins != nullptr )
+    {
+        index = find( code, d_oldBins, d_oldBinCount );
+    }
+
+    assert( index != BIN_INVALID );
+
+    return d_values[d_bins[index]];
 }
 
 template<typename T>
 T& Map<T>::operator[]( const std::string& key )
 {
-    Entry& entry = mapToEntry( hash(key) );
-
-    if ( entry.index == INVALID_MAP_INDEX ) // new item
+    // pre-insertion operations
+    if ( d_oldBins != nullptr )
     {
-        T value;
-
-        d_keys.push( key );
-
-        d_values.push( value );
-
-        entry.index = d_values.size() - 1;
-
-        return d_values[entry.index];
+        reduceOldBins();
+    }
+    else if ( shouldGrow( d_binsInUse, d_binCount ) )
+    {
+        grow();
     }
 
-    reduceOldBins();
+    HashCode code = hash( key );
 
-    return d_values[entry.index];
+    int old = BIN_INVALID;
+    int index = probe( code, d_bins, d_binCount );
+
+    assert( index != BIN_INVALID );
+
+    Bin& bin = d_bins[index];
+
+    // make sure it doesn't exist in old bins
+    if ( d_oldBins != nullptr && !doesContain( bin, code ) )
+    {
+        old = find( code, d_oldBins, d_oldBinCount );
+    }
+
+    // move to new
+    if ( old != BIN_INVALID )
+    {
+        bin = d_oldBins[index];
+        d_oldBins[index] = BIN_DELETED;
+    }
+    else if ( isAvailable( bin ) )
+    {
+        d_values.push( T() );
+        d_keys.push( key );
+        d_entries.push( code );
+        bin = d_values.size() - 1;
+        ++d_binsInUse;
+    }
+
+    return d_values[bin];
 }
 
 // MEMBER FUNCTIONS
 template<typename T>
 bool Map<T>::has( const std::string& key ) const
 {
-    Entry* entry;
-    const HashCode code = hash( key );
-
-    const Bin& bin = d_bins[mapToBinIndex( code, d_binCount )];
-
-    entry = getEntry( bin, code, entry );
-
-    if ( entry != nullptr ) // found
-    {
-        return true;
-    }
-
-    // not found in current bins
-    if ( d_oldBins == nullptr )
+    if ( d_keys.size() <= 0 )
     {
         return false;
     }
 
-    const Bin& oldBin = d_oldBins[mapToBinIndex( code, d_oldBinCount )];
+    HashCode code = hash( key );
 
-    entry = getEntry( bin, code, entry );
+    int bin = find( code, d_bins, d_binCount );
 
-    return entry != nullptr;
+    if ( bin == BIN_INVALID && d_oldBins != nullptr )
+    {
+        bin = find( code, d_oldBins, d_oldBinCount );
+    }
+
+    return bin != BIN_INVALID;
 }
 
 template<typename T>
 T Map<T>::remove( const std::string& key )
 {
-    const HashCode code = hash( key );
-
-    Entry* entry;
-    Entry* collided = nullptr;
-    unsigned int index;
-
-    // check in current bins
-    const Bin& bin = d_bins[mapToBinIndex( code, d_binCount )];
-    index = getEntryIndex( bin, code, collided );
-
-    if ( index != INVALID_MAP_INDEX ) // found
+    // pre-removal operations
+    if ( d_oldBins != nullptr )
     {
-        entry = &d_entries[index];
-
-        if ( collided != nullptr )
-        {
-            collided->next = entry->next;
-        }
-
-        d_entries.removeAt( index );
-
-        return *entry;
+        reduceOldBins();
+    }
+    else if ( shouldShrink( d_binsInUse, d_binCount ) )
+    {
+        shrink();
     }
 
-    // not found in current bins
-    assert( d_oldBins != nullptr );
+    HashCode code = hash( key );
 
-    // check old bins
-    const Bin& oldBin = d_oldBins[mapToBinIndex( code, d_oldBinCount )];
-    collided = nullptr;
-    index = getEntryIndex( bin, code, collided );
+    Bin* bins = d_bins;
+    int pos = find( code, bins, d_binCount );
 
-    assert( index != INVALID_MAP_INDEX );
-
-    entry = &d_entries[index];
-
-    if ( collided != nullptr )
+    if ( pos == BIN_INVALID )
     {
-        collided->next = entry->next;
+        bins = d_oldBins;
+        pos = find( code, bins, d_oldBinCount );
+    }
+    else
+    {
+        --d_binsInUse;
     }
 
-    d_entries.removeAt( index );
+    assert( pos != BIN_INVALID );
 
-    return *entry;
+    Bin& bin = bins[pos];
+
+    // remove information and clear bin
+    unsigned int index = ( unsigned int )bin;
+
+    T value = d_values.removeAt( index );
+    d_keys.removeAt( index );
+    d_entries.removeAt( ( index ) );
+
+    bin = BIN_DELETED;
+
+    return value;
 }
 
 template<typename T>
@@ -477,157 +653,167 @@ const DynamicArray<T>& Map<T>::values() const
 
 // HELPER FUNCTIONS
 template<typename T>
-inline
-HashCode Map<T>::hash( const std::string& key ) const
+void Map<T>::grow()
 {
-    int i;
-    HashCode hash = 0;
+    assert( d_oldBins == nullptr );
 
-    // todo: add FNV-1A hash function
+    d_oldBins = d_bins;
+    d_oldBinIndex = 0;
+    d_oldBinCount = d_binCount;
 
-    return hash;
+    d_binCount <<= 1;
+    d_bins = d_binAllocator.get( d_binCount );
 }
 
 template<typename T>
-const Entry& Map<T>::mapToEntry( HashCode code ) const
+void Map<T>::shrink()
 {
-    Entry* entry;
+    assert( d_oldBins == nullptr );
 
-    const Bin& bin = d_bins[mapToBinIndex( code, d_binCount )];
+    d_oldBins = d_bins;
+    d_oldBinIndex = 0;
+    d_oldBinCount = d_binCount;
 
-    entry = getEntry( bin, code, entry );
-
-    if ( entry != nullptr ) // found
-    {
-        return *entry;
-    }
-
-    // not found in current bins
-    assert( d_oldBins != nullptr );
-
-    const Bin& oldBin = d_oldBins[mapToBinIndex( code, d_oldBinCount )];
-
-    entry = getEntry( bin, code, entry );
-
-    assert( entry != nullptr );
-
-    return *entry;
-}
-
-template<typename T>
-Entry& Map<T>::mapToEntry( HashCode code )
-{
-    Entry* entry;
-    Entry* collision = nullptr;
-
-    const Bin& bin = d_bins[mapToBinIndex( code, d_binCount )];
-
-    entry = getEntry( bin, code, collision );
-
-    if ( entry != nullptr ) // found
-    {
-        return *entry;
-    }
-    else if ( d_oldBins == nullptr ) // no old bins, force insert
-    {
-        return createEntry( code, collision );
-    }
-
-    const Bin& oldBin = d_oldBins[mapToBinIndex( code, d_oldBinCount )];
-
-    entry = getEntry( oldBin, code, entry );
-
-    if ( entry == nullptr ) // not found in old bins, force insert
-    {
-        return createEntry( code, collision );
-    }
-
-    return *entry;
-}
-
-template<typename T>
-inline
-Entry* Map<T>::getEntry( const Bin& bin, HashCode code,
-                         Entry*& collided ) const
-{
-    unsigned int index = getEntryIndex( bin, code, collided );
-
-    if ( index == INVALID_MAP_INDEX )
-    {
-        return nullptr;
-    }
-
-    return &d_entries[index];
-}
-
-template<typename T>
-unsigned int Map<T>::getEntryIndex( const Bin& bin, HashCode code,
-                                    Entry*& collided ) const
-{
-    if ( bin.index == INVALID_MAP_INDEX )
-    {
-        return INVALID_MAP_INDEX;
-    }
-
-    unsigned int index = bin.index;
-    Entry* entry;
-    do
-    {
-        entry = &d_entries[index];
-
-        if ( entry->hashCode != code )
-        {
-            collided = entry;
-            index = entry->next;
-            entry = nullptr;
-        }
-    }
-    while ( entry == nullptr && index != INVALID_MAP_INDEX );
-
-    if ( entry == nullptr )
-    {
-        return INVALID_MAP_INDEX;
-    }
-
-    return index;
-}
-
-template<typename T>
-inline
-Entry& Map<T>::createEntry( HashCode code, Entry* collided )
-{
-    Entry addition;
-    addition.hashCode = code;
-    addition.next = INVALID_MAP_INDEX;
-    addition.index = INVALID_MAP_INDEX;
-
-    d_entries.push( addition );
-
-    if ( collided != nullptr )
-    {
-        collided->next = d_entries.size() - 1;
-    }
-
-    return d_entries[d_entries.size() - 1];
+    d_binCount >>= 1;
+    d_bins = d_binAllocator.get( d_binCount );
 }
 
 template<typename T>
 void Map<T>::reduceOldBins()
 {
-    if ( d_oldBinCount <= 0 )
+    assert( d_oldBins != nullptr );
+
+    HashCode code;
+    Bin* old;
+    Bin* tar;
+    unsigned int req = getCopyCount( d_binCount, d_oldBinCount );
+
+    // continue while there's more work to do
+    while ( req-- > 0 && d_oldBinIndex < d_oldBinCount )
     {
-        return;
+        old = &d_oldBins[d_oldBinIndex++];
+
+        if ( !isAvailable( *old ) )
+        {
+            code = d_entries[*old];
+
+            tar = &d_bins[probe( code, d_bins, d_binCount )];
+
+            assert( *tar != BIN_INVALID );
+
+            *tar = *old;
+            *old = BIN_DELETED;
+        }
     }
 
-    // todo: copy old bins to new bins
+    // check if all items have been transferred
+    if ( d_oldBinIndex >= d_oldBinCount )
+    {
+        d_binAllocator.release( d_oldBins, d_oldBinCount );
+        d_oldBins = nullptr;
+        d_oldBinIndex = 0;
+        d_oldBinCount = 0;
+    }
 }
 
-// ANONYMOUS HELPER FUNCTIONS
+template<typename T>
 inline
-unsigned int mapToBinIndex( HashCode code, unsigned int binCount )
+int Map<T>::find( HashCode code, Bin* bins, unsigned int count ) const
 {
-    // todo: replace modulo with masking if number of bins is a power of 2
-    return code % binCount;
+    assert( bins != nullptr );
+
+    if ( count <= 0 )
+    {
+        return BIN_INVALID;
+    }
+
+    int i;
+    unsigned int jumps;
+
+    // search for the specified bin
+    for ( i = wrap( code, count ), jumps = 0;
+          !isEmpty( bins[i] ) && !doesContain( bins[i], code ) &&
+          jumps < count;
+          i = wrap( i + jump( jumps ), count ), ++jumps )
+    {
+        // do nothing
+    }
+
+    if ( !doesContain( bins[i], code ))
+    {
+        return BIN_INVALID;
+    }
+
+    return i;
+
+}
+
+template<typename T>
+inline
+int Map<T>::probe( HashCode code, Bin* bins, unsigned int count ) const
+{
+    assert( bins != nullptr );
+
+    if ( count <= 0 )
+    {
+        return BIN_INVALID;
+    }
+
+    int i;
+    int open = BIN_INVALID;
+    unsigned int jumps;
+
+    // search for an available bin, but also search for an existing copy
+    for ( i = wrap( code, count ), jumps = 0;
+          !isEmpty( bins[i] ) && !doesContain( bins[i], code ) &&
+              jumps < count;
+          i = wrap( i + jump( jumps ), count ), ++jumps )
+    {
+        // store only the first available index
+        if ( ( open == BIN_INVALID && isAvailable( bins[i] ) ) )
+        {
+            open = i;
+        }
+    }
+
+    if ( doesContain( bins[i], code ) )
+    {
+        return i;
+    }
+
+    assert( open != BIN_INVALID );
+
+    return open;
+}
+
+template<typename T>
+inline
+bool Map<T>::doesContain( Bin bin, HashCode code ) const
+{
+    assert( bin != BIN_INVALID );
+
+    return !isAvailable( bin ) && code == d_entries[bin];
+}
+
+template<typename T>
+inline
+HashCode Map<T>::hash( const std::string& key ) const
+{
+    HashCode hash = FNV_OFFSET;
+    int i;
+
+    if ( key.empty() )
+    {
+        return hash;
+    }
+
+    for ( i = 0; i < key.length(); ++i )
+    {
+        hash ^= key[i];
+        hash *= FNV_PRIME_32;
+    }
+
+    return hash;
 }
 
 } // End nspc sgdc
