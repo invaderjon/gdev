@@ -4,8 +4,9 @@
 
 #include "../memory/default_allocator.h"
 #include "../memory/iallocator.h"
+#include "../memory/mem.h"
+#include <assert.h>
 #include <stdexcept>
-#include <string.h>
 
 namespace StevensDev
 {
@@ -84,7 +85,7 @@ class DynamicArray
     DynamicArray<T>& operator=( DynamicArray<T>&& source );
       // Moves the resources from the source to this instance.
 
-    T& operator[]( int index ) const;
+    const T& operator[]( int index ) const;
       // Gets the element at the given index.
       //
       // Behavior is undefined when:
@@ -128,7 +129,7 @@ class DynamicArray
       // Throws runtime_error when:
       // index is out of bounds
 
-    T insertAt( unsigned int index, const T& elem );
+    void insertAt( unsigned int index, const T& elem );
       // Inserts an element at the given index.
       //
       // Throws runtime_error when:
@@ -154,14 +155,15 @@ std::ostream& operator<<( std::ostream& stream,
 
 // CONSTRUCTORS
 template<typename T>
-DynamicArray<T>::DynamicArray() : d_first( 0 ), d_size( 0 ), d_capacity( 32 ),
+DynamicArray<T>::DynamicArray() : d_first( 0 ), d_size( 0 ), d_capacity( 0 ),
                                   d_allocator( nullptr ), d_array( nullptr )
 {
 }
 
 template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator )
-    : d_allocator( allocator ), d_first( 0 ), d_size( 0 ), d_capacity( 32 )
+    : d_allocator( allocator ), d_first( 0 ), d_size( 0 ), d_capacity( 32 ),
+      d_array( nullptr )
 {
     d_array = d_allocator->get( d_capacity );
 }
@@ -170,7 +172,7 @@ template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator,
                                unsigned int capacity )
     : d_allocator( allocator ), d_first( 0 ), d_size( 0 ),
-      d_capacity( capacity )
+      d_capacity( capacity ), d_array( nullptr )
 {
     d_array = d_allocator->get( d_capacity );
 }
@@ -179,28 +181,19 @@ template<typename T>
 DynamicArray<T>::DynamicArray( const DynamicArray<T>& other )
     : d_allocator( other.d_allocator ),
       d_first( other.d_first ), d_size( other.d_size ),
-      d_capacity( other.d_capacity )
+      d_capacity( other.d_capacity ), d_array( nullptr )
 {
     if ( other.d_array != nullptr )
     {
         // create copy of source array.
         d_array = d_allocator->get( d_capacity );
-        memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
-    }
-    else
-    {
-        d_array = nullptr;
+        sgdm::Mem::copy<>( d_allocator, d_array, other.d_array, d_capacity );
     }
 }
 
 template<typename T>
 DynamicArray<T>::DynamicArray( DynamicArray<T>&& source )
 {
-    if ( d_allocator != nullptr && d_array != nullptr )
-    {
-        d_allocator->release( d_array, d_capacity );
-    }
-
     d_allocator = source.d_allocator;
     d_array = source.d_array;
     d_first = source.d_first;
@@ -217,14 +210,18 @@ DynamicArray<T>::DynamicArray( DynamicArray<T>&& source )
 template<typename T>
 DynamicArray<T>::~DynamicArray()
 {
-    if ( d_allocator == nullptr || d_array == nullptr )
+    if ( d_allocator != nullptr && d_array != nullptr )
     {
-        return;
+        d_allocator->release( d_array, d_capacity );
     }
 
-    d_allocator->release( d_array, d_capacity );
-}
+    d_allocator = nullptr;
+    d_array = nullptr;
+    d_first = 0;
+    d_size = 0;
+    d_capacity = 0;
 
+}
 
 // OPERATORS
 template<typename T>
@@ -246,7 +243,7 @@ DynamicArray<T>& DynamicArray<T>::operator=( const DynamicArray<T>& other )
     {
         // create copy of source array
         d_array = d_allocator->get( d_capacity );
-        memcpy( d_array, other.d_array, sizeof( T ) * d_capacity );
+        sgdm::Mem::copy<>( d_array, other.d_array, d_capacity );
     }
     else
     {
@@ -280,7 +277,7 @@ DynamicArray<T>& DynamicArray<T>::operator=( DynamicArray<T>&& source )
 }
 
 template<typename T>
-T& DynamicArray<T>::operator[]( int index ) const
+const T& DynamicArray<T>::operator[]( int index ) const
 {
     return d_array[wrap( ( unsigned int )index )];
 }
@@ -301,7 +298,7 @@ void DynamicArray<T>::push( const T& element )
     }
 
     // assign next item in the array and increment size
-    d_array[wrap( d_size++ )] = element;
+    d_allocator->construct( d_array + wrap( d_size++ ),  element );
 }
 
 template<typename T>
@@ -317,7 +314,7 @@ void DynamicArray<T>::pushFront( const T& element )
                         d_capacity - 1 :
                         d_first - 1;
 
-    d_array[prev] = element;
+    d_allocator->construct( d_array + prev, element );
     d_first = prev;
     ++d_size;
 }
@@ -328,7 +325,7 @@ T DynamicArray<T>::pop()
     assert( d_size > 0 );
 
     // get last and reduce size
-    return d_array[wrap( ( d_size-- ) - 1 )];
+    return d_array[wrap( --d_size )];
 }
 
 template<typename T>
@@ -340,7 +337,7 @@ T DynamicArray<T>::popFront()
 
     d_first = ( d_first + 1 ) % d_capacity;
 
-    d_size--;
+    --d_size;
 
     return d_array[front];
 }
@@ -372,7 +369,7 @@ T DynamicArray<T>::removeAt( unsigned int index )
 }
 
 template<typename T>
-T DynamicArray<T>::insertAt( unsigned int index, const T& elem )
+void DynamicArray<T>::insertAt( unsigned int index, const T& elem )
 {
     if ( index > d_size )
     {
@@ -385,7 +382,7 @@ T DynamicArray<T>::insertAt( unsigned int index, const T& elem )
     }
 
     shiftForward( index, d_size - index );
-    d_array[wrap( index )] = elem;
+    d_allocator->construct( d_array + wrap( index ), elem );
     ++d_size;
 }
 
@@ -401,19 +398,20 @@ template<typename T>
 void DynamicArray<T>::grow()
 {
     T* expanded = d_allocator->get( d_capacity * 2 );
+    sgdm::Mem::clear<>( expanded, d_capacity * 2 );
 
     // account for wrapping
     if ( d_first + d_size > d_capacity )
     {
-        size_t firstSize = d_capacity - d_first;
-        size_t wrappedSize = d_size - firstSize;
+        unsigned int firstSize = ( d_capacity - d_first );
+        unsigned int wrappedSize = ( d_size - firstSize );
 
-        memcpy( expanded, d_array + d_first, firstSize );
-        memcpy( expanded + firstSize, d_array, wrappedSize );
+        sgdm::Mem::move<>( expanded, d_array + d_first, firstSize );
+        sgdm::Mem::move<>( expanded + firstSize, d_array, wrappedSize );
     }
     else
     {
-        memcpy( expanded, d_array, sizeof( T ) * d_capacity );
+        sgdm::Mem::move<>( expanded, d_array + d_first, d_size );
     }
 
     d_allocator->release( d_array, d_capacity );
@@ -433,8 +431,8 @@ unsigned int DynamicArray<T>::wrap( int index ) const
 template<typename T>
 void DynamicArray<T>::shiftForward( unsigned int start, unsigned int count )
 {
-    unsigned int i;
-    for ( i = 0; i < count; ++i )
+    int i;
+    for ( i = count - 1; i >= 0; --i )
     {
         d_array[wrap( start + i + 1 )] = d_array[wrap( start + i )];
     }
@@ -443,10 +441,10 @@ void DynamicArray<T>::shiftForward( unsigned int start, unsigned int count )
 template<typename T>
 void DynamicArray<T>::shiftBack( unsigned int start, unsigned int count )
 {
-    int i;
-    for ( i = count - 1; i > 0; --i )
+    unsigned  int i;
+    for ( i = 0; i < count; ++i )
     {
-        d_array[wrap( start + i - 1 )] = d_array[ wrap( start + i )];
+        d_array[wrap( start + i )] = d_array[ wrap( start + i + 1 )];
     }
 }
 
