@@ -61,7 +61,9 @@ set( ENGINE_FILES
     src/engine/containers/dynamic_array.cpp
     src/engine/containers/dynamic_array.h
     src/engine/containers/map.cpp
-    src/engine/containers/map.h )
+    src/engine/containers/map.h
+    src/engine/memory/mem.cpp
+    src/engine/memory/mem.h )
 
 set( SOURCE_FILES
     game.m.cpp
@@ -89,9 +91,10 @@ if ( BUILD_TESTS OR CLION )
         test.m.cpp
         ${ENGINE_FILES}
         test/trival_tests.cpp
+        test/engine/memory/default_allocator.t.cpp
         test/engine/memory/counting_allocator.t.cpp
         test/engine/containers/dynamic_array.t.cpp
-        test/engine/memory/default_allocator.t.cpp )
+        test/engine/containers/map.t.cpp )
 
     # BUILD
     add_executable( tests ${TEST_FILES} )
