@@ -3,6 +3,7 @@
 #define INCLUDED_COUNTING_ALLOCATOR
 
 #include "default_allocator.h"
+#include <assert.h>
 #include <iostream>
 
 namespace StevensDev

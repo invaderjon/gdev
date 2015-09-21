@@ -54,6 +54,36 @@ class DefaultAllocator : public IAllocator<T>
       // Behavior is undefined when:
       // T is void
       // pointer does not reference an allocated block of memory.
+
+    virtual void construct( T* pointer, const T& copy );
+      // Constructs the object in place using the copy constructor.
+      //
+      // Requirements:
+      // pointer is not equal to nullptr (zero)
+      //
+      // Behavior is undefined when:
+      // T is void
+      // pointer is equal to nullptr (zero) or is invalid
+
+    virtual void construct( T* pointer, T&& copy );
+      // Constructs the object in place using the move constructor.
+      //
+      // Requirements:
+      // pointer is not equal to nullptr (zero)
+      //
+      // Behavior is undefined when:
+      // T is void
+      // pointer is equal to nullptr (zero) or is invalid
+
+
+    virtual void destruct( T* pointer );
+      // Call the destructor on an object.
+      //
+      // Requirements:
+      // pointer is not equal to nullptr (zero)
+      //
+      // Behavior is undefined when:
+      // T is void
 };
 
 // FREE OPERATORS
@@ -111,6 +141,32 @@ void DefaultAllocator<T>::release( T* ptr, int count )
     assert( count > 0 );
 
     delete[] ptr;
+}
+
+template<typename T>
+inline
+void DefaultAllocator<T>::construct( T* ptr, const T& copy )
+{
+    assert( ptr != nullptr );
+
+    new ( ptr ) T( copy );
+}
+
+template<typename T>
+void DefaultAllocator<T>::construct( T* ptr, T&& copy )
+{
+    assert( ptr != nullptr );
+
+    new ( ptr ) T( copy );
+}
+
+template<typename T>
+inline
+void DefaultAllocator<T>::destruct( T* ptr )
+{
+    assert( ptr != nullptr );
+
+    ptr->~T();
 }
 
 } // End nspc sgdm
