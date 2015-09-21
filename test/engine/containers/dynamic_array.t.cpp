@@ -56,12 +56,12 @@ TEST( DynamicArrayTest, PushAndPop )
         i = array.size();
 
         tmp = array[array.size() - 1];
-        ASSERT_EQ( tmp, array.pop());
+        ASSERT_EQ( tmp, array.pop() );
 
         tmp = array[0];
-        ASSERT_EQ( tmp, array.popFront());
+        ASSERT_EQ( tmp, array.popFront() );
 
-        ASSERT_EQ( i - 2, array.size());
+        ASSERT_EQ( i - 2, array.size() );
     }
 
     // mix
@@ -95,7 +95,7 @@ TEST( DynamicArrayTest, At )
         ASSERT_EQ( i, array.at( i ) );
     }
 
-    EXPECT_THROW( array.at( 65 );, std::runtime_error );
+    EXPECT_THROW( array.at( 65 ), std::runtime_error );
 }
 
 TEST( DynamicArrayTest, InsertAndRemove )
@@ -103,28 +103,35 @@ TEST( DynamicArrayTest, InsertAndRemove )
     using namespace StevensDev::sgdc;
     using namespace StevensDev::sgdm;
 
-    int i;
-    int tmp;
+    unsigned int i;
+    unsigned int tmp;
 
-    DefaultAllocator<int> alloc;
-    DynamicArray<int> array( &alloc );
+    DefaultAllocator<unsigned int> alloc;
+    DynamicArray<unsigned int> array( &alloc );
 
     // force wrap
     array.push( 0 );
     array.popFront();
     array.push( 0 );
 
-    for ( i = 0; i < 64; ++i )
+    for ( i = 0; i < 128; ++i )
     {
-        array.insertAt( array.size(), i );
-        ASSERT_EQ( 0, array.at( 0 ) );
-        ASSERT_EQ( i, array.at( array.size() - 1 ) );
+        tmp = ( i * 2 ) % ( array.size() + 1 );
+        array.insertAt( tmp, i );
+        ASSERT_EQ( i, array.at( tmp ) );
     }
 
-    for ( i = 0; i < 64; ++i)
+    for ( i = 0; i < 128; ++i)
     {
-        tmp = array[array.size() - 1];
-        ASSERT_EQ( 0, array.at( 0 ));
-        ASSERT_EQ( tmp, array.removeAt( array.size() - 1));
+        tmp = array[( i * 2 ) % array.size()];
+        ASSERT_EQ( tmp, array.removeAt( ( i * 2 ) % array.size() ) );
     }
+}
+
+TEST( DynamicArrayTest, Print )
+{
+    using namespace StevensDev::sgdc;
+    using namespace StevensDev::sgdm;
+
+
 }
