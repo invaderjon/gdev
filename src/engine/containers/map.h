@@ -4,6 +4,8 @@
 
 #include "../memory/counting_allocator.h"
 #include "../memory/iallocator.h"
+#include "../memory/mem.h"
+#include <assert.h>
 #include "dynamic_array.h"
 #include <string>
 #include <search.h>
@@ -19,10 +21,6 @@ namespace
 {
 
 // TYPES
-typedef std::string Key;
-  // Defines a hash-able key. This is used so the key can be easily
-  // templated or changed (not sure if std::string or const char*).
-
 typedef int Bin;
   // Defines a bin. The bin value is the index of the value in the array.
   // Only positive values are valid where-as certain negative values have
@@ -131,7 +129,7 @@ unsigned int getCopyCount( unsigned int count, unsigned int oldCount )
     //
     // Finally for safety I ensured a minimum copy count was enforced.
     //
-    return std::max( ( 5 * ( std::min( oldCount, count ) >> 4 ) - 1),
+    return std::max( ( 5 * ( std::min( oldCount, count ) >> 4 ) - 1 ),
                      MIN_TRANSFER );
 }
 
@@ -227,7 +225,7 @@ class Map
 
     int probe( HashCode code, Bin* bins, unsigned int count ) const;
       // Probes for an available bin for the given hash in the specified set of
-      // bins. If one is found this returnes its index, otherwise this
+      // bins. If one is found this returns its index, otherwise this
       // returns BIN_INVALID.
 
     bool doesContain( Bin bin, HashCode code ) const;
@@ -341,6 +339,7 @@ Map<T>::Map( sgdm::IAllocator<T>* allocator )
       d_oldBinCount( 0 )
 {
     d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
 }
 
 template<typename T>
@@ -359,7 +358,7 @@ Map<T>::Map( const Map<T>& other )
     if ( other.d_bins != nullptr )
     {
         d_bins = d_binAllocator.get( d_binCount );
-        memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+        sgdm::Mem::copy<>( &d_binAllocator, d_bins, other.d_bins, d_binCount );
     }
     else
     {
@@ -369,7 +368,8 @@ Map<T>::Map( const Map<T>& other )
     if ( other.d_oldBins != nullptr )
     {
         d_oldBins = d_binAllocator.get( d_oldBinCount );
-        memcpy( d_oldBins, other.d_oldBins, sizeof( Bin ) * d_oldBinCount );
+        sgdm::Mem::copy<>( &d_binAllocator, d_oldBins, other.d_oldBins,
+                           d_oldBinCount );
     }
     else
     {
@@ -446,7 +446,7 @@ Map<T>& Map<T>::operator=( const Map<T>& other )
     if ( other.d_bins != nullptr )
     {
         d_bins = d_binAllocator.get( d_binCount );
-        memcpy( d_bins, other.d_bins, sizeof( Bin ) * d_binCount );
+        sgdm::Mem::copy<>( d_bins, other.d_bins, d_binCount );
     }
     else
     {
@@ -456,7 +456,7 @@ Map<T>& Map<T>::operator=( const Map<T>& other )
     if ( other.d_oldBins != nullptr )
     {
         d_oldBins = d_binAllocator.get( d_oldBinCount );
-        memcpy( d_oldBins, other.d_oldBins, sizeof( Bin ) * d_oldBinCount );
+        sgdm::Mem::copy<>( d_oldBins, other.d_oldBins, d_oldBinCount );
     }
     else
     {
@@ -555,9 +555,9 @@ T& Map<T>::operator[]( const std::string& key )
     }
 
     // move to new
-    if ( old != BIN_INVALID )
+    if ( old != BIN_INVALID && doesContain( d_oldBins[old], code ) )
     {
-        bin = d_oldBins[index];
+        bin = d_oldBins[old];
         d_oldBins[index] = BIN_DELETED;
     }
     else if ( isAvailable( bin ) )
@@ -630,7 +630,27 @@ T Map<T>::remove( const std::string& key )
 
     T value = d_values.removeAt( index );
     d_keys.removeAt( index );
-    d_entries.removeAt( ( index ) );
+    d_entries.removeAt( index );
+
+    // correct bin reference indicies
+    for ( pos = 0; pos < d_binCount; ++pos )
+    {
+        if ( !isAvailable( d_bins[pos] ) && d_bins[pos] > bin )
+        {
+            --d_bins[pos];
+        }
+    }
+
+    if ( d_oldBins != nullptr )
+    {
+        for ( pos = d_oldBinIndex; pos < d_oldBinCount; ++pos )
+        {
+            if ( !isAvailable( d_oldBins[pos] ) && d_oldBins[pos] > bin )
+            {
+                --d_oldBins[pos];
+            }
+        }
+    }
 
     bin = BIN_DELETED;
 
@@ -663,6 +683,7 @@ void Map<T>::grow()
 
     d_binCount <<= 1;
     d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
 }
 
 template<typename T>
@@ -676,6 +697,7 @@ void Map<T>::shrink()
 
     d_binCount >>= 1;
     d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
 }
 
 template<typename T>
@@ -685,7 +707,7 @@ void Map<T>::reduceOldBins()
 
     HashCode code;
     Bin* old;
-    Bin* tar;
+    int index;
     unsigned int req = getCopyCount( d_binCount, d_oldBinCount );
 
     // continue while there's more work to do
@@ -697,11 +719,11 @@ void Map<T>::reduceOldBins()
         {
             code = d_entries[*old];
 
-            tar = &d_bins[probe( code, d_bins, d_binCount )];
+            index = probe( code, d_bins, d_binCount );
 
-            assert( *tar != BIN_INVALID );
+            assert( index != BIN_INVALID );
 
-            *tar = *old;
+            d_bins[index] = *old;
             *old = BIN_DELETED;
         }
     }
@@ -770,7 +792,7 @@ int Map<T>::probe( HashCode code, Bin* bins, unsigned int count ) const
           i = wrap( i + jump( jumps ), count ), ++jumps )
     {
         // store only the first available index
-        if ( ( open == BIN_INVALID && isAvailable( bins[i] ) ) )
+        if ( open == BIN_INVALID && isAvailable( bins[i] ) )
         {
             open = i;
         }
@@ -779,6 +801,11 @@ int Map<T>::probe( HashCode code, Bin* bins, unsigned int count ) const
     if ( doesContain( bins[i], code ) )
     {
         return i;
+    }
+
+    if ( bins[i] == BIN_EMPTY && open == BIN_INVALID )
+    {
+        open = i;
     }
 
     assert( open != BIN_INVALID );
@@ -801,11 +828,6 @@ HashCode Map<T>::hash( const std::string& key ) const
 {
     HashCode hash = FNV_OFFSET;
     int i;
-
-    if ( key.empty() )
-    {
-        return hash;
-    }
 
     for ( i = 0; i < key.length(); ++i )
     {
