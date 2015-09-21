@@ -208,10 +208,10 @@ class Map
 
     // HELPER FUNCTIONS
     void grow();
-      // Grows the map to todo: say how much it grows.
+      // Grows the map to twice the current capacity.
 
     void shrink();
-      // Shrinks the map to todo: say how much it shrinks.
+      // Shrinks the map to half the current capacity.
 
     void reduceOldBins();
       // Copy some more items over from the old bin set to the new bin set.
