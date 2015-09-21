@@ -376,7 +376,7 @@ void DynamicArray<T>::insertAt( unsigned int index, const T& elem )
 {
     if ( index > d_size )
     {
-        throw std::runtime_error( "Index is out of bounds!" );;
+        throw std::runtime_error( "Index is out of bounds!" );
     }
 
     if ( d_size >= d_capacity )

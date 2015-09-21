@@ -300,7 +300,7 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const Map<T>& map )
 {
-    const DynamicArray<std::string> keys = map.keys();
+    const DynamicArray<std::string>& keys = map.keys();
     int i;
 
     stream << "{ pairs: " << keys.size();
