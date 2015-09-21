@@ -39,6 +39,7 @@ TEST( MapTest, Construction )
     CountingAllocator<std::string> alloc;
 
     Map<std::string> map( &alloc );
+    Map<std::string> mapSized( &alloc, 3000 );
     Map<std::string>& copy = map;
 
     Map<std::string> copyMap( copy );
