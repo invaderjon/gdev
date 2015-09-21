@@ -16,7 +16,6 @@ namespace StevensDev
 namespace sgdc
 {
 
-// ANONYMOUS HELPER
 namespace
 {
 
@@ -632,7 +631,7 @@ T Map<T>::remove( const std::string& key )
     d_keys.removeAt( index );
     d_entries.removeAt( index );
 
-    // correct bin reference indicies
+    // correct bin reference indices
     for ( pos = 0; pos < d_binCount; ++pos )
     {
         if ( !isAvailable( d_bins[pos] ) && d_bins[pos] > bin )

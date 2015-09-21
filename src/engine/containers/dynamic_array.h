@@ -20,12 +20,16 @@ class DynamicArray
   private:
     sgdm::IAllocator<T>* d_allocator;
       // The allocator used when growing the array.
+
     T* d_array;
       // The internal array.
+
     unsigned int d_first;
       // The index of the first element in the array.
+
     unsigned int d_size;
       // The size of the array.
+
     unsigned int d_capacity;
       // The capacity of the array.
 
@@ -155,15 +159,15 @@ std::ostream& operator<<( std::ostream& stream,
 
 // CONSTRUCTORS
 template<typename T>
-DynamicArray<T>::DynamicArray() : d_first( 0 ), d_size( 0 ), d_capacity( 0 ),
-                                  d_allocator( nullptr ), d_array( nullptr )
+DynamicArray<T>::DynamicArray() : d_allocator( nullptr ), d_array( nullptr ),
+                                  d_first( 0 ), d_size( 0 ), d_capacity( 0 )
 {
 }
 
 template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator )
-    : d_allocator( allocator ), d_first( 0 ), d_size( 0 ), d_capacity( 32 ),
-      d_array( nullptr )
+    : d_allocator( allocator ), d_array( nullptr ), d_first( 0 ), d_size( 0 )
+    , d_capacity( 32 )
 {
     d_array = d_allocator->get( d_capacity );
 }
@@ -171,17 +175,17 @@ DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator )
 template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator,
                                unsigned int capacity )
-    : d_allocator( allocator ), d_first( 0 ), d_size( 0 ),
-      d_capacity( capacity ), d_array( nullptr )
+    : d_allocator( allocator ), d_array( nullptr), d_first( 0 ), d_size( 0 ),
+      d_capacity( capacity )
 {
     d_array = d_allocator->get( d_capacity );
 }
 
 template<typename T>
 DynamicArray<T>::DynamicArray( const DynamicArray<T>& other )
-    : d_allocator( other.d_allocator ),
+    : d_allocator( other.d_allocator ), d_array( nullptr ),
       d_first( other.d_first ), d_size( other.d_size ),
-      d_capacity( other.d_capacity ), d_array( nullptr )
+      d_capacity( other.d_capacity )
 {
     if ( other.d_array != nullptr )
     {
@@ -220,7 +224,6 @@ DynamicArray<T>::~DynamicArray()
     d_first = 0;
     d_size = 0;
     d_capacity = 0;
-
 }
 
 // OPERATORS

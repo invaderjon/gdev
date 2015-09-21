@@ -18,6 +18,7 @@ class CountingAllocator : public DefaultAllocator<T>
   private:
     static int d_totalAllocationCount;
       // The total number of allocations across all instances of this class.
+
     static int d_totalReleaseCount;
       // The total number of allocations across all instances of this class.
 
