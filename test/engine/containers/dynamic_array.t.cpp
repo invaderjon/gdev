@@ -136,7 +136,7 @@ TEST( DynamicArrayTest, Print )
     CountingAllocator<std::string> alloc;
 
     DynamicArray<std::string> arr( &alloc );
-    arr.push("value");
+    arr.push( "value" );
 
     std::ostringstream oss;
     ASSERT_NO_FATAL_FAILURE( oss << arr );
