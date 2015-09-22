@@ -24,3 +24,13 @@ TEST( DefaultAllocatorTest, Allocation )
     int* ptr = alloc.get( count );
     alloc.release( ptr, count );
 }
+
+TEST( DefaultAllocatorTest, Print )
+{
+    using namespace StevensDev::sgdm;
+
+    DefaultAllocator<int> alloc;
+
+    std::ostringstream oss;
+    ASSERT_NO_FATAL_FAILURE( oss << alloc );
+}

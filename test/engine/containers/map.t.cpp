@@ -131,3 +131,17 @@ TEST( MapTest, KeysAndValues )
     ASSERT_EQ( "value", map.values()[0] );
     ASSERT_EQ( "test", map.keys()[0] );
 }
+
+TEST( MapTest, Print )
+{
+    using namespace StevensDev::sgdc;
+    using namespace StevensDev::sgdm;
+
+    CountingAllocator<std::string> alloc;
+
+    Map<std::string> map( &alloc );
+    map["test"] = "value";
+
+    std::ostringstream oss;
+    ASSERT_NO_FATAL_FAILURE( oss << map );
+}

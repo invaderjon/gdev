@@ -45,3 +45,13 @@ TEST( CountingAllocatorTest, Alocation )
     EXPECT_EQ( allocator.getTotalReleaseCount(), count );
     EXPECT_EQ( allocator.getOutstandingCount(), 0 );
 }
+
+TEST( CountingAllocatorTest, Print )
+{
+    using namespace StevensDev::sgdm;
+
+    CountingAllocator<int> alloc;
+
+    std::ostringstream oss;
+    ASSERT_NO_FATAL_FAILURE( oss << alloc );
+}
