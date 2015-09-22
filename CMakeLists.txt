@@ -63,7 +63,10 @@ set( ENGINE_FILES
     src/engine/containers/map.cpp
     src/engine/containers/map.h
     src/engine/memory/mem.cpp
-    src/engine/memory/mem.h )
+    src/engine/memory/mem.h
+    src/engine/util/json_printer.cpp
+    src/engine/util/json_printer.h
+)
 
 set( SOURCE_FILES
     game.m.cpp
@@ -94,7 +97,9 @@ if ( BUILD_TESTS OR CLION )
         test/engine/memory/default_allocator.t.cpp
         test/engine/memory/counting_allocator.t.cpp
         test/engine/containers/dynamic_array.t.cpp
-        test/engine/containers/map.t.cpp )
+        test/engine/containers/map.t.cpp
+        test/engine/util/json_printer.t.cpp
+    )
 
     # BUILD
     add_executable( tests ${TEST_FILES} )

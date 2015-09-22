@@ -5,6 +5,7 @@
 #include "../memory/default_allocator.h"
 #include "../memory/iallocator.h"
 #include "../memory/mem.h"
+#include "../util/json_printer.h"
 #include <assert.h>
 #include <stdexcept>
 
@@ -149,12 +150,13 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const DynamicArray<T>& array )
 {
-    return stream <<
-           "{ first: " << array.d_first <<
-           ", size: " << array.d_size <<
-           ", capacity: " << array.d_capacity << " }";
-
-
+    sgdu::JSONPrinter p( stream );
+    p.open();
+    p.print( "size", array.size() );
+    stream << ", ";
+    p.printArr( "values", array, array.size() );
+    p.close();
+    return stream;
 }
 
 // CONSTRUCTORS

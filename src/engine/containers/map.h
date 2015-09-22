@@ -5,6 +5,7 @@
 #include "../memory/counting_allocator.h"
 #include "../memory/iallocator.h"
 #include "../memory/mem.h"
+#include "../util/json_printer.h"
 #include <assert.h>
 #include "dynamic_array.h"
 #include <string>
@@ -303,14 +304,26 @@ std::ostream& operator<<( std::ostream& stream,
     const DynamicArray<std::string>& keys = map.keys();
     int i;
 
-    stream << "{ pairs: " << keys.size();
+    sgdu::JSONPrinter p( stream );
+    p.open();
+    p.print( "size", keys.size() );
+    stream << ", ";
 
-    for ( i = 0; i < keys.size(); ++i )
+    p.printKey( "pairs" );
+    p.open();
+    if ( keys.size() > 0 )
     {
-        stream << ", " << keys[i] << ": " << map[keys[i]];
+        for ( i = 0; i < keys.size() - 1; ++i )
+        {
+            p.print( keys[i], map[keys[i]] );
+            stream << ", ";
+        }
+        p.print( keys[i], map[keys[i]] );
     }
+    p.close();
 
-    return stream << " }";
+    p.close();
+    return stream;
 }
 
 // CONSTRUCTORS
