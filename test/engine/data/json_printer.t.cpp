@@ -1,5 +1,5 @@
 // json_printer.t.cpp
-#include "engine/util/json_printer.h"
+#include "engine/data/json_printer.h"
 #include <gtest/gtest.h>
 
 TEST( JSONPrinterTest, Construction )

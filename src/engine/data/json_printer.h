@@ -95,7 +95,7 @@ class JSONPrinter
       // All non-simple types are assumed to handle their own formatting.
 
     JSONPrinter& printKey( const std::string& key );
-    // Prints the given key in anticipation of a value.
+      // Prints the given key in anticipation of a value.
 
     template<typename T>
     JSONPrinter& printArr( const T* value, size_t size );
