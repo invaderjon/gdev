@@ -200,7 +200,8 @@ unsigned int parseNumber( JsonEntity* entity, const std::string& raw,
     unsigned int old = pos;
     while ( pos < raw.length() && isdigit( raw[pos] ) )
     {
-        value += double( raw[pos] - '0' ) / double( ( old + 1 ) - pos );
+        value += double( raw[pos] - '0' ) /
+                 double( 10 * ( ( old + 1 ) - pos ) );
         ++pos;
     }
 
