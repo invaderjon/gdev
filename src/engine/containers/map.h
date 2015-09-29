@@ -2,10 +2,10 @@
 #ifndef INCLUDED_MAP
 #define INCLUDED_MAP
 
-#include "../memory/counting_allocator.h"
+#include "../data/json_printer.h"
+#include "../memory/allocator_guard.h"
 #include "../memory/iallocator.h"
 #include "../memory/mem.h"
-#include "../util/json_printer.h"
 #include <assert.h>
 #include "dynamic_array.h"
 #include <string>
@@ -19,7 +19,6 @@ namespace sgdc
 
 namespace
 {
-
 // TYPES
 typedef int Bin;
   // Defines a bin. The bin value is the index of the value in the array.
@@ -168,11 +167,8 @@ bool shouldShrink( unsigned int inUse, unsigned int count )
 template<typename T>
 class Map
 {
-    sgdm::CountingAllocator<Bin> d_binAllocator;
+    sgdm::AllocatorGuard<Bin> d_binAllocator;
       // The allocator used for obtaining new bins.
-
-    sgdm::CountingAllocator<HashCode> d_entryAllocator;
-      // The allocator used by the dynamic entry array to obtain new entries.
 
     DynamicArray<std::string> d_keys;
       // The set of keys.
@@ -330,27 +326,28 @@ std::ostream& operator<<( std::ostream& stream,
 template<typename T>
 inline
 Map<T>::Map() : d_binAllocator(),
-                d_entryAllocator(),
                 d_keys(),
                 d_values(),
                 d_entries(),
                 d_bins( nullptr ),
                 d_binsInUse( 0 ),
-                d_binCount( 0 ),
+                d_binCount( MIN_BINS ),
                 d_oldBins( nullptr ),
                 d_oldBinIndex( 0 ),
                 d_oldBinCount( 0 )
 {
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
 }
 
 template<typename T>
 inline
 Map<T>::Map( sgdm::IAllocator<T>* allocator )
     : d_binAllocator(),
-      d_entryAllocator(),
-      d_keys( allocator ),
+      d_keys(),
       d_values( allocator ),
-      d_entries( &d_entryAllocator ),
+      d_entries(),
       d_binsInUse( 0 ),
       d_binCount( MIN_BINS ),
       d_oldBins( nullptr ),
@@ -358,17 +355,17 @@ Map<T>::Map( sgdm::IAllocator<T>* allocator )
       d_oldBinCount( 0 )
 {
     d_bins = d_binAllocator.get( d_binCount );
-    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
 }
 
 template<typename T>
 inline
 Map<T>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity )
     : d_binAllocator(),
-      d_entryAllocator(),
-      d_keys( allocator, capacity ),
+      d_keys( nullptr, capacity ),
       d_values( allocator, capacity ),
-      d_entries( &d_entryAllocator, capacity ),
+      d_entries( nullptr, capacity ),
       d_binsInUse( 0 ),
       d_binCount( MIN_BINS ),
       d_oldBins( nullptr ),
@@ -381,14 +378,14 @@ Map<T>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity )
     }
 
     d_bins = d_binAllocator.get( d_binCount );
-    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
 }
 
 template<typename T>
 inline
 Map<T>::Map( const Map<T>& other )
     : d_binAllocator( other.d_binAllocator ),
-      d_entryAllocator( other.d_entryAllocator ),
       d_keys( other.d_keys ),
       d_values( other.d_values ),
       d_entries( other.d_entries ),
@@ -400,7 +397,8 @@ Map<T>::Map( const Map<T>& other )
     if ( other.d_bins != nullptr )
     {
         d_bins = d_binAllocator.get( d_binCount );
-        sgdm::Mem::copy<>( &d_binAllocator, d_bins, other.d_bins, d_binCount );
+        sgdm::Mem::copy<Bin>( d_binAllocator.allocator(), d_bins,
+                              other.d_bins, d_binCount );
     }
     else
     {
@@ -410,8 +408,8 @@ Map<T>::Map( const Map<T>& other )
     if ( other.d_oldBins != nullptr )
     {
         d_oldBins = d_binAllocator.get( d_oldBinCount );
-        sgdm::Mem::copy<>( &d_binAllocator, d_oldBins, other.d_oldBins,
-                           d_oldBinCount );
+        sgdm::Mem::copy<Bin>( d_binAllocator.allocator(), d_oldBins,
+                              other.d_oldBins, d_oldBinCount );
     }
     else
     {
@@ -425,7 +423,7 @@ Map<T>::Map( Map<T>&& source ) : d_keys( std::move( source.d_keys ) ),
                                  d_values( std::move( source.d_values ) ),
                                  d_entries( std::move( source.d_entries ) )
 {
-    d_binAllocator = std::move( source.d_binAllocator );
+    d_binAllocator = source.d_binAllocator;
 
     d_bins = source.d_bins;
     d_binsInUse = source.d_binsInUse;
@@ -442,8 +440,6 @@ Map<T>::Map( Map<T>&& source ) : d_keys( std::move( source.d_keys ) ),
     source.d_oldBins = nullptr;
     source.d_oldBinIndex = 0;
     source.d_oldBinCount = 0;
-
-    d_entryAllocator = std::move( source.d_entryAllocator );
 }
 
 template<typename T>
@@ -477,7 +473,7 @@ Map<T>& Map<T>::operator=( const Map<T>& other )
 
     d_keys = other.d_keys;
     d_values = other.d_values;
-    d_entries = other.d_values;
+    d_entries = other.d_entries;
 
     d_binsInUse = other.d_binsInUse;
     d_binCount = other.d_binCount;
@@ -506,7 +502,6 @@ Map<T>& Map<T>::operator=( const Map<T>& other )
     }
 
     d_binAllocator = other.d_binAllocator;
-    d_entryAllocator = other.d_entryAllocator;
 
     return *this;
 }
@@ -524,11 +519,11 @@ Map<T>& Map<T>::operator=( Map<T>&& source )
         d_binAllocator.release( d_oldBins, d_binCount );
     }
 
-    d_binAllocator = std::move( source.d_binAllocator );
+    d_binAllocator = source.d_binAllocator;
 
     d_keys = std::move( source.d_keys );
     d_values = std::move( source.d_values );
-    d_entries = std::move( source.d_values );
+    d_entries = std::move( source.d_entries );
 
     d_bins = source.d_bins;
     d_binsInUse = source.d_binsInUse;
@@ -545,8 +540,6 @@ Map<T>& Map<T>::operator=( Map<T>&& source )
     source.d_oldBins = nullptr;
     source.d_oldBinIndex = 0;
     source.d_oldBinCount = 0;
-
-    d_entryAllocator = std::move( source.d_entryAllocator );
 
     return *this;
 }
@@ -725,7 +718,8 @@ void Map<T>::grow()
 
     d_binCount <<= 1;
     d_bins = d_binAllocator.get( d_binCount );
-    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
 }
 
 template<typename T>
@@ -739,7 +733,8 @@ void Map<T>::shrink()
 
     d_binCount >>= 1;
     d_bins = d_binAllocator.get( d_binCount );
-    sgdm::Mem::set<>( &d_binAllocator, d_bins, BIN_EMPTY, d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
 }
 
 template<typename T>
