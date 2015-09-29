@@ -7,7 +7,7 @@
 namespace StevensDev
 {
 
-namespace sgdu
+namespace sgdd
 {
 
 namespace
@@ -123,12 +123,11 @@ class JSONPrinter
 };
 
 // FREE OPERATOR
-template<typename T>
 inline
 std::ostream& operator<<( std::ostream& stream,
                           const JSONPrinter& printer )
 {
-    return stream << "{ }";
+    return stream << "{  }";
 }
 
 // CONSTRUCTORS
@@ -314,7 +313,7 @@ JSONPrinter& JSONPrinter::printArr( const std::string& key, const T& iterable,
     return *this;
 }
 
-} // End nspc sgdu
+} // End nspc sgdd
 
 } // End nspc StevensDev
 

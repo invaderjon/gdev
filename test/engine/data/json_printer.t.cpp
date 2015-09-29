@@ -4,7 +4,7 @@
 
 TEST( JSONPrinterTest, Construction )
 {
-    using namespace StevensDev::sgdu;
+    using namespace StevensDev::sgdd;
 
     std::ostringstream oss;
 
@@ -15,7 +15,7 @@ TEST( JSONPrinterTest, Construction )
 
 TEST( JSONPrinterTest, Primitive )
 {
-    using namespace StevensDev::sgdu;
+    using namespace StevensDev::sgdd;
 
     std::ostringstream oss;
     JSONPrinter p( oss );
@@ -40,7 +40,7 @@ TEST( JSONPrinterTest, Primitive )
 
 TEST( JSONPrinterTest, KeyValuePair )
 {
-    using namespace StevensDev::sgdu;
+    using namespace StevensDev::sgdd;
 
     std::ostringstream oss;
     JSONPrinter p( oss );
@@ -60,7 +60,7 @@ TEST( JSONPrinterTest, KeyValuePair )
 
 TEST( JSONPrinterTest, Array )
 {
-    using namespace StevensDev::sgdu;
+    using namespace StevensDev::sgdd;
 
     std::string arr[3] { "x", "y", "z" };
 
@@ -73,4 +73,17 @@ TEST( JSONPrinterTest, Array )
     p = JSONPrinter( oss2 );
     ASSERT_NO_FATAL_FAILURE( p.printArr( &arr[0], 3 ) );
     ASSERT_STREQ( "[ \"x\", \"y\", \"z\" ]", oss2.str().c_str() );
+}
+
+TEST( JsonPrinterTest, Print )
+{
+    using namespace StevensDev::sgdd;
+
+    std::ostringstream tmp;
+    JSONPrinter p( tmp );
+
+    std::ostringstream oss;
+    oss << p;
+
+    ASSERT_STREQ( "{  }", oss.str().c_str() );
 }

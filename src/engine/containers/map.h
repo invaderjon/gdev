@@ -300,7 +300,7 @@ std::ostream& operator<<( std::ostream& stream,
     const DynamicArray<std::string>& keys = map.keys();
     int i;
 
-    sgdu::JSONPrinter p( stream );
+    sgdd::JSONPrinter p( stream );
     p.open();
     p.print( "size", keys.size() );
     stream << ", ";
