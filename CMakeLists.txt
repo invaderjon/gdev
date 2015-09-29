@@ -64,9 +64,18 @@ set( ENGINE_FILES
     src/engine/containers/map.h
     src/engine/memory/mem.cpp
     src/engine/memory/mem.h
-    src/engine/util/json_printer.cpp
-    src/engine/util/json_printer.h
-)
+    src/engine/data/json_printer.cpp
+    src/engine/data/json_printer.h
+    src/engine/memory/stack_guard.cpp
+    src/engine/memory/stack_guard.h
+    src/engine/data/json_entity.cpp
+    src/engine/data/json_entity.h
+    src/engine/data/json_parser.cpp
+    src/engine/data/json_parser.h
+    src/engine/util/string_utils.cpp
+    src/engine/util/string_utils.h
+    src/engine/memory/allocator_guard.cpp
+    src/engine/memory/allocator_guard.h )
 
 set( SOURCE_FILES
     game.m.cpp
@@ -94,12 +103,17 @@ if ( BUILD_TESTS OR CLION )
         test.m.cpp
         ${ENGINE_FILES}
         test/trival_tests.cpp
-        test/engine/memory/default_allocator.t.cpp
+        test/engine/memory/allocator_guard.t.cpp
         test/engine/memory/counting_allocator.t.cpp
+        test/engine/memory/default_allocator.t.cpp
         test/engine/containers/dynamic_array.t.cpp
         test/engine/containers/map.t.cpp
-        test/engine/util/json_printer.t.cpp
-    )
+        test/engine/data/json_entity.t.cpp
+        test/engine/data/json_parser.t.cpp
+        test/engine/data/json_printer.t.cpp
+        test/engine/memory/mem.t.cpp
+        test/engine/memory/stack_guard.t.cpp
+        test/engine/util/string_utils.t.cpp )
 
     # BUILD
     add_executable( tests ${TEST_FILES} )
