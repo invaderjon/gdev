@@ -90,7 +90,7 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const AllocatorGuard<T>& guard )
 {
-    sgdd::JSONPrinter p( stream );
+    sgdd::JsonPrinter p( stream );
 
     p.open();
     p.close();

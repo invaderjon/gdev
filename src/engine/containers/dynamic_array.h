@@ -150,7 +150,7 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const DynamicArray<T>& array )
 {
-    sgdd::JSONPrinter p( stream );
+    sgdd::JsonPrinter p( stream );
     p.open();
     p.print( "size", array.size() );
     stream << ", ";

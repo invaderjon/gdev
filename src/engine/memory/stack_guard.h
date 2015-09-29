@@ -91,7 +91,7 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const StackGuard<T>& guard )
 {
-    sgdd::JSONPrinter p( stream );
+    sgdd::JsonPrinter p( stream );
 
     p.open();
     p.print( "guarding", *guard );
