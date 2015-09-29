@@ -157,7 +157,7 @@ void DefaultAllocator<T>::construct( T* ptr, T&& copy )
 {
     assert( ptr != nullptr );
 
-    new ( ptr ) T( copy );
+    new ( ptr ) T( std::move( copy ) );
 }
 
 template<typename T>

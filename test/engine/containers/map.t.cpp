@@ -1,5 +1,6 @@
 // map.cpp
 #include "engine/containers/map.h"
+#include "engine/memory/counting_allocator.h"
 #include <gtest/gtest.h>
 
 namespace

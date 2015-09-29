@@ -2,9 +2,9 @@
 #ifndef INCLUDED_COUNTING_ALLOCATOR
 #define INCLUDED_COUNTING_ALLOCATOR
 
-#include "../util/json_printer.h"
-#include "default_allocator.h"
+#include "../data/json_printer.h"
 #include <assert.h>
+#include "default_allocator.h"
 #include <iostream>
 
 namespace StevensDev
@@ -19,6 +19,7 @@ class CountingAllocator : public DefaultAllocator<T>
   private:
     static int d_totalAllocationCount;
       // The total number of allocations across all instances of this class.
+
     static int d_totalReleaseCount;
       // The total number of allocations across all instances of this class.
 
