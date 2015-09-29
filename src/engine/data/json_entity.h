@@ -133,6 +133,13 @@ class JsonEntity
       // value is an array
       // index is not out of bounds
 
+    // MEMBER FUNCTIONS
+    const sgdc::DynamicArray<std::string>& keys() const;
+      // Gets the list of keys in the object.
+
+    const sgdc::DynamicArray<JsonEntity>& values() const;
+      // Gets the list of values in the object.
+
     // TYPE CAST FUNCTIONS
     const sgdc::DynamicArray<JsonEntity>& asArray() const;
       // Gets the value as an array.
@@ -173,6 +180,76 @@ class JsonEntity
     bool isNull() const;
       // Checks if the value is null.
 };
+
+// FREE OPERATORS
+static
+std::ostream& operator<<( std::ostream& stream, const JsonEntity& entity )
+{
+    int i;
+    switch ( entity.type() )
+    {
+        case JsonEntity::EMPTY:
+            stream << "null";
+            break;
+
+        case JsonEntity::OBJECT:
+            stream << "{ ";
+
+            for ( i = 0; i < entity.keys().size(); ++i )
+            {
+                // keys and values are known to be stored in the ordered that
+                // they are added. Thus, keys and values have the same indices.
+                stream << "\"" << entity.keys()[i] << "\": ";
+                stream << entity.values()[i];
+
+                if ( i < entity.keys().size() - 1 )
+                {
+                    stream << ", ";
+                }
+            }
+
+            stream << " }";
+            break;
+
+        case JsonEntity::ARRAY:
+            stream << "[ ";
+
+            for ( i = 0; i < entity.asArray().size(); ++i )
+            {
+                stream << entity[i];
+
+                if ( i < entity.asArray().size() - 1 )
+                {
+                    stream << ", ";
+                }
+            }
+
+            stream << " ]";
+            break;
+
+        case JsonEntity::STRING:
+            stream << "\"" << entity.asString() << "\"";
+            break;
+
+        case JsonEntity::DECIMAL:
+            stream << entity.asDouble();
+            break;
+
+        case JsonEntity::INTEGRAL:
+            stream << entity.asInt();
+            break;
+
+        case JsonEntity::BOOLEAN:
+            stream << ( entity.asBoolean() ? "true" : "false" );
+            break;
+
+        case JsonEntity::INVALID:
+            // do nothing
+            break;
+    }
+
+    return stream;
+}
 
 // CONSTRUCTORS
 inline
@@ -234,6 +311,18 @@ const JsonEntity& JsonEntity::operator[]( int index ) const
 }
 
 // MEMBER FUNCTIONS
+inline
+const sgdc::DynamicArray<std::string>& JsonEntity::keys() const
+{
+    return d_map->keys();
+}
+
+inline
+const sgdc::DynamicArray<JsonEntity>& JsonEntity::values() const
+{
+    return d_map->values();
+}
+
 inline
 const sgdc::DynamicArray<JsonEntity>& JsonEntity::asArray() const
 {

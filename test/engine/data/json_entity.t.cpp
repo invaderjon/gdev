@@ -1,5 +1,6 @@
 // json_entity.t.cpp
 #include "engine/data/json_entity.h"
+#include "engine/data/json_parser.h"
 #include <gtest/gtest.h>
 
 TEST( JsonEntityTest, Construction )
@@ -30,4 +31,29 @@ TEST( JsonEntityTest, DataTypes )
     EXPECT_TRUE( entity.isBoolean() );
     EXPECT_EQ( JsonEntity::BOOLEAN, entity.type() );
     EXPECT_FALSE( entity.asBoolean() );
+}
+
+TEST( JsonEntityTest, JsonPrint )
+{
+    using namespace StevensDev::sgdd;
+    using namespace StevensDev::sgdm;
+
+    // test simple array
+    std::string arr = "[ true, 0, -23.2, \".hack\", null ]";
+    std::string obj = "{ \"b\": \"too\", \"c\": \"many\", \"d\": \"cooks\" }";
+
+    DefaultAllocator<JsonEntity> def;
+
+    JsonEntity* jsonArr = JsonParser::fromString( arr );
+    JsonEntity* jsonObj = JsonParser::fromString( obj );
+
+    std::ostringstream ossArr;
+    std::ostringstream ossObj;
+
+    ossArr << *jsonArr;
+    ossObj << *jsonObj;
+
+    EXPECT_STREQ( arr.c_str(), ossArr.str().c_str() );
+    EXPECT_STREQ( obj.c_str(), ossObj.str().c_str() );
+    
 }
