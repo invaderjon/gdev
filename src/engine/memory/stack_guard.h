@@ -2,6 +2,7 @@
 #ifndef INCLUDED_STACK_GUARD
 #define INCLUDED_STACK_GUARD
 
+#include "../data/json_printer.h"
 #include "allocator_guard.h"
 #include <assert.h>
 #include "iallocator.h"
@@ -83,6 +84,21 @@ class StackGuard
       // Behavior is undefined when:
       // There is no guarded allocation.
 };
+
+// FREE OPERATORS
+template<typename T>
+inline
+std::ostream& operator<<( std::ostream& stream,
+                          const StackGuard<T>& guard )
+{
+    sgdd::JSONPrinter p( stream );
+
+    p.open();
+    p.print( "guarding", *guard );
+    p.close();
+
+    return stream;
+}
 
 // CONSTRUCTORS
 template<typename T>

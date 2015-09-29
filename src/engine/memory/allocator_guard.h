@@ -2,6 +2,7 @@
 #ifndef INCLUDED_ALLOCATOR_GUARD
 #define INCLUDED_ALLOCATOR_GUARD
 
+#include "engine/data/json_printer.h"
 #include "default_allocator.h"
 #include "iallocator.h"
 
@@ -82,6 +83,20 @@ class AllocatorGuard : public IAllocator<T>
       // Gets the allocator used by the guard.
       // This pointer is only valid while the guard instance exists.
 };
+
+// FREE OPERATORS
+template<typename T>
+inline
+std::ostream& operator<<( std::ostream& stream,
+                          const AllocatorGuard<T>& guard )
+{
+    sgdd::JSONPrinter p( stream );
+
+    p.open();
+    p.close();
+
+    return stream;
+}
 
 // CONSTRUCTORS
 template<typename T>

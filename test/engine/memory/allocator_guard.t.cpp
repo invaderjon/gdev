@@ -33,3 +33,16 @@ TEST( AllocatorGuardTest, Usage )
 
     guard.release( val, 1 );
 }
+
+TEST( AllocatorGuardTest, Print )
+{
+    using namespace StevensDev::sgdm;
+
+    AllocatorGuard<std::string> def( nullptr );
+
+    std::ostringstream oss;
+
+    oss << def;
+
+    EXPECT_STREQ( "{  }", oss.str().c_str() );
+}
