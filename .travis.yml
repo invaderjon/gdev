@@ -5,8 +5,7 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y xcb
-  - sudo apt-get install -y udev
+  - sudo apt-get install -y libsfml-dev
 
 script:
   - mkdir build
