@@ -5,7 +5,8 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libsfml-dev
+  - sudo apt-get install -y libxcb-image0 libxcb-randr0 libudev0 libsfml-dev
+  - sudo ln -sf /lib/x86_64-linux-gnu/libudev.so.0 /lib/x86_64-linux-gnu/libudev.so.1
 
 script:
   - mkdir build
