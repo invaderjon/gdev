@@ -3,6 +3,12 @@ language: cpp
 compiler:
   - gcc
 
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y xcb-image
+  - sudo apt-get install -y xcb-randr
+  - sudo apt-get install -y udev
+
 script:
   - mkdir build
   - cd build
