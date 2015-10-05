@@ -7,76 +7,14 @@ if ( POLICY CMP0048 )
 endif()
 
 # PRE-REQS
+list( APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules" )
+
 find_package( Threads REQUIRED )
+find_package( SFML REQUIRED system window graphics network audio )
+
+message( STATUS "${SFML_LIBRARIES}" )
+
 #find_package( OpenGL REQUIRED )
-
-# SFML
-set( SFML_AUDIO_NAME libsfml-audio sfml-audio )
-set( SFML_GRAPHICS_NAME libsfml-graphics sfml-graphics )
-set( SFML_NETWORK_NAME libsfml-network sfml-network )
-set( SFML_SYSTEM_NAME libsfml-system sfml-system )
-set( SFML_WINDOW_NAME libsfml-window sfml-window )
-
-find_library(
-    LIB_SFML_AUDIO
-    ${SFML_AUDIO_NAME}
-    NO_DEFAULT_PATH
-    PATHS ${CMAKE_SOURCE_DIR}/lib
-)
-
-if (LIB_SFML_AUDIO MATCHES NOTFOUND )
-    message( FATAL_ERROR "sfml-audio must be located in ./lib." )
-endif()
-
-find_library(
-    LIB_SFML_GRAPHICS
-    ${SFML_GRAPHICS_NAME}
-    NO_DEFAULT_PATH
-    PATHS ${CMAKE_SOURCE_DIR}/lib
-)
-
-if (LIB_SFML_GRAPHICS MATCHES NOTFOUND )
-    message( FATAL_ERROR "sfml-graphics must be located in ./lib." )
-endif()
-
-find_library(
-    LIB_SFML_NETWORK
-    ${SFML_NETWORK_NAME}
-    NO_DEFAULT_PATH
-    PATHS ${CMAKE_SOURCE_DIR}/lib
-)
-
-if (LIB_SFML_NETWORK MATCHES NOTFOUND )
-    message( FATAL_ERROR "sfml-network must be located in ./lib." )
-endif()
-
-find_library(
-    LIB_SFML_SYSTEM
-    ${SFML_SYSTEM_NAME}
-    NO_DEFAULT_PATH
-    PATHS ${CMAKE_SOURCE_DIR}/lib
-)
-
-if (LIB_SFML_SYSTEM MATCHES NOTFOUND )
-    message( FATAL_ERROR "sfml-system must be located in ./lib." )
-endif()
-
-find_library(
-    LIB_SFML_WINDOW
-    ${SFML_WINDOW_NAME}
-    NO_DEFAULT_PATH
-    PATHS ${CMAKE_SOURCE_DIR}/lib
-)
-
-if (LIB_SFML_WINDOW MATCHES NOTFOUND )
-    message( FATAL_ERROR "sfml-window must be located in ./lib." )
-endif()
-
-set(
-    LIB_SFML
-    ${LIB_SFML_SYSTEM} ${LIB_SFML_WINDOW} ${LIB_SFML_AUDIO}
-    ${LIB_SFML_GRAPHICS} ${LIB_SFML_NETWORK}
-)
 
 # PROJECT INFORMATION
 set( PROJ_PREFIX GAME )
@@ -98,7 +36,7 @@ endif()
 # DIRECTORIES
 set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
 set( EXT_DIR ${PROJECT_SOURCE_DIR}/ext )
-set( LIB_DIR ${PROJECT_SOURCE_DIR}/libs )
+set( LIB_DIR ${PROJECT_SOURCE_DIR}/lib )
 set( SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
 set( RES_DIR ${PROJECT_SOURCE_DIR}/res )
 set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
@@ -112,11 +50,11 @@ configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.gen.cpp )
 # CMAKE CONFIGURATION
 set( CMAKE_CXX_FLAGS "-std=c++0x" )
 
-# INCLUDES
+# INCLUDES AND LINK DIRECTORIES
 include_directories(
     ${INCLUDE_DIR}
     ${SOURCE_DIR}
-    #${OPENGL_INCLUDE_DIRS}
+    ${SFML_INCLUDES}
 )
 
 # ENGINE SOURCES
@@ -169,8 +107,7 @@ add_executable( gdev ${SOURCE_FILES} )
 
 target_link_libraries(
     gdev
-    #${OPENGL_LIBRARIES}
-    ${LIB_SFML}
+    ${SFML_LIBRARIES}
 )
 
 # TESTS
@@ -182,6 +119,7 @@ if ( BUILD_TESTS OR CLION )
         ${TEST_DIR}
         ${EXT_DIR}/googletest
         ${EXT_DIR}/googletest/include
+        ${SFML_INCLUDES}
     )
 
     # SUB-DIRECTORIES
@@ -213,8 +151,7 @@ if ( BUILD_TESTS OR CLION )
     target_link_libraries(
         tests
         gtest
-        #${OPENGL_LIBRARIES}
-        ${LIB_SFML}
+        ${SFML_LIBRARIES}
     )
 
     # MAKE TESTS
