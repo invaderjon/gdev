@@ -9,8 +9,13 @@ endif()
 # PRE-REQS
 list( APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules" )
 
+message( STATUS "location: ${PROJECT_SOURCE_DIR}" )
+
+set( SFML_ROOT ${PROJECT_SOURCE_DIR} )
 find_package( Threads REQUIRED )
 find_package( SFML REQUIRED system window graphics network audio )
+
+message( STATUS "${SFML_LIBRARIES}" )
 
 #find_package( OpenGL REQUIRED )
 
@@ -52,7 +57,6 @@ set( CMAKE_CXX_FLAGS "-std=c++0x" )
 include_directories(
     ${INCLUDE_DIR}
     ${SOURCE_DIR}
-    ${SFML_INCLUDE_DIR}
 )
 
 # ENGINE SOURCES
@@ -117,7 +121,6 @@ if ( BUILD_TESTS OR CLION )
         ${TEST_DIR}
         ${EXT_DIR}/googletest
         ${EXT_DIR}/googletest/include
-        ${SFML_INCLUDE_DIR}
     )
 
     # SUB-DIRECTORIES
@@ -149,7 +152,11 @@ if ( BUILD_TESTS OR CLION )
     target_link_libraries(
         tests
         gtest
-        ${SFML_LIBRARIES}
+        ${LIB_DIR}/libsfml-system.so
+        ${LIB_DIR}/libsfml-window.so
+        ${LIB_DIR}/libsfml-graphics.so
+        ${LIB_DIR}/libsfml-audio.so
+        ${LIB_DIR}/libsfml-network.so
     )
 
     # MAKE TESTS
