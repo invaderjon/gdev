@@ -12,8 +12,6 @@ list( APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules" )
 find_package( Threads REQUIRED )
 find_package( SFML REQUIRED system window graphics network audio )
 
-message( STATUS "${SFML_LIBRARIES}" )
-
 #find_package( OpenGL REQUIRED )
 
 # PROJECT INFORMATION
@@ -54,7 +52,7 @@ set( CMAKE_CXX_FLAGS "-std=c++0x" )
 include_directories(
     ${INCLUDE_DIR}
     ${SOURCE_DIR}
-    ${SFML_INCLUDES}
+    ${SFML_INCLUDE_DIR}
 )
 
 # ENGINE SOURCES
@@ -119,7 +117,7 @@ if ( BUILD_TESTS OR CLION )
         ${TEST_DIR}
         ${EXT_DIR}/googletest
         ${EXT_DIR}/googletest/include
-        ${SFML_INCLUDES}
+        ${SFML_INCLUDE_DIR}
     )
 
     # SUB-DIRECTORIES
