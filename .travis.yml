@@ -5,7 +5,7 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libsfml-dev
+  - sudo apt-get install -y libsfml-dev libsfml-graphics2 libsfml-window2
 
 script:
   - mkdir build
