@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get install -y libudev-dev
   - sudo apt-get install -y libxcb-image0
   - sudo apt-get install -y libxcb-randr0
+  - sudo dpkg -L libudev0
 
 script:
   - mkdir build
