@@ -14,9 +14,6 @@ This project is currently only confirmed to support Ubuntu 15.*.
 
   * CMake 2.8+
   * gcc 4.9.2+
-  * SFML
-
-To install SFML run sudo apt-get libsfml-dev.
 
 ## Build Steps ##
 
@@ -34,6 +31,11 @@ To also build the unit tests call **cmake .. -DBUILD_TESTS=ON** instead of
 
 To run it from the project root directory simply call **./build/gdev**.
 To run the tests call **./build/tests**.
+
+## Game ##
+
+Currently all that is available is a simple test that allows you to control a
+block. To move the block press the left, up, down, or right arrows.
 
 ## See ##
 
