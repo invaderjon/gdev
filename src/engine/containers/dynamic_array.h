@@ -128,6 +128,10 @@ class DynamicArray
       // Throws runtime_error when:
       // index is out of bounds
 
+    bool remove( const T& value );
+      // Removes the first instance of the value from the array and returns
+      // if it was found.
+
     T removeAt( unsigned int index );
       // Removes and retrieves the element at the given index.
       //
@@ -351,6 +355,24 @@ T& DynamicArray<T>::at( unsigned int index ) const
     }
 
     return d_array[wrap( index )];
+}
+
+template<typename T>
+bool DynamicArray<T>::remove( const T& value )
+{
+    unsigned int i;
+    for ( i = 0; i < d_size && d_array[i] != value; ++i )
+    {
+        // do nothing
+    }
+
+    if ( i >= d_size )
+    {
+        return false;
+    }
+
+    removeAt( i );
+
 }
 
 template<typename T>
