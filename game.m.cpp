@@ -1,8 +1,11 @@
 // game.m.cpp
 #include "engine/build.gen.h"
-#include "engine/game/resource_manager.h"
+#include "engine/input/input.h"
+#include "engine/rendering/renderer.h"
+#include "engine/scene/scene.h"
+#include "engine/scene/test_input_controller.h"
+#include "engine/util/input_utils.h"
 #include "engine/util/game_utils.h"
-#include <sstream>
 
 int main( int argc, char *argv[] )
 {
@@ -24,56 +27,27 @@ int main( int argc, char *argv[] )
     }
     cout << endl;
 
-    // prepare resources
-    sgdg::ResourceManager resMgr;
-    resMgr.fastLoadFont( "ubuntu-mono-r" );
+    // set up game
+    sgdi::Input& input = sgdi::Input::inst();
+    sgds::Scene& scene = sgds::Scene::inst();
+    sgdr::Renderer renderer;
 
-    sf::Font& font = resMgr.getFont( "ubuntu-mono-r" );
+    assert( renderer.loadTexture( "block", "res/texture/block.png" ) );
+    sgdr::RenderableSprite sprite( renderer.getTexture( "block" ) );
 
-    // create window
-    sf::RenderWindow window;
-    window.create( sf::VideoMode( 600, 400 ), "Game" );
-    window.setFramerateLimit( 60 );
+    sgds::TestInputController controller( &sprite );
 
-    // main loop
-    sf::Clock timer;
-    float fps = 60;
-    bool running = true;
-    while ( running )
+    renderer.addSprite( &sprite );
+
+    scene.addTickable( &input );
+    scene.addTickable( &controller );
+    scene.setRenderer( &renderer );
+
+    renderer.setupWindow( 800, 600 );
+
+    while ( renderer.isActive() )
     {
-        fps = GameUtils::calculateFPS( timer.getElapsedTime().asSeconds(),
-                                       fps );
-        timer.restart();
-
-        sf::Event event;
-        while ( window.pollEvent( event ) )
-        {
-            switch ( event.type )
-            {
-                case sf::Event::Closed:
-                    running = false;
-                    window.close();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        window.clear( sf::Color( 0, 0, 0 ) );
-
-        // build debug text
-        std::ostringstream oss;
-        oss << "Introduction to Game Development" << endl;
-        oss << "Mode: Debug" << endl;
-        oss << "FPS: " << fps << endl;
-        sf::String fpsMsg( oss.str() );
-
-        sf::Text fpsText( fpsMsg, font );
-        fpsText.setCharacterSize( 14 );
-
-        window.draw( fpsText );
-
-        window.display();
+        scene.tick();
     }
 
     cout << "Finished. Exiting..." << endl;
