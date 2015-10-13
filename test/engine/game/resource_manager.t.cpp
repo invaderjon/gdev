@@ -1,4 +1,5 @@
 // resource_manager.t.cpp
+#ifdef DEPRECATED
 #include "engine/game/resource_manager.h"
 #include <gtest/gtest.h>
 
@@ -24,3 +25,4 @@ TEST( ResourceManagerTest, Fonts )
     EXPECT_TRUE( resMgr.fastLoadFont( "ubuntu-mono-r" ) );
     EXPECT_NO_FATAL_FAILURE( resMgr.getFont( "ubuntu-mono-r" ) );
 }
+#endif

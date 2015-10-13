@@ -1,4 +1,5 @@
 // ResourceManager.cpp
+#ifdef DEPRECATED
 #include <stdexcept>
 #include "resource_manager.h"
 #include <sstream>
@@ -39,3 +40,4 @@ sf::Font& ResourceManager::getFont( std::string name )
 } // End nspc sgdg
 
 } // End nspc StevensDev
+#endif

@@ -1,4 +1,5 @@
 // ResourceManager.h
+#ifdef DEPRECATED
 #ifndef INCLUDED_RESOURCE_MANAGER
 #define INCLUDED_RESOURCE_MANAGER
 #include "../containers/map.h"
@@ -99,4 +100,5 @@ ResourceManager& ResourceManager::operator=( ResourceManager&& resMgr )
 
 } // End nspc StevensDev
 
+#endif
 #endif
