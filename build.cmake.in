@@ -14,7 +14,7 @@
 #define ${PROJ_PREFIX}_BUILD ${PROJ_BUILD}
 
 #if ${PROJ_PREFIX}_BUILD == ${PROJ_PREFIX}_BUILD_DEBUG
-#define DEBUG
+#define GAME_DEBUG
 #endif
 
 #endif
