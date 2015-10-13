@@ -64,40 +64,60 @@ set(
     ENGINE_FILES
     src/engine/build.gen.cpp
     src/engine/build.gen.h
-    src/engine/memory/iallocator.cpp
-    src/engine/memory/iallocator.h
-    src/engine/memory/default_allocator.cpp
-    src/engine/memory/default_allocator.h
-    src/engine/memory/counting_allocator.cpp
-    src/engine/memory/counting_allocator.h
+    src/engine/data/json_printer.cpp
+    src/engine/data/json_printer.h
     src/engine/containers/dynamic_array.cpp
     src/engine/containers/dynamic_array.h
     src/engine/containers/map.cpp
     src/engine/containers/map.h
-    src/engine/memory/mem.cpp
-    src/engine/memory/mem.h
-    src/engine/data/json_printer.cpp
-    src/engine/data/json_printer.h
-    src/engine/memory/allocator_guard.cpp
-    src/engine/memory/allocator_guard.h
-    src/engine/memory/stack_guard.cpp
-    src/engine/memory/stack_guard.h
     src/engine/data/json_entity.cpp
     src/engine/data/json_entity.h
     src/engine/data/json_parser.cpp
     src/engine/data/json_parser.h
-    src/engine/game/resource_manager.cpp
-    src/engine/game/resource_manager.h
+    src/engine/memory/allocator_guard.cpp
+    src/engine/memory/allocator_guard.h
+    src/engine/memory/default_allocator.cpp
+    src/engine/memory/default_allocator.h
+    src/engine/memory/counting_allocator.cpp
+    src/engine/memory/counting_allocator.h
+    src/engine/memory/iallocator.cpp
+    src/engine/memory/iallocator.h
+    src/engine/memory/mem.cpp
+    src/engine/memory/mem.h
+    src/engine/memory/stack_guard.cpp
+    src/engine/memory/stack_guard.h
+    src/engine/scene/itickable.cpp
+    src/engine/scene/itickable.h
     src/engine/util/game_utils.cpp
     src/engine/util/game_utils.h
     src/engine/util/string_utils.cpp
     src/engine/util/string_utils.h
 )
 
+# SFML DEPENDENT SOURCES
+set(
+    ENGINE_SFML_DEP_FILES
+    src/engine/game/resource_manager.cpp
+    src/engine/game/resource_manager.h
+    src/engine/input/input.cpp
+    src/engine/input/input.h
+    src/engine/rendering/renderable_sprite.cpp
+    src/engine/rendering/renderable_sprite.h
+    src/engine/rendering/renderer.cpp
+    src/engine/rendering/renderer.h
+    src/engine/scene/scene.cpp
+    src/engine/scene/scene.h
+    src/engine/scene/test_input_controller.cpp
+    src/engine/scene/test_input_controller.h
+    src/engine/util/input_utils.cpp
+    src/engine/util/input_utils.h
+)
+
 set(
     SOURCE_FILES
     game.m.cpp
     ${ENGINE_FILES}
+    ${ENGINE_SFML_DEP_FILES}
 )
 
 # ENGINE RESOURCES (COPY)
@@ -140,7 +160,6 @@ if ( BUILD_TESTS OR CLION )
         test/engine/data/json_entity.t.cpp
         test/engine/data/json_parser.t.cpp
         test/engine/data/json_printer.t.cpp
-        test/engine/game/resource_manager.t.cpp
         test/engine/memory/mem.t.cpp
         test/engine/memory/stack_guard.t.cpp
         test/engine/util/string_utils.t.cpp
@@ -152,11 +171,6 @@ if ( BUILD_TESTS OR CLION )
     target_link_libraries(
         tests
         gtest
-        ${LIB_DIR}/libsfml-system.so
-        ${LIB_DIR}/libsfml-window.so
-        ${LIB_DIR}/libsfml-graphics.so
-        ${LIB_DIR}/libsfml-audio.so
-        ${LIB_DIR}/libsfml-network.so
     )
 
     # MAKE TESTS
