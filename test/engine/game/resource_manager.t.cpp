@@ -1,5 +1,5 @@
 // resource_manager.t.cpp
-#ifdef DEPRECATED
+#ifdef INCLUDE_DEPRECATED
 #include "engine/game/resource_manager.h"
 #include <gtest/gtest.h>
 

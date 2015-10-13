@@ -1,5 +1,5 @@
 // ResourceManager.cpp
-#ifdef DEPRECATED
+#ifdef INCLUDE_DEPRECATED
 #include <stdexcept>
 #include "resource_manager.h"
 #include <sstream>

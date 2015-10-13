@@ -1,5 +1,5 @@
 // ResourceManager.h
-#ifdef DEPRECATED
+#ifdef INCLUDE_DEPRECATED
 #ifndef INCLUDED_RESOURCE_MANAGER
 #define INCLUDED_RESOURCE_MANAGER
 #include "../containers/map.h"
