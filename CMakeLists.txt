@@ -124,13 +124,16 @@ set(
 file( GLOB RESOURCES "${RES_DIR}/*")
 file( COPY ${RESOURCES} DESTINATION "${CMAKE_BINARY_DIR}/res" )
 
-# BUILD GAME
-add_executable( gdev ${SOURCE_FILES} )
+# TRAVIS-CI GUARD
+if( NOT DEFINED TRAVIS_CI )
+    # BUILD GAME
+    add_executable( gdev ${SOURCE_FILES} )
 
-target_link_libraries(
-    gdev
-    ${SFML_LIBRARIES}
-)
+    target_link_libraries(
+        gdev
+        ${SFML_LIBRARIES}
+    )
+endif()
 
 # TESTS
 if ( BUILD_TESTS OR CLION )
