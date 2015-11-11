@@ -1,5 +1,5 @@
 // allocator_guard.t.cpp
-#include "engine/memory/allocator_guard.h"
+#include <engine/memory/allocator_guard.h>
 #include <gtest/gtest.h>
 #include <engine/memory/counting_allocator.h>
 

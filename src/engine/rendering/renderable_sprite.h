@@ -38,7 +38,7 @@ class RenderableSprite
     RenderableSprite& operator=( const RenderableSprite& other );
       // Makes this a copy of another renderable sprite.
 
-    // ACCESSORS
+    // ACCESSOR FUNCTIONS
     const sf::Sprite& sprite() const;
       // Gets the sprite drawn by this.
 
@@ -105,7 +105,7 @@ RenderableSprite& RenderableSprite::operator=( const RenderableSprite& other )
     d_sprite = other.d_sprite;
 }
 
-// ACCESSORS
+// ACCESSOR FUNCTIONS
 inline
 const sf::Sprite& RenderableSprite::sprite() const
 {

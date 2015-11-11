@@ -1,11 +1,11 @@
 // test_input_controller.cpp
 #include "test_input_controller.h"
-#include "../input/input.h"
+#include <engine/input/input.h>
 
 namespace StevensDev
 {
 
-namespace sgds
+namespace sgdt
 {
 
 namespace
@@ -31,6 +31,6 @@ void TestInputController::tick( float dtS )
     d_sprite->move( dtS * VELOCITY * sx, dtS * VELOCITY * sy );
 }
 
-} // End nspc sgds
+} // End nspc sgdt
 
 } // End nspc StevensDev

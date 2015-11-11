@@ -1,17 +1,17 @@
 // icontroller.h
 #ifndef INCLUDED_TEST_INPUT_CONTROLLER
 #define INCLUDED_TEST_INPUT_CONTROLLER
-#include "../rendering/renderable_sprite.h"
-#include "itickable.h"
+#include <engine/rendering/renderable_sprite.h>
+#include <engine/scene/itickable.h>
 
 namespace StevensDev
 {
 
-namespace sgds
+namespace sgdt
 {
 
 // This controller provides some simple reactions to user input.
-class TestInputController : public ITickable
+class TestInputController : public sgds::ITickable
 {
   private:
     sgdr::RenderableSprite* d_sprite;
@@ -96,7 +96,7 @@ void TestInputController::postTick()
 {
 }
 
-} // End nspc sgds
+} // End nspc sgdt
 
 } // End nspc StevensDev
 

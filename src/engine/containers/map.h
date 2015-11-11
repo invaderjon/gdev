@@ -233,8 +233,15 @@ class Map
   public:
     // CONSTRUCTORS
     Map();
-      // Constructs a new map without an allocator.
-      // Behavior for maps created this way is undefined.
+      // Constructs a new map using the default allocator.
+
+    Map( unsigned int capacity );
+      // Constructs a new map using the given capacity and the default
+      // allocator.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
 
     Map( sgdm::IAllocator<T>* allocator );
       // Constructs a new map using the given allocator.
@@ -336,6 +343,29 @@ Map<T>::Map() : d_binAllocator(),
                 d_oldBinIndex( 0 ),
                 d_oldBinCount( 0 )
 {
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T>
+inline
+Map<T>::Map( unsigned int capacity ) : d_binAllocator(),
+                                       d_keys(),
+                                       d_values(),
+                                       d_entries(),
+                                       d_bins( nullptr ),
+                                       d_binsInUse( 0 ),
+                                       d_binCount( MIN_BINS ),
+                                       d_oldBins( nullptr ),
+                                       d_oldBinIndex( 0 ),
+                                       d_oldBinCount( 0 )
+{
+    while ( d_binCount < capacity )
+    {
+        d_binCount <<= 1;
+    }
+
     d_bins = d_binAllocator.get( d_binCount );
     sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
                          d_binCount );

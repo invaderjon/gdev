@@ -61,8 +61,11 @@ class DynamicArray
   public:
     // CONSTRUCTORS
     DynamicArray();
-      // Constructs a new dynamic array without an allocator.
-      // Behavior for dynamic arrays created this way is undefined.
+      // Constructs a new dynamic array using the default allocator.
+
+    DynamicArray( unsigned int capacity );
+      // Constructs a new dynamic array with a given initial capacity using
+      // The default allocator.
 
     DynamicArray( sgdm::IAllocator<T>* allocator );
       // Constructs a new dynamic array using the given allocator.
@@ -167,6 +170,14 @@ std::ostream& operator<<( std::ostream& stream,
 template<typename T>
 DynamicArray<T>::DynamicArray() : d_allocator( nullptr ), d_array( nullptr ),
                                   d_first( 0 ), d_size( 0 ), d_capacity( 32 )
+{
+    d_array = d_allocator.get( d_capacity );
+}
+
+template <typename T>
+DynamicArray<T>::DynamicArray( unsigned int capacity )
+    : d_allocator( nullptr ), d_array( nullptr ),
+      d_first( 0 ), d_size( 0 ), d_capacity( capacity )
 {
     d_array = d_allocator.get( d_capacity );
 }
@@ -373,6 +384,7 @@ bool DynamicArray<T>::remove( const T& value )
 
     removeAt( i );
 
+    return true;
 }
 
 template<typename T>

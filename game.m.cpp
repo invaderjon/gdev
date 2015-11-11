@@ -1,5 +1,5 @@
 // game.m.cpp
-#include "engine/build.gen.h"
+#include "engine/build.g.h"
 #include "engine/input/input.h"
 #include "engine/rendering/renderer.h"
 #include "engine/scene/scene.h"

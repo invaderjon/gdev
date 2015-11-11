@@ -5,5 +5,5 @@
 build/*
 
 # CMake Generated Files
-*.gen.h
-*.gen.cpp
+*.g.h
+*.g.cpp
