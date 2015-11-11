@@ -1,6 +1,6 @@
 // test_listener.h
-#ifndef GDEV_TEST_LISTENER_H
-#define GDEV_TEST_LISTENER_H
+#ifndef INCLUDED_TEST_LISTENER
+#define INCLUDED_TEST_LISTENER
 
 #include <engine/events/ievent.h>
 #include <engine/data/json_printer.h>
@@ -107,4 +107,4 @@ void TestListener::reset()
 
 } // End nspc StevensDev
 
-#endif //GDEV_TEST_LISTENER_H
+#endif
