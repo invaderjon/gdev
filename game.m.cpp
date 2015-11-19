@@ -3,7 +3,6 @@
 #include "engine/input/input.h"
 #include "engine/rendering/renderer.h"
 #include "engine/scene/scene.h"
-#include "engine/scene/test_input_controller.h"
 #include "engine/util/input_utils.h"
 #include "engine/util/game_utils.h"
 
