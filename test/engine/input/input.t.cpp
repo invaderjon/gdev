@@ -19,3 +19,16 @@ TEST( InputTest, TickPhases )
     inst.tick( 1.0f );
     inst.postTick();
 }
+
+TEST( InputTest, Print )
+{
+    using namespace StevensDev::sgdi;
+
+    Input& inst = Input::inst();
+
+    std::ostringstream oss;
+
+    oss << inst;
+
+    EXPECT_STREQ( "{  }", oss.str().c_str() );
+}

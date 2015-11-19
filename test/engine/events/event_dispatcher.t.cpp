@@ -49,3 +49,16 @@ TEST( EventDispatcherTest, Dispatching )
 
     EXPECT_FALSE( listener.wasCalled() );
 }
+
+TEST( EventDispatcher, Print )
+{
+    using namespace StevensDev::sgde;
+
+    EventDispatcher d;
+
+    std::ostringstream oss;
+
+    oss << d;
+
+    EXPECT_STREQ( "{  }", oss.str().c_str() );
+}

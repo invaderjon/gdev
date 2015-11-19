@@ -48,3 +48,16 @@ TEST( RendererTest, TextureLoading )
     EXPECT_FALSE( renderer.loadTexture( "null", "null" ) );
     EXPECT_TRUE( renderer.loadTexture( "block", "res/texture/block.png" ) );
 }
+
+TEST( RendererTest, Print )
+{
+    using namespace StevensDev::sgdr;
+
+    Renderer renderer;
+
+    std::ostringstream oss;
+
+    oss << renderer;
+
+    EXPECT_STREQ( "{ \"isActive\": \"false\" }", oss.str().c_str() );
+}

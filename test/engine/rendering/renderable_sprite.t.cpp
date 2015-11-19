@@ -42,3 +42,22 @@ TEST( RenderableSpriteTest, Position )
     EXPECT_EQ( 0.0f, sprite.getPositionX() );
     EXPECT_EQ( 0.0f, sprite.getPositionY() );
 }
+
+TEST( RenderableSpriteTest, Print )
+{
+    using namespace StevensDev::sgdr;
+
+    Renderer renderer;
+
+    // can't continue if can't find the texture
+    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/block.png" ) );
+
+    RenderableSprite sprite( renderer.getTexture( "test" ) );
+    sprite.setPosition( 0.0f, 0.0f );
+
+    std::ostringstream oss;
+
+    oss << sprite;
+
+    EXPECT_STREQ( "{ \"x\": \"0.0\", \"y\": \"0.0\" }", oss.str().c_str() );
+}
