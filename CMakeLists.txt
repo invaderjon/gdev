@@ -47,6 +47,7 @@ set( OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin )
 
 # FILE CONFIGURATIONS
 set( CONFIGURED build )
+configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.g.h )
 configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.g.cpp )
 
 # CMAKE CONFIGURATION
