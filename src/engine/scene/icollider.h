@@ -18,7 +18,7 @@ class ICollider
       // Destructs the collider.
 
     // MEMBER FUNCTIONS
-    virtual RectangleBounds& bounds() const = 0;
+    virtual const RectangleBounds& bounds() const = 0;
       // Gets the collider bounds.
 
     virtual unsigned short flags() const = 0;
