@@ -1,5 +1,5 @@
 // test_input_controller.cpp
-#include "test_input_controller.h"
+#include <engine/scene/test_input_controller.h>
 #include <engine/input/input.h>
 
 namespace StevensDev
