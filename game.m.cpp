@@ -35,12 +35,9 @@ int main( int argc, char *argv[] )
     assert( renderer.loadTexture( "block", "res/texture/block.png" ) );
     sgdr::RenderableSprite sprite( renderer.getTexture( "block" ) );
 
-    sgds::TestInputController controller( &sprite );
-
     renderer.addSprite( &sprite );
 
     scene.addTickable( &input );
-    scene.addTickable( &controller );
     scene.setRenderer( &renderer );
 
     renderer.setupWindow( 800, 600 );
