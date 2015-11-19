@@ -1,6 +1,7 @@
 // scene.h
 #ifndef INCLUDED_SCENE
 #define INCLUDED_SCENE
+
 #include "../rendering/renderer.h"
 #include "itickable.h"
 

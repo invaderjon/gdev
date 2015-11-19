@@ -11,7 +11,6 @@ Scene Scene::d_instance = Scene();
 
 void Scene::tick()
 {
-    assert( d_renderer != nullptr );
     unsigned int i;
 
     // pre-tick cycle
@@ -26,8 +25,11 @@ void Scene::tick()
         d_tickables[i]->tick( d_clock.getElapsedTime().asSeconds() );
     }
 
-    // draw
-    d_renderer->draw();
+    // draw if possible
+    if ( d_renderer != nullptr )
+    {
+        d_renderer->draw();
+    }
 
     // post-tick cycle
     for ( i = 0; i < d_tickables.size(); ++i )
