@@ -47,8 +47,7 @@ set( OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin )
 
 # FILE CONFIGURATIONS
 set( CONFIGURED build )
-configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.gen.h )
-configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.gen.cpp )
+configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.g.cpp )
 
 # CMAKE CONFIGURATION
 set( CMAKE_CXX_FLAGS "-std=c++0x" )
@@ -62,8 +61,8 @@ include_directories(
 # ENGINE SOURCES
 set(
     ENGINE_FILES
-    src/engine/build.gen.cpp
-    src/engine/build.gen.h
+    src/engine/build.g.cpp
+    src/engine/build.g.h
     src/engine/data/json_printer.cpp
     src/engine/data/json_printer.h
     src/engine/containers/dynamic_array.cpp
@@ -74,6 +73,12 @@ set(
     src/engine/data/json_entity.h
     src/engine/data/json_parser.cpp
     src/engine/data/json_parser.h
+    src/engine/events/event_bus.cpp
+    src/engine/events/event_bus.h
+    src/engine/events/event_dispatcher.cpp
+    src/engine/events/event_dispatcher.h
+    src/engine/events/ievent.cpp
+    src/engine/events/ievent.h
     src/engine/memory/allocator_guard.cpp
     src/engine/memory/allocator_guard.h
     src/engine/memory/default_allocator.cpp
@@ -92,6 +97,12 @@ set(
     src/engine/util/game_utils.h
     src/engine/util/string_utils.cpp
     src/engine/util/string_utils.h
+    src/engine/scene/icollider.cpp
+    src/engine/scene/icollider.h
+    src/engine/scene/rectangle_bounds.cpp
+    src/engine/scene/rectangle_bounds.h
+    src/engine/scene/nxn_scene_graph.cpp
+    src/engine/scene/nxn_scene_graph.h
 )
 
 # SFML DEPENDENT SOURCES
@@ -107,8 +118,6 @@ set(
     src/engine/rendering/renderer.h
     src/engine/scene/scene.cpp
     src/engine/scene/scene.h
-    src/engine/scene/test_input_controller.cpp
-    src/engine/scene/test_input_controller.h
     src/engine/util/input_utils.cpp
     src/engine/util/input_utils.h
 )
@@ -132,6 +141,7 @@ if( NOT DEFINED TRAVIS_CI )
     target_link_libraries(
         gdev
         ${SFML_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
     )
 endif()
 
@@ -163,22 +173,59 @@ if ( BUILD_TESTS OR CLION )
         test/engine/data/json_entity.t.cpp
         test/engine/data/json_parser.t.cpp
         test/engine/data/json_printer.t.cpp
+        test/engine/events/test_event.cpp
+        test/engine/events/test_event.h
+        test/engine/events/test_listener.cpp
+        test/engine/events/test_listener.h
+        test/engine/events/event_bus.t.cpp
+        test/engine/events/event_dispatcher.t.cpp
         test/engine/memory/mem.t.cpp
         test/engine/memory/stack_guard.t.cpp
+        test/engine/scene/test_collider.cpp
+        test/engine/scene/test_collider.h
+        test/engine/scene/test_input_controller.cpp
+        test/engine/scene/test_input_controller.h
+        test/engine/scene/test_tickable.cpp
+        test/engine/scene/test_tickable.h
         test/engine/util/string_utils.t.cpp
+        test/engine/scene/nxn_scene_graph.t.cpp
+        test/engine/scene/rectangle_bounds.t.cpp
     )
 
+    # SFML DEPENDENT TESTS
+    set(
+        TEST_SFML_DEP_FILES
+        test/engine/input/input.t.cpp
+        test/engine/rendering/renderable_sprite.t.cpp
+        test/engine/rendering/renderer.t.cpp
+        test/engine/scene/scene.t.cpp
+    )
+
+    # TRAVIS-CI GUARD
+    if( NOT DEFINED TRAVIS_CI )
+        set(
+            TEST_FILES
+            ${TEST_FILES}
+            ${ENGINE_SFML_DEP_FILES}
+            ${TEST_SFML_DEP_FILES}
+        )
+        set( SFLML_LIBRARIES_FOR_TEST ${SFML_LIBRARIES} )
+    endif()
+
+
     # BUILD
-    add_executable( tests ${TEST_FILES} )
+    add_executable( tests ${TEST_FILES}  )
 
     target_link_libraries(
         tests
         gtest
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${SFLML_LIBRARIES_FOR_TEST}
     )
 
     # MAKE TESTS
     include( CTest )
     enable_testing()
 
-    add_test( unit ${PROJECT_BINARY_DIR}/tests )
+    add_test( unit ${PROJECT_BINARY_DIR}/tests  )
 endif()
