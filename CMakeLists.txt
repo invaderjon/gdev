@@ -184,8 +184,6 @@ if ( BUILD_TESTS OR CLION )
         test/engine/memory/stack_guard.t.cpp
         test/engine/scene/test_collider.cpp
         test/engine/scene/test_collider.h
-        test/engine/scene/test_input_controller.cpp
-        test/engine/scene/test_input_controller.h
         test/engine/scene/test_tickable.cpp
         test/engine/scene/test_tickable.h
         test/engine/util/string_utils.t.cpp
@@ -200,6 +198,8 @@ if ( BUILD_TESTS OR CLION )
         test/engine/rendering/renderable_sprite.t.cpp
         test/engine/rendering/renderer.t.cpp
         test/engine/scene/scene.t.cpp
+        test/engine/scene/test_input_controller.h
+        test/engine/scene/test_input_controller.cpp
     )
 
     # TRAVIS-CI GUARD
