@@ -160,7 +160,6 @@ std::ostream& operator<<( std::ostream& stream,
     sgdd::JsonPrinter p( stream );
     p.open();
     p.print( "size", array.size() );
-    stream << ", ";
     p.printArr( "values", array, array.size() );
     p.close();
     return stream;

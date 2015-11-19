@@ -307,25 +307,24 @@ std::ostream& operator<<( std::ostream& stream,
     const DynamicArray<std::string>& keys = map.keys();
     int i;
 
-    sgdd::JsonPrinter p( stream );
-    p.open();
-    p.print( "size", keys.size() );
-    stream << ", ";
+    // object printer
+    sgdd::JsonPrinter op( stream );
 
-    p.printKey( "pairs" );
-    p.open();
-    if ( keys.size() > 0 )
+    // pairs printer
+    sgdd::JsonPrinter pp( stream );
+
+    op.open();
+    op.print( "size", keys.size() );
+    op.printKey( "pairs" );
+
+    pp.open();
+    for ( i = 0; i < keys.size(); ++i )
     {
-        for ( i = 0; i < keys.size() - 1; ++i )
-        {
-            p.print( keys[i], map[keys[i]] );
-            stream << ", ";
-        }
-        p.print( keys[i], map[keys[i]] );
+        pp.print( keys[i], map[keys[i]] );
     }
-    p.close();
+    pp.close();
 
-    p.close();
+    op.close();
     return stream;
 }
 
