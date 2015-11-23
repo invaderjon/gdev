@@ -4,6 +4,7 @@
 #include "../data/json_printer.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <engine/world/world.h>
 
 namespace StevensDev
 {
@@ -44,16 +45,22 @@ class RenderableSprite
 
     // MEMBER FUNCTIONS
     void setPosition( float x, float y );
-      // Sets the absolute position.
+      // Sets the absolute position (DP).
 
     float getPositionX() const;
-      // Gets the x coordinate of the position.
+      // Gets the x coordinate of the position (DP).
 
     float getPositionY() const;
-      // Gets the y coordinate of the position.
+      // Gets the y coordinate of the position (DP).
+
+    float getWidth() const;
+      // Gets the width (DP).
+
+    float getHeight() const;
+      // Gets the height (DP).
 
     void move( float x, float y );
-      // Offsets the position by the given amounts.
+      // Offsets the position by the given amounts (DP).
 };
 
 // FREE OPERATORS
@@ -116,25 +123,43 @@ const sf::Sprite& RenderableSprite::sprite() const
 inline
 void RenderableSprite::setPosition( float x, float y )
 {
-    d_sprite.setPosition( x, y );
+    const sgdw::World& w = sgdw::World::inst();
+    d_sprite.setPosition( w.dpToPX( x ), w.dpToPX( y ) );
 }
 
 inline
 float RenderableSprite::getPositionX() const
 {
-    return d_sprite.getPosition().x;
+    const sgdw::World& w = sgdw::World::inst();
+    return w.pxToDP( d_sprite.getPosition().x );
 }
 
 inline
 float RenderableSprite::getPositionY() const
 {
-    return d_sprite.getPosition().y;
+    const sgdw::World& w = sgdw::World::inst();
+    return w.pxToDP( d_sprite.getPosition().y );
 }
 
 inline
 void RenderableSprite::move( float x, float y )
 {
-    d_sprite.move( x, y );
+    const sgdw::World& w = sgdw::World::inst();
+    d_sprite.move( w.dpToPX( x ), w.dpToPX( y ) );
+}
+
+inline
+float RenderableSprite::getWidth() const
+{
+    const sgdw::World& w = sgdw::World::inst();
+    return w.pxToDP( d_sprite.getGlobalBounds().width );
+}
+
+inline
+float RenderableSprite::getHeight() const
+{
+    const sgdw::World& w = sgdw::World::inst();
+    return w.pxToDP( d_sprite.getGlobalBounds().height );
 }
 
 } // End nspc sgdr
