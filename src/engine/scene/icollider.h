@@ -17,16 +17,18 @@ class ICollider
     virtual ~ICollider() = 0;
       // Destructs the collider.
 
-    // MEMBER FUNCTIONS
+    // ACCESSOR FUNCTIONS
     virtual const RectangleBounds& bounds() const = 0;
       // Gets the collider bounds.
 
     virtual unsigned short flags() const = 0;
       // Gets the collision flags.
 
+    // MUTATOR FUNCTIONS
     virtual void setFlags( unsigned short flags ) = 0;
       // Sets the collision flags.
 
+    // MEMBER FUNCTIONS
     virtual bool canCollide( unsigned short flags ) const = 0;
       // Checks if the item can collide with the given flags.
 
