@@ -42,6 +42,13 @@ class Scene
     ~Scene();
       // Destructs the scene.
 
+    // ACCESSOR FUNCTIONS
+    float getWidth() const;
+      // Gets the width of the scene (window) in pixels.
+
+    float getHeight() const;
+      // Gets the height of the scene (window) in pixels.
+
     // MEMBER FUNCTIONS
     void tick();
       // Updates the scene.
@@ -91,6 +98,21 @@ Scene& Scene::operator=( const Scene& scene )
     d_renderer = scene.d_renderer;
     d_tickables = scene.d_tickables;
     return *this;
+}
+
+// ACCESSOR FUNCTIONS
+inline
+float Scene::getWidth() const
+{
+    assert( d_renderer != nullptr );
+    return d_renderer->width();
+}
+
+inline
+float Scene::getHeight() const
+{
+    assert( d_renderer != nullptr );
+    return d_renderer->height();
 }
 
 inline
