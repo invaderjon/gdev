@@ -4,6 +4,7 @@
 
 void StevensDev::sgdr::Renderer::draw()
 {
+
     // draw sprites
     d_window.clear( sf::Color::Black );
     unsigned int i;

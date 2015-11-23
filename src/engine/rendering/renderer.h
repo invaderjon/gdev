@@ -1,4 +1,11 @@
 // renderer.h
+//
+// View Space scaling and motion is currently unsupported.
+// View Spaces of different sizes than the window are currently unsupported.
+// DP resolution scaling is currently unsupported.
+// See World for more information.
+//
+// todo: add support for afforementioned features
 #ifndef INCLUDED_RENDERER
 #define INCLUDED_RENDERER
 #include "../containers/dynamic_array.h"
@@ -15,7 +22,7 @@ namespace sgdr
 class Renderer
 {
   private:
-    sgdc::DynamicArray<RenderableSprite*> d_sprites;
+    sgdc::DynamicArray<const RenderableSprite*> d_sprites;
       // The set of sprites to be rendered.
 
     sgdc::Map<sf::Texture> d_textures;
@@ -45,14 +52,21 @@ class Renderer
     Renderer& operator=( Renderer&& renderer );
       // Moves the other renderer to this instance.
 
+    // ACCESSOR FUNCTIONS
+    unsigned int width() const;
+      // Gets the window width.
+
+    unsigned int height() const;
+      // Gets the window height.
+
     // MEMBER FUNCTIONS
     void draw();
       // Draw all of the sprites.
 
-    void addSprite( RenderableSprite* sprite );
+    void addSprite( const RenderableSprite* sprite );
       // Adds a sprite from the rendered list.
 
-    void removeSprite( RenderableSprite* sprite );
+    void removeSprite( const RenderableSprite* sprite );
       // Removes a sprite from the rendered list.
 
     void setupWindow( int width, int height );
@@ -78,6 +92,7 @@ std::ostream& operator<<( std::ostream& stream,
     return stream;
 }
 
+// CONSTRUCTORS
 inline
 Renderer::Renderer() : d_sprites(), d_window()
 {
@@ -111,6 +126,7 @@ Renderer::~Renderer()
     d_window.close();
 }
 
+// OPERATORS
 inline
 Renderer& Renderer::operator=( const Renderer& renderer )
 {
@@ -149,15 +165,29 @@ Renderer& Renderer::operator=( Renderer&& renderer )
     return *this;
 }
 
+// ACCESSOR FUNCTIONS
 inline
-void Renderer::addSprite( RenderableSprite* sprite )
+unsigned int Renderer::width() const
+{
+    return d_window.getSize().x;
+}
+
+inline
+unsigned int Renderer::height() const
+{
+    return d_window.getSize().y;
+}
+
+// MEMBER FUNCTIONS
+inline
+void Renderer::addSprite( const RenderableSprite* sprite )
 {
     d_sprites.push( sprite );
 }
 
 inline
 void StevensDev::sgdr::Renderer::removeSprite(
-    StevensDev::sgdr::RenderableSprite* sprite )
+    const StevensDev::sgdr::RenderableSprite* sprite )
 {
     d_sprites.remove( sprite );
 }
