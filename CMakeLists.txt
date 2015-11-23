@@ -15,6 +15,17 @@ set( SFML_ROOT ${PROJECT_SOURCE_DIR} )
 find_package( Threads REQUIRED )
 find_package( SFML REQUIRED system window graphics network audio )
 
+find_library(
+    LIB_GEL
+    NAMES gel libgel
+    NO_DEFAULT_PATH
+    PATHS ${CMAKE_SOURCE_DIR}/lib
+)
+
+if ( LIB_GEL MATCHES NOTFOUND )
+    message( FATAL_ERROR "The dependency gel must be located in ./libs " )
+endif()
+
 message( STATUS "${SFML_LIBRARIES}" )
 
 #find_package( OpenGL REQUIRED )
@@ -104,9 +115,11 @@ set(
     src/engine/scene/rectangle_bounds.h
     src/engine/scene/nxn_scene_graph.cpp
     src/engine/scene/nxn_scene_graph.h
+    src/engine/world/world.cpp
+    src/engine/world/world.h
 )
 
-# SFML DEPENDENT SOURCES
+# SFML DEPENDENT ENGINE SOURCES
 set(
     ENGINE_SFML_DEP_FILES
     src/engine/game/resource_manager.cpp
@@ -121,28 +134,47 @@ set(
     src/engine/scene/scene.h
     src/engine/util/input_utils.cpp
     src/engine/util/input_utils.h
+    src/engine/world/actor.cpp
+    src/engine/world/actor.h
 )
 
+# GAME SOURCES
 set(
-    SOURCE_FILES
-    game.m.cpp
-    ${ENGINE_FILES}
-    ${ENGINE_SFML_DEP_FILES}
+    GAME_FILES
 )
 
-# ENGINE RESOURCES (COPY)
+# SFML DEPENDENT GAME SOURCES
+set(
+    GAME_SFML_DEP_FILES
+    src/game/controllers/player_controller.cpp
+    src/game/controllers/player_controller.h
+    src/engine/scene/collision.cpp
+    src/engine/scene/collision.h
+)
+
+#
+set(
+    GAME_SOURCE_FILES
+    game.m.cpp
+    ${GAME_FILES}
+    ${GAME_SFML_DEP_FILES}
+    ${ENGINE_FILES}
+    ${ENGINE_SFML_DEP_FILES} )
+
+# GAME RESOURCES (COPY)
 file( GLOB RESOURCES "${RES_DIR}/*")
 file( COPY ${RESOURCES} DESTINATION "${CMAKE_BINARY_DIR}/res" )
 
 # TRAVIS-CI GUARD
 if( NOT DEFINED TRAVIS_CI )
     # BUILD GAME
-    add_executable( gdev ${SOURCE_FILES} )
+    add_executable( gdev ${GAME_SOURCE_FILES} )
 
     target_link_libraries(
         gdev
         ${SFML_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
+        ${LIB_GEL}
     )
 endif()
 
@@ -164,6 +196,7 @@ if ( BUILD_TESTS OR CLION )
     set(
         TEST_FILES
         test.m.cpp
+        ${GAME_FILES}
         ${ENGINE_FILES}
         test/trival_tests.cpp
         test/engine/memory/allocator_guard.t.cpp
@@ -198,15 +231,16 @@ if ( BUILD_TESTS OR CLION )
         test/engine/rendering/renderable_sprite.t.cpp
         test/engine/rendering/renderer.t.cpp
         test/engine/scene/scene.t.cpp
-        test/engine/scene/test_input_controller.h
         test/engine/scene/test_input_controller.cpp
-    )
+        test/engine/scene/test_input_controller.h
+        test/game/controllers/player_controller.t.cpp )
 
     # TRAVIS-CI GUARD
     if( NOT DEFINED TRAVIS_CI )
         set(
             TEST_FILES
             ${TEST_FILES}
+            ${GAME_SFML_DEP_FILES}
             ${ENGINE_SFML_DEP_FILES}
             ${TEST_SFML_DEP_FILES}
         )
@@ -222,6 +256,7 @@ if ( BUILD_TESTS OR CLION )
         gtest
         ${CMAKE_THREAD_LIBS_INIT}
         ${SFLML_LIBRARIES_FOR_TEST}
+        ${LIB_GEL}
     )
 
     # MAKE TESTS
