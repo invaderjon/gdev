@@ -25,11 +25,11 @@ TEST( EventDispatcherTest, Dispatching )
     TestListener listener;
     TestEvent event;
 
-    std::function<void( const IEvent* )> callback = std::bind(
+    EventListener callback = std::bind(
         &TestListener::receive, &listener, std::placeholders::_1 );
 
     // ensure added callbacks are called
-    d.add( TestEvent::DEFAULT_TYPE, &callback );
+    EventHandle handle = d.add( TestEvent::DEFAULT_TYPE, callback );
     d.postTick();
 
     d.dispatch( &event );
@@ -40,7 +40,7 @@ TEST( EventDispatcherTest, Dispatching )
                   listener.receivedType().c_str() );
 
     // ensure removed callbacks are no longer called
-    d.remove( TestEvent::DEFAULT_TYPE, & callback );
+    d.remove( TestEvent::DEFAULT_TYPE, handle );
     d.postTick();
 
     listener.reset();

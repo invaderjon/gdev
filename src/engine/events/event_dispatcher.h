@@ -15,25 +15,51 @@ namespace StevensDev
 namespace sgde
 {
 
+typedef unsigned int EventHandle;
+  // Defines a listener unique handle that is used to identify registered
+  // callbacks.
+
+typedef std::function<void( const IEvent* )> EventListener;
+  // Defines a listener callback..
+
 class EventDispatcher : public sgds::ITickable
 {
   private:
-    // TYPES
-    typedef std::function<void( const IEvent* )> Listener;
-      // Defines a listener callback (for convenience).
+    struct RegisteredListener
+    {
+        EventHandle handle;
+        EventListener listener;
+    };
 
-    typedef std::pair<std::string, const Listener*> Pending;
-      // Defines an item that is pending for addition or removal.
+    // TYPES
+    typedef std::pair<std::string, RegisteredListener> PendingAddition;
+      // Defines an item that is pending for addition.
+
+    typedef std::pair<std::string, EventHandle> PendingRemoval;
 
     // MEMBERS
-    sgdc::Map<sgdc::DynamicArray<const Listener*>> d_registered;
+    sgdc::Map<sgdc::DynamicArray<RegisteredListener>> d_registered;
       // A map of the registered event listeners to their event types.
 
-    sgdc::DynamicArray<Pending> d_pendingAddition;
+    sgdc::DynamicArray<PendingAddition> d_pendingAddition;
       // List of listeners to register during post-tick cycle.
 
-    sgdc::DynamicArray<Pending> d_pendingRemoval;
+    sgdc::DynamicArray<PendingRemoval> d_pendingRemoval;
       // List of listeners to remove during post-tick cycle.
+
+    EventHandle d_nextHandle;
+
+    // HELPER FUNCTIONS
+    int findListener( const std::string& item, EventHandle handle );
+      // Gets the index of the listener with the specified handle.
+
+    int findListener( const sgdc::DynamicArray<RegisteredListener>& listeners,
+                      EventHandle handle, unsigned int start,
+                      unsigned int end );
+      // Find the listener with the given handle using a binary search.
+      // A binary search can be used because items are always inserted
+      // chronologically from when they are created so ID's are always in
+      // ascending order.
 
   public:
     // CONSTRUCTORS
@@ -50,12 +76,13 @@ class EventDispatcher : public sgds::ITickable
     EventDispatcher& operator=( const EventDispatcher& dispatcher );
 
     // MEMBER FUNCTIONS
-    void add( const std::string& type,
-              const std::function<void( const IEvent* )>* listener );
-      // Registers a listener to for the specified event type.
+    EventHandle add( const std::string& type,
+                     const EventListener& listener );
+      // Registers a listener to for the specified event type and
+      // returns a handle that can be later used to unregister the
+      // listener.
 
-    void remove( const std::string& type,
-                 const std::function<void( const IEvent* )>* listener );
+    void remove( const std::string& type, EventHandle handle );
       // Stops broadcasting events to the specified listener for the
       // specified event type.
 
@@ -83,7 +110,7 @@ std::ostream& operator<<( std::ostream& stream,
 // CONSTRUCTORS
 inline
 EventDispatcher::EventDispatcher() : d_registered(), d_pendingAddition(),
-                                     d_pendingRemoval()
+                                     d_pendingRemoval(), d_nextHandle( 0 )
 {
 }
 
@@ -91,7 +118,8 @@ inline
 EventDispatcher::EventDispatcher( const EventDispatcher& other )
     : d_registered( other.d_registered ),
       d_pendingAddition( other.d_pendingAddition ),
-      d_pendingRemoval( other.d_pendingRemoval )
+      d_pendingRemoval( other.d_pendingRemoval ),
+      d_nextHandle( other.d_nextHandle )
 {
 }
 
@@ -107,24 +135,32 @@ EventDispatcher& EventDispatcher::operator=( const EventDispatcher& other )
     d_registered = other.d_registered;
     d_pendingAddition = other.d_pendingAddition;
     d_pendingRemoval = other.d_pendingRemoval;
+    d_nextHandle = other.d_nextHandle;
 
     return *this;
 }
 
 // MEMBER FUNCTIONS
 inline
-void EventDispatcher::add( const std::string& type, const Listener* listener )
+EventHandle EventDispatcher::add( const std::string& type,
+                                  const EventListener& listener )
 {
-    assert( listener != nullptr );
-    d_pendingAddition.push( std::make_pair( type, listener ) );
+    EventHandle handle = d_nextHandle++;
+
+    RegisteredListener registered;
+    registered.listener = std::move( listener );
+    registered.handle = handle;
+
+    d_pendingAddition.push( std::make_pair( type, std::move( registered ) ) );
+
+    return handle;
 }
 
 inline
 void EventDispatcher::remove( const std::string& type,
-                              const Listener* listener )
+                              EventHandle handle )
 {
-    assert( listener != nullptr );
-    d_pendingRemoval.push( std::make_pair( type, listener ) );
+    d_pendingRemoval.push( std::make_pair( type, handle ) );
 }
 
 } // End nspc sgde
