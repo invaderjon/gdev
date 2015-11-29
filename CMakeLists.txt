@@ -73,6 +73,14 @@ include_directories(
 # ENGINE SOURCES
 set(
     ENGINE_FILES
+#    src/engine/assets/data_manager.cpp
+#    src/engine/assets/data_manager.h
+    src/engine/assets/handle.cpp
+    src/engine/assets/handle.h
+    src/engine/assets/handle_manager.cpp
+    src/engine/assets/handle_manager.h
+#    src/engine/assets/idata_factory.cpp
+#    src/engine/assets/idata_factory.h
     src/engine/build.g.cpp
     src/engine/build.g.h
     src/engine/data/json_printer.cpp
@@ -109,21 +117,27 @@ set(
     src/engine/util/game_utils.h
     src/engine/util/string_utils.cpp
     src/engine/util/string_utils.h
+    src/engine/scene/collision.cpp
+    src/engine/scene/collision.h
     src/engine/scene/icollider.cpp
     src/engine/scene/icollider.h
     src/engine/scene/rectangle_bounds.cpp
     src/engine/scene/rectangle_bounds.h
     src/engine/scene/nxn_scene_graph.cpp
     src/engine/scene/nxn_scene_graph.h
-    src/engine/world/world.cpp
-    src/engine/world/world.h
+    src/engine/scene/world.cpp
+    src/engine/scene/world.h
+#    src/engine/events/resource_event.cpp
+#    src/engine/events/resource_event.h
 )
 
 # SFML DEPENDENT ENGINE SOURCES
 set(
     ENGINE_SFML_DEP_FILES
-    src/engine/game/resource_manager.cpp
-    src/engine/game/resource_manager.h
+#    src/engine/assets/resource_manager.cpp
+#    src/engine/assets/resource_manager.h
+#    src/engine/game/resource_manager.cpp
+#    src/engine/game/resource_manager.h
     src/engine/input/input.cpp
     src/engine/input/input.h
     src/engine/rendering/renderable_sprite.cpp
@@ -134,8 +148,6 @@ set(
     src/engine/scene/scene.h
     src/engine/util/input_utils.cpp
     src/engine/util/input_utils.h
-    src/engine/world/actor.cpp
-    src/engine/world/actor.h
 )
 
 # GAME SOURCES
@@ -146,10 +158,12 @@ set(
 # SFML DEPENDENT GAME SOURCES
 set(
     GAME_SFML_DEP_FILES
+    src/game/objects/actor.cpp
+    src/game/objects/actor.h
+    src/game/objects/iactor_factory.cpp
+    src/game/objects/iactor_factory.h
     src/game/controllers/player_controller.cpp
     src/game/controllers/player_controller.h
-    src/engine/scene/collision.cpp
-    src/engine/scene/collision.h
 )
 
 #
@@ -222,7 +236,7 @@ if ( BUILD_TESTS OR CLION )
         test/engine/util/string_utils.t.cpp
         test/engine/scene/nxn_scene_graph.t.cpp
         test/engine/scene/rectangle_bounds.t.cpp
-    )
+        test/engine/assets/handle.t.cpp test/engine/assets/handle_manager.t.cpp )
 
     # SFML DEPENDENT TESTS
     set(
