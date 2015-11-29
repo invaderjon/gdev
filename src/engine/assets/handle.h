@@ -2,6 +2,9 @@
 #ifndef INCLUDED_HANDLE
 #define INCLUDED_HANDLE
 
+#include <engine/data/json_printer.h>
+#include <iostream>
+
 namespace StevensDev
 {
 
@@ -57,8 +60,24 @@ class Handle
       // Gets the check value.
 };
 
+// CONSTANTS
 template <typename T>
 const Handle<T> Handle<T>::NULL_HANDLE = Handle();
+
+// FREE OPERATORS
+template <typename T>
+inline
+std::ostream& operator<<( std::ostream& stream, const Handle<T>& handle )
+{
+    sgdd::JsonPrinter p( stream );
+
+    p.open().print( "index", handle.index() )
+            .print( "checkValue", handle.checkValue() )
+            .close();
+
+    return stream;
+}
+
 
 // CONSTRUCTORS
 template <typename T>

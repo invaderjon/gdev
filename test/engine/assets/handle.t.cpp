@@ -28,3 +28,17 @@ TEST( HandleTest, Accessors )
     ASSERT_EQ( 1, handle.index() );
     ASSERT_EQ( 2, handle.checkValue() );
 }
+
+TEST( HandleTest, Print )
+{
+    using namespace StevensDev::sgda;
+
+    Handle<Tag> handle( 1, 2 );
+
+    std::ostringstream oss;
+
+    oss << handle;
+
+    EXPECT_STREQ( "{ \"index\": \"1\", \"checkValue\": \"2\" }",
+                  oss.str().c_str() );
+}

@@ -88,3 +88,16 @@ TEST( HandleManagerTest, DataManagement )
 
     alloc.release( data, 1 );
 }
+
+TEST( HandleManagerTest, Print )
+{
+    using namespace StevensDev::sgda;
+
+    HandleManager<Tag, std::string> manager;
+
+    std::ostringstream oss;
+
+    oss << manager;
+
+    ASSERT_STREQ( "{  }", oss.str().c_str() );
+}

@@ -74,6 +74,15 @@ class HandleManager
       // Checks if the handels is in use and has data non-null mapped to it.
 };
 
+// FREE OPERATORS
+template <typename T, typename D>
+inline
+std::ostream& operator<<( std::ostream& stream,
+                          const HandleManager<T, D>& manager )
+{
+    return stream << "{  }";
+}
+
 // CONSTRUCTORS
 template <typename T, typename D>
 inline
