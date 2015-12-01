@@ -18,6 +18,15 @@ struct JsonParser
       //
       // Throws runtime_error if:
       // raw json string is invalid
+
+    static JsonEntity* fromFile(
+        const std::string& path,
+        sgdm::IAllocator<JsonEntity>* allocator = nullptr );
+      // Constructs a json entity hierarchy from a file located at the given
+      // path.
+      //
+      // Throws runtime_error if:
+      // raw json data is invalid
 };
 
 } // End nspc sgdd

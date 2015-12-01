@@ -91,6 +91,19 @@ TEST( JsonParserTest, ParseObject )
         StackGuard<JsonEntity>( &def, JsonParser::fromString( "" ) ) );
 }
 
+TEST( JsonParserTest, ParseFile )
+{
+    using namespace StevensDev::sgdd;
+    using namespace StevensDev::sgdm;
+
+    DefaultAllocator<JsonEntity> def;
+
+    JsonEntity* e = JsonParser::fromFile(
+        "./res/config/actor/block/enemy.conf", &def );
+
+    StackGuard<JsonEntity> guard( &def, e );
+}
+
 TEST( JsonParserTest, InvalidJson )
 {
     using namespace StevensDev::sgdd;

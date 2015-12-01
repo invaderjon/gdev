@@ -1,6 +1,7 @@
 // json_parser.cpp
 #include "json_parser.h"
 #include "basic_string_reader.h"
+#include "plain_text_file_reader.h"
 #include <engine/data/istringreader.h>
 #include <engine/util/string_utils.h>
 #include <sstream>
@@ -39,7 +40,7 @@ void fail( const std::string& reason, unsigned long pos )
 inline
 void skipWhiteSpace( IStringReader* reader, bool checkNotEnd = true )
 {
-    while ( !reader->isEnd() && isspace( reader->get() ) )
+    while ( !reader->isEnd() && isspace( reader->get() )  )
     {
         reader->advance( 1 );
     }
@@ -428,8 +429,15 @@ JsonEntity* parseJson( sgdm::IAllocator<JsonEntity>* alloc,
 JsonEntity* JsonParser::fromString( const std::string& raw,
                                     sgdm::IAllocator<JsonEntity>* allocator )
 {
-    BasicStringReader reader( raw );
-    return parseJson( allocator, &reader );
+    BasicStringReader r( raw );
+    return parseJson( allocator, &r );
+}
+
+JsonEntity* JsonParser::fromFile( const std::string& path,
+                                  sgdm::IAllocator<JsonEntity>* allocator )
+{
+    PlainTextFileReader r( path );
+    return parseJson( allocator, &r );
 }
 
 } // End nspc sgdd
