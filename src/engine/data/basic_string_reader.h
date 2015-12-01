@@ -3,7 +3,8 @@
 #define INCLUDED_BASIC_STRING_READER
 
 #include <assert.h>
-#include <engine/data/istringreader.h>
+#include "engine/data/istringreader.h"
+#include "engine/data/json_printer.h"
 
 namespace StevensDev
 {
@@ -63,7 +64,9 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const BasicStringReader& reader )
 {
-    return stream << std::string( "{  }" );
+    sgdd::JsonPrinter p( stream );
+    p.open().print( "position", reader.position() ).close();
+    return stream;
 }
 
 // CONSTRUCTORS
