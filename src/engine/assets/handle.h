@@ -78,7 +78,6 @@ std::ostream& operator<<( std::ostream& stream, const Handle<T>& handle )
     return stream;
 }
 
-
 // CONSTRUCTORS
 template <typename T>
 inline
