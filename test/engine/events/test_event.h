@@ -44,7 +44,7 @@ class TestEvent : public sgde::IEvent
 };
 
 // FREE OPERATORS
-static
+inline
 std::ostream& operator<<( std::ostream& stream, const TestEvent& event )
 {
     sgdd::JsonPrinter p( stream );

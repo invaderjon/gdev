@@ -117,7 +117,6 @@ template<typename T>
 StackGuard<T>::StackGuard( IAllocator<T>* alloc, T* guarded )
     : d_allocator( alloc ), d_guarded( guarded ), d_count( 1 )
 {
-
 }
 
 template<typename T>

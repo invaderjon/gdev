@@ -40,7 +40,7 @@ class EventBus
 };
 
 // FREE OPERATORS
-static
+inline
 std::ostream& operator<<( std::ostream& stream, const EventBus& bus )
 {
     return stream << "{  }";
