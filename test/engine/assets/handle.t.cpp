@@ -39,6 +39,6 @@ TEST( HandleTest, Print )
 
     oss << handle;
 
-    EXPECT_STREQ( "{ \"index\": \"1\", \"checkValue\": \"2\" }",
+    EXPECT_STREQ( "{ \"index\": 1, \"checkValue\": 2 }",
                   oss.str().c_str() );
 }

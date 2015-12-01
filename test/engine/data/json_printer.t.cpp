@@ -25,17 +25,17 @@ TEST( JsonPrinterTest, Primitive )
     std::ostringstream oss2;
     p = JsonPrinter( oss2 );
     ASSERT_NO_FATAL_FAILURE( p << 1 );
-    ASSERT_STREQ( "\"1\"", oss2.str().c_str() );
+    ASSERT_STREQ( "1", oss2.str().c_str() );
 
     std::ostringstream oss3;
     p = JsonPrinter( oss3 );
     ASSERT_NO_FATAL_FAILURE( p << 439.5 );
-    ASSERT_STREQ( "\"439.5\"", oss3.str().c_str() );
+    ASSERT_STREQ( "439.5", oss3.str().c_str() );
 
     std::ostringstream oss4;
     p = JsonPrinter( oss4 );
     ASSERT_NO_FATAL_FAILURE( p << false );
-    ASSERT_STREQ( "\"false\"", oss4.str().c_str() );
+    ASSERT_STREQ( "false", oss4.str().c_str() );
 }
 
 TEST( JsonPrinterTest, KeyValuePair )
@@ -56,14 +56,14 @@ TEST( JsonPrinterTest, KeyValuePair )
     p.open();
     ASSERT_NO_FATAL_FAILURE( p.print( "k", 1 ) );
     p.close();
-    ASSERT_STREQ( "{ \"k\": \"1\" }", oss2.str().c_str() );
+    ASSERT_STREQ( "{ \"k\": 1 }", oss2.str().c_str() );
 
     std::ostringstream oss3;
     p = JsonPrinter( oss3 );
     p.open();
     ASSERT_NO_FATAL_FAILURE( p.print( std::string( "k" ), 1.5f ) );
     p.close();
-    ASSERT_STREQ( "{ \"k\": \"1.5\" }", oss3.str().c_str() );
+    ASSERT_STREQ( "{ \"k\": 1.5 }", oss3.str().c_str() );
 }
 
 TEST( JsonPrinterTest, Array )

@@ -68,6 +68,6 @@ TEST( RectangleBoundsTest, Print )
     oss << bounds;
 
     EXPECT_STREQ(
-        "{ \"x\": \"0.0\", \"y\": \"0.0\", \"width\": \"5.0\", \"height\": \"5.0\" }",
+        "{ \"x\": 0.0, \"y\": 0.0, \"width\": 5.0, \"height\": 5.0 }",
         oss.str().c_str() );
 }

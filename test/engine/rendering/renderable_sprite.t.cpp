@@ -59,5 +59,5 @@ TEST( RenderableSpriteTest, Print )
 
     oss << sprite;
 
-    EXPECT_STREQ( "{ \"x\": \"0.0\", \"y\": \"0.0\" }", oss.str().c_str() );
+    EXPECT_STREQ( "{ \"x\": 0.0, \"y\": 0.0 }", oss.str().c_str() );
 }

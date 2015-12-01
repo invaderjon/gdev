@@ -264,7 +264,7 @@ inline
 JsonPrinter& JsonPrinter::print( const bool& value )
 {
     // type protection
-    *d_ostream << ( value ? "\"true\"" : "\"false\"" );
+    *d_ostream << ( value ? "true" : "false" );
     return *this;
 }
 
@@ -275,11 +275,11 @@ JsonPrinter& JsonPrinter::print( const float& value )
     float integral;
     if ( std::modf( value, &integral ) == 0.0f )
     {
-        *d_ostream << "\"" << integral << ".0\"";
+        *d_ostream << integral << ".0";
     }
     else
     {
-        *d_ostream << "\"" << value << "\"";
+        *d_ostream << value;
     }
     return *this;
 }
@@ -291,11 +291,11 @@ JsonPrinter& JsonPrinter::print( const double& value )
     double integral;
     if ( std::modf( value, &integral ) == 0.0 )
     {
-        *d_ostream << "\"" << integral << ".0\"";
+        *d_ostream <<  integral << ".0";
     }
     else
     {
-        *d_ostream << "\"" << value << "\"";
+        *d_ostream << value;
     }
     return *this;
 }
@@ -307,11 +307,11 @@ JsonPrinter& JsonPrinter::print( const long double& value )
     long double integral;
     if ( std::modf( value, &integral ) == 0.0 )
     {
-        *d_ostream << "\"" << integral << ".0\"";
+        *d_ostream << integral << ".0";
     }
     else
     {
-        *d_ostream << "\"" << value << "\"";
+        *d_ostream << value;
     }
     return *this;
 }
@@ -321,8 +321,11 @@ JsonPrinter& JsonPrinter::print( const T& value )
 {
     // is other primitive? (by json standards)
     if ( std::is_enum<T>::value ||
-         std::is_integral<T>::value ||
-         std::is_same<T, std::string>::value )
+         std::is_integral<T>::value )
+    {
+        *d_ostream << value;
+    }
+    else if ( std::is_same<T, std::string>::value )
     {
         *d_ostream << "\"" << value << "\"";
     }

@@ -59,5 +59,5 @@ TEST( RendererTest, Print )
 
     oss << renderer;
 
-    EXPECT_STREQ( "{ \"isActive\": \"false\" }", oss.str().c_str() );
+    EXPECT_STREQ( "{ \"isActive\": false }", oss.str().c_str() );
 }
