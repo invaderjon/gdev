@@ -14,7 +14,7 @@ This project is currently only confirmed to support Ubuntu 15.*.
 
   * CMake 2.8+
   * gcc 4.9.2+
-  * SFML 2.3+ (sudo apt-get libsfml-dev)
+  * SFML 2.3+ (sudo apt-get install libsfml-dev)
 
 ## Build Steps ##
 
