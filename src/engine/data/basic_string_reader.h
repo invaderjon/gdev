@@ -64,7 +64,7 @@ inline
 std::ostream& operator<<( std::ostream& stream,
                           const BasicStringReader& reader )
 {
-    return stream << "{  }";
+    return stream << std::string( "{  }" );
 }
 
 // CONSTRUCTORS
