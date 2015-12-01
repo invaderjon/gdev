@@ -1,6 +1,8 @@
 // json_parser.cpp
 #include "json_parser.h"
-#include "../util/string_utils.h"
+#include "basic_string_reader.h"
+#include <engine/data/istringreader.h>
+#include <engine/util/string_utils.h>
 #include <sstream>
 
 namespace StevensDev
@@ -20,13 +22,12 @@ typedef sgdc::DynamicArray<JsonEntity> JsonArray;
 
 typedef sgdm::IAllocator<JsonEntity>* Allocator;
 
-unsigned int parseValue( Allocator alloc, JsonEntity* entity,
-                         const std::string& raw, unsigned int pos );
+void parseValue( Allocator alloc, JsonEntity* entity, IStringReader* raw );
   // Parses a generic json value using raw json and offset position and
   // stores it in the given entity.
 
 inline
-void fail( const std::string& reason, unsigned int pos )
+void fail( const std::string& reason, unsigned long pos )
 {
     std::ostringstream oss;
     oss << "Parsing Error: " << reason << " Encountered at " << pos << ".";
@@ -36,200 +37,195 @@ void fail( const std::string& reason, unsigned int pos )
 }
 
 inline
-unsigned int skipWhiteSpace( const std::string& raw, unsigned int offset,
-                             bool checkNotEnd = true )
+void skipWhiteSpace( IStringReader* reader, bool checkNotEnd = true )
 {
-    while ( offset < raw.length() &&
-            isspace( raw[offset] ) )
+    while ( !reader->isEnd() && isspace( reader->get() ) )
     {
-        ++offset;
+        reader->advance( 1 );
     }
 
-    if ( checkNotEnd && offset >= raw.length() )
+    if ( checkNotEnd && reader->isEnd() )
     {
-        fail( "Reached end while parsing!", offset - 1 );
+        fail( "Reached end while parsing!", reader->position() );
     }
-
-    return offset;
 }
 
-unsigned int parseKey( std::string* storage, const std::string& raw,
-                       unsigned int pos )
+void parseKey( std::string* storage, IStringReader* reader )
 {
-    if ( raw[pos] != '"' )
+    if ( reader->get() != '"' )
     {
-        fail( "Invalid key!", pos );
+        fail( "Invalid key!", reader->position() );
     }
 
     std::ostringstream oss;
-    while ( ++pos < raw.length() && raw[pos] != '"' )
+    reader->advance( 1 );
+    while ( !reader->isEnd() && reader->get() != '"' )
     {
-        oss << raw[pos];
+        oss << reader->get();
+        reader->advance( 1 );
     }
 
-    if ( pos >= raw.length() )
+    if ( reader->isEnd() )
     {
-        fail( "Unclosed key string!", pos );
+        fail( "Unclosed key string!", reader->position() );
     }
 
-    pos = skipWhiteSpace( raw, ++pos );
+    reader->advance( 1 );
+    skipWhiteSpace( reader );
 
-    if ( raw[pos] != ':' )
+    if ( reader->get() != ':' )
     {
-        fail( "Incomplete key-value pair!", pos );
+        fail( "Incomplete key-value pair!", reader->position() );
     }
 
     *storage = oss.str();
-
-    return pos + 1;
+    reader->advance( 1 );
 }
 
-unsigned int parseEmpty( JsonEntity* entity, const std::string& raw,
-                         unsigned int pos )
+void parseEmpty( JsonEntity* entity, IStringReader* reader )
 {
-    assert( raw[pos] == 'n' );
+    assert( reader->get() == 'n' );
 
-    if ( pos + 4 >= raw.length() )
+    if ( reader->get( 4 ).length() < 4 )
     {
-        fail( "Unclosed value!", pos );
+        fail( "Unclosed value!", reader->position() );
     }
 
     // valid?
-    if ( !sgdu::StringUtils::areEqual( raw.substr( pos, 4 ), "null" ) )
+    if ( !sgdu::StringUtils::areEqual( reader->get( 4 ), "null" ) )
     {
-        fail( "Invalid null value!", pos );
+        fail( "Invalid null value!", reader->position() );
     }
 
     *entity = std::move( JsonEntity() );
 
-    return pos + 4;
+    reader->advance( 4 );
 }
 
-unsigned int parseTrue( JsonEntity* entity, const std::string& raw,
-                        unsigned int pos )
+void parseTrue( JsonEntity* entity, IStringReader* reader )
 {
-    assert( raw[pos] == 't' );
+    assert( reader->get() == 't' );
 
-    if ( pos + 4 >= raw.length() )
+    if ( reader->get( 4 ).length() < 4 )
     {
-        fail( "Unclosed value!", pos );
+        fail( "Unclosed value!", reader->position() );
     }
 
     // valid?
-    if ( !sgdu::StringUtils::areEqual( raw.substr( pos, 4 ), "true" ) )
+    if ( !sgdu::StringUtils::areEqual( reader->get( 4 ), "true" ) )
     {
-        fail( "Invalid true value!", pos );
+        fail( "Invalid true value!", reader->position() );
     }
 
     JsonEntity e ( true );
     *entity = std::move( e );
 
-    return pos + 4;
+    reader->advance( 4 );
 }
 
-unsigned int parseFalse( JsonEntity* entity, const std::string& raw,
-                         unsigned int pos )
+void parseFalse( JsonEntity* entity, IStringReader* reader )
 {
-    assert( raw[pos] == 'f' );
+    assert( reader->get() == 'f' );
 
-    if ( pos + 5 >= raw.length() )
+    if ( reader->get( 5 ).length() < 5 )
     {
-        fail( "Unclosed value!", pos );
+        fail( "Unclosed value!", reader->position() );
     }
 
     // valid?
-    if ( !sgdu::StringUtils::areEqual( raw.substr( pos, 5 ), "false" ) )
+    if ( !sgdu::StringUtils::areEqual( reader->get( 5 ), "false" ) )
     {
-        fail( "Invalid false value!", pos );
+        fail( "Invalid false value!", reader->position() );
     }
 
     *entity = std::move( JsonEntity( false ) );
 
-    return pos + 5;
+    reader->advance( 5 );
 }
 
-unsigned int parseNumber( JsonEntity* entity, const std::string& raw,
-                          unsigned int pos )
+void parseNumber( JsonEntity* entity, IStringReader* reader )
 {
-    assert( raw[pos] == '-' || isdigit( raw[pos] ) );
+    assert( reader->get() == '-' || isdigit( reader->get() ) );
 
     double sign = 1;
     double value = 0;
 
     // negative?
-    if ( raw[pos] == '-' )
+    if ( reader->get() == '-' )
     {
         sign *= -1;
-        ++pos;
+        reader->advance( 1 );
     }
 
     // still valid?
-    if ( pos >= raw.length() || !isdigit( raw[pos] ) )
+    if ( reader->isEnd() || !isdigit( reader->get() ) )
     {
-        fail( "Invalid number!", pos );
+        fail( "Invalid number!", reader->position() );
     }
 
     // integral portion
-    while ( pos < raw.length() && isdigit( raw[pos] ) )
+    while ( !reader->isEnd() && isdigit( reader->get() ) )
     {
-        value = ( value * 10 ) + ( raw[pos++] - '0' );
+        value = ( value * 10 ) + ( reader->get() - '0' );
+        reader->advance( 1 );
     }
 
     // shouldn't reach the end of a string while parsing a value
-    if ( pos >= raw.length() )
+    if ( reader->isEnd() )
     {
-        fail( "Unclosed value!", pos );
+        fail( "Unclosed value!", reader->position() );
     }
 
     // integral?
-    if ( raw[pos] != '.' )
+    if ( reader->get() != '.' )
     {
         // fail on overflow
         assert( int( sign * value ) == sign * value );
         *entity = std::move( JsonEntity( int( sign * value ) ) );
-        return pos;
+        return;
     }
 
     // still valid?
-    if ( ++pos >= raw.length() || !isdigit( raw[pos] ) )
+    reader->advance( 1 );
+    if ( reader->isEnd() || !isdigit( reader->get() ) )
     {
-        fail( "Invalid number!", pos );
+        fail( "Invalid number!", reader->position() );
     }
 
     // fraction portion
-    unsigned int old = pos;
-    while ( pos < raw.length() && isdigit( raw[pos] ) )
+    unsigned long old = reader->position();
+    while ( !reader->isEnd() && isdigit( reader->get() ) )
     {
-        value += double( raw[pos] - '0' ) /
-                 double( 10 * ( ( old + 1 ) - pos ) );
-        ++pos;
+        value += double( reader->get() - '0' ) /
+                 double( 10 * ( ( reader->position() + 1 ) - old ) );
+        reader->advance( 1 );
     }
 
     // shouldn't reach the end of a string while parsing a value
-    if ( pos >= raw.length() )
+    if ( reader->isEnd() )
     {
-        fail( "Unclosed value!", pos );
+        fail( "Unclosed value!", reader->position() );
     }
 
     *entity = std::move( JsonEntity( sign * value ) );
-    return pos;
 }
 
-unsigned int parseString( JsonEntity* entity, const std::string& raw,
-                          unsigned int pos )
+void parseString( JsonEntity* entity, IStringReader* reader )
 {
-    assert( raw[pos] == '"' );
+    assert( reader->get() == '"' );
 
     std::ostringstream oss;
 
-    while ( ++pos < raw.length() && raw[pos] != '"' )
+    reader->advance( 1 );
+    while ( !reader->isEnd() && reader->get() != '"' )
     {
-        oss << raw[pos];
+        oss << reader->get();
+        reader->advance( 1 );
     }
 
-    if ( pos >= raw.length() )
+    if ( reader->isEnd() )
     {
-        fail( "Unclosed string!", pos );
+        fail( "Unclosed string!", reader->position() );
     }
 
     sgdm::AllocatorGuard<std::string> alloc;
@@ -239,26 +235,27 @@ unsigned int parseString( JsonEntity* entity, const std::string& raw,
     JsonEntity e( value, nullptr );
     *entity = std::move( e );
 
-    return pos + 1;
+    reader->advance( 1 );
 }
 
-unsigned int parseArray( Allocator alloc, JsonEntity* entity,
-                         const std::string&  raw, unsigned int pos )
+void parseArray( Allocator alloc, JsonEntity* entity,
+                         IStringReader* reader )
 {
-    assert( raw[pos] == '[' );
+    assert( reader->get() == '[' );
 
     sgdm::AllocatorGuard<JsonArray> arrAlloc;
     JsonArray* arr = arrAlloc.get( 1 );
     arrAlloc.construct( arr, std::move( JsonArray( alloc ) ) );
 
-    pos = skipWhiteSpace( raw, ++pos );
-
+    reader->advance( 1 );
+    skipWhiteSpace( reader );
 
     // empty?
-    if ( raw[pos] == ']' )
+    if ( reader->get() == ']' )
     {
         *entity = std::move( JsonEntity( arr, nullptr ) );
-        return pos + 1;
+        reader->advance( 1 );
+        return;
     }
 
     // parse
@@ -267,46 +264,49 @@ unsigned int parseArray( Allocator alloc, JsonEntity* entity,
     while ( hasMore )
     {
         // parse and add value
-        pos = parseValue( alloc, &next, raw, pos );
+        parseValue( alloc, &next, reader );
         arr->push( std::move( next ) );
 
-        pos = skipWhiteSpace( raw, pos );
+        skipWhiteSpace( reader );
 
-        if ( raw[pos] != ',' )
+        if ( reader->get() != ',' )
         {
             hasMore = false;
         }
         else
         {
-            pos = skipWhiteSpace( raw, ++pos );
+            reader->advance( 1 );
+            skipWhiteSpace( reader );
         }
     }
 
-    if ( raw[pos] != ']' )
+    if ( reader->get() != ']' )
     {
-        fail( "Invalid array!", pos );
+        fail( "Invalid array!", reader->position() );
     }
 
     *entity = std::move( JsonEntity( arr, nullptr ) );
-    return pos + 1;
+    reader->advance( 1 );
 }
 
-unsigned int  parseObject( Allocator alloc, JsonEntity* entity,
-                           const std::string& raw, unsigned int pos )
+void parseObject( Allocator alloc, JsonEntity* entity,
+                           IStringReader* reader )
 {
-    assert( raw[pos] == '{' );
+    assert( reader->get() == '{' );
 
     sgdm::AllocatorGuard<JsonObject> objAlloc;
     JsonObject* obj = objAlloc.get( 1 );
     objAlloc.construct( obj, std::move( JsonObject( alloc ) ) );
 
-    pos = skipWhiteSpace( raw, ++pos );
+    reader->advance( 1 );
+    skipWhiteSpace( reader );
 
     // empty?
-    if ( raw[pos] == '}' )
+    if ( reader->get() == '}' )
     {
         *entity = std::move( JsonEntity( obj, nullptr ) );
-        return ++pos;
+        reader->advance( 1 );
+        return;
     }
 
     bool hasMore = true;
@@ -315,111 +315,109 @@ unsigned int  parseObject( Allocator alloc, JsonEntity* entity,
     while ( hasMore )
     {
         // parse key-value pair
-        pos = parseKey( &key, raw, pos );
-        pos = skipWhiteSpace( raw, pos );
-        pos = parseValue( alloc, &next, raw, pos );
+        parseKey( &key, reader );
+        skipWhiteSpace( reader );
+        parseValue( alloc, &next, reader );
 
         ( *obj )[key] = next;
 
-        pos = skipWhiteSpace( raw, pos );
+        skipWhiteSpace( reader );
 
-        if ( raw[pos] != ',' )
+        if ( reader->get() != ',' )
         {
             hasMore = false;
         }
         else
         {
-            pos = skipWhiteSpace( raw, ++pos );
+            reader->advance( 1 );
+            skipWhiteSpace( reader );
         }
     }
 
-    if ( raw[pos] != '}' )
+    if ( reader->get() != '}' )
     {
-        fail( "Invalid object!", pos );
+        fail( "Invalid object!", reader->position() );
     }
 
     *entity = std::move( JsonEntity( obj, nullptr ) );
-    return pos + 1;
+    reader->advance( 1 );
 }
 
-unsigned int parseValue( Allocator alloc, JsonEntity* entity,
-                         const std::string& raw, unsigned int pos )
+void parseValue( Allocator alloc, JsonEntity* entity, IStringReader* reader )
 {
     // number?
-    if ( raw[pos] == '-' || isdigit( raw[pos] ) )
+    if ( reader->get() == '-' || isdigit( reader->get() ) )
     {
-        pos = parseNumber( entity, raw, pos );
-        return pos;
+        parseNumber( entity, reader );
+        return;
     }
 
-    switch ( raw[pos] )
+    switch ( reader->get() )
     {
         // object?
         case '{':
-            pos = parseObject( alloc, entity, raw, pos );
+            parseObject( alloc, entity, reader );
             break;
 
         // array?
         case '[':
-            pos = parseArray( alloc, entity, raw, pos );
+            parseArray( alloc, entity, reader );
             break;
 
         // string?
         case '"':
-            pos = parseString( entity, raw, pos );
+            parseString( entity, reader );
             break;
 
         // boolean?
         case 't':
-            pos = parseTrue( entity, raw, pos );
+            parseTrue( entity, reader );
             break;
 
         case 'f':
-            pos = parseFalse( entity, raw, pos );
+            parseFalse( entity, reader );
             break;
 
         // empty?
         case 'n':
-            pos = parseEmpty( entity, raw, pos );
+            parseEmpty( entity, reader );
             break;
 
         default:
-            fail( "Invalid value type!", pos );
+            fail( "Invalid value type!", reader->position() );
     }
-
-    return pos;
 }
 
 JsonEntity* parseJson( sgdm::IAllocator<JsonEntity>* alloc,
-                       const std::string& raw )
+                       IStringReader* reader )
 {
-    sgdm::AllocatorGuard<JsonEntity> allocator;
+    sgdm::AllocatorGuard<JsonEntity> allocator( alloc );
 
     JsonEntity* root = allocator.get( 1 );
     allocator.construct( root, JsonEntity() );
 
-    unsigned int start = skipWhiteSpace( raw, 0, false );
+    skipWhiteSpace( reader, false );
 
     // done?
-    if ( start >= raw.length() )
+    if ( reader->isEnd() )
     {
         return root;
     }
 
-    switch ( raw[start] )
+    switch ( reader->get() )
     {
         // object
         case '{':
-            parseObject( alloc, root, raw, start );
+            parseObject( alloc, root, reader );
             break;
 
         // array
         case '[':
-            parseArray( alloc, root, raw, start );
+            parseArray( alloc, root, reader );
             break;
 
         default:
-            fail( "Invalid json!", start );
+            fail( "Invalid json!", reader->position() );
     }
 
     return root;
@@ -430,7 +428,8 @@ JsonEntity* parseJson( sgdm::IAllocator<JsonEntity>* alloc,
 JsonEntity* JsonParser::fromString( const std::string& raw,
                                     sgdm::IAllocator<JsonEntity>* allocator )
 {
-    return parseJson( allocator, raw );
+    BasicStringReader reader( raw );
+    return parseJson( allocator, &reader );
 }
 
 } // End nspc sgdd
