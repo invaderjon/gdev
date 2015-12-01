@@ -5,7 +5,7 @@
 // DP resolution scaling is currently unsupported.
 // See World for more information.
 //
-// todo: add support for afforementioned features
+// todo: add support for aforementioned features
 #ifndef INCLUDED_RENDERER
 #define INCLUDED_RENDERER
 #include "../containers/dynamic_array.h"
