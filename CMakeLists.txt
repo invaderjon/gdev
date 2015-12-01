@@ -269,13 +269,13 @@ set(
 # GAME SOURCES
 set(
     GAME_FILES
-    src/game/res.g.cpp
-    src/game/res.g.h
 )
 
 # SFML DEPENDENT GAME SOURCES
 set(
     GAME_SFML_DEP_FILES
+    src/game/res.g.cpp
+    src/game/res.g.h
     src/game/objects/actor.cpp
     src/game/objects/actor.h
 #    src/game/objects/iactor_factory.cpp
