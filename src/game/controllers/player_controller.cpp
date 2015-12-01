@@ -8,7 +8,7 @@ namespace mgc
 {
 
 // CONSTANT DECLARATIONS
-constexpr float PlayerController::MAX_OFFSET;
+constexpr float PlayerController::MAX_VELOCITY;
 constexpr float PlayerController::MIN_VELOCITY;
 constexpr float PlayerController::ACCELERATION;
 constexpr float PlayerController::KINETIC_FRICTION;
@@ -59,17 +59,14 @@ void PlayerController::preTick()
 
 void PlayerController::tick( float dt )
 {
-    using namespace sgdw;
+    using namespace sgds;
     using namespace gel::math;
 
+    const sgds::RectangleBounds& b = d_subject->bounds();
     World& w = World::inst();
 
     // check if it meets the minimum velocity for movement
     bool hasMinVelocity = Vec::length( d_velocity ) > MIN_VELOCITY;
-
-    // get minimum dimension
-    const sgds::RectangleBounds& b = d_subject->bounds();
-    float minDimension = Math::min( b.width(), b.height() );
 
     // is it moving faster than cutoff speed?
     // or is the acceleration greater than the static friction?
@@ -103,14 +100,15 @@ void PlayerController::tick( float dt )
     // check if new velocity meets cutoff
     if ( Vec::length( d_velocity ) > MIN_VELOCITY )
     {
+        const float maxDisplacement = MAX_VELOCITY * dt;
+
         // calculate displacement
         Vec2 dP = d_velocity * dt;
 
         // clamp displacement to one bounds offset
-        if ( dP.x > MAX_OFFSET * minDimension ||
-             dP.y > MAX_OFFSET * minDimension )
+        if ( Vec::length( dP ) > maxDisplacement )
         {
-            dP = Vec::normalize( dP ) * ( MAX_OFFSET * minDimension );
+            dP = Vec::normalize( dP ) * maxDisplacement;
         }
 
         // clamp movement to inside of the world

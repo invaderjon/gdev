@@ -12,9 +12,9 @@
 #ifndef INCLUDED_PLAYER_CONTROLLER
 #define INCLUDED_PLAYER_CONTROLLER
 
+#include <game/objects/actor.h>
 #include <engine/scene/itickable.h>
 #include <engine/input/input.h>
-#include <engine/world/actor.h>
 #include <gel/math/vec.h>
 
 namespace StevensDev
@@ -27,8 +27,8 @@ class PlayerController : public sgds::ITickable
 {
   private:
     // CONSTANTS
-    static constexpr float MAX_OFFSET = 1.0f;
-      // The actor's maximum allowed velocity (OU/sec).
+    static constexpr float MAX_VELOCITY = 100000.0f;
+      // The actor's maximum allowed velocity (WU/sec).
 
     static constexpr float MIN_VELOCITY = 50.0f;
       // The minimum required velocity to be considered in motion (WU/sec).
@@ -49,7 +49,7 @@ class PlayerController : public sgds::ITickable
     gel::math::Vec2 d_velocity;
       // The actor's velocity vector (OU/sec).
 
-    sgdw::Actor* d_subject;
+    mgo::Actor* d_subject;
       // The controller's subject (or in this case player).
 
   public:
@@ -57,11 +57,11 @@ class PlayerController : public sgds::ITickable
     PlayerController();
       // Constructs a new player controller without a subject.
 
-    PlayerController( sgdw::Actor* subject );
+    PlayerController( mgo::Actor* subject );
       // Constructs a new player controller using the given actor as it's
       // subject.
 
-    PlayerController( sgdw::Actor* subject,
+    PlayerController( mgo::Actor* subject,
                       const gel::math::Vec2& acceleration,
                       const gel::math::Vec2& velocity );
       // Constructs a new player controller for the given subject using
@@ -78,7 +78,7 @@ class PlayerController : public sgds::ITickable
       // Makes this a copy of the other controller.
 
     // ACCESSOR FUNCTIONS
-    sgdw::Actor* subject() const;
+    mgo::Actor* subject() const;
       // Gets a reference to the subject.
 
     const gel::math::Vec2& acceleration() const;
@@ -116,13 +116,13 @@ PlayerController::PlayerController() : d_acceleration(), d_velocity(),
 }
 
 inline
-PlayerController::PlayerController( sgdw::Actor* subject )
+PlayerController::PlayerController( mgo::Actor* subject )
     : d_acceleration(), d_velocity(), d_subject( subject )
 {
 }
 
 inline
-PlayerController::PlayerController( sgdw::Actor* subject,
+PlayerController::PlayerController( mgo::Actor* subject,
                                     const gel::math::Vec2& acceleration,
                                     const gel::math::Vec2& velocity )
     : d_acceleration( acceleration ), d_velocity( velocity ),
@@ -156,7 +156,7 @@ PlayerController& PlayerController::operator=(
 }
 
 inline
-sgdw::Actor* PlayerController::subject() const
+mgo::Actor* PlayerController::subject() const
 {
     return d_subject;
 }
