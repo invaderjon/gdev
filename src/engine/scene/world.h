@@ -15,7 +15,7 @@
 namespace StevensDev
 {
 
-namespace sgdw
+namespace sgds
 {
 
 // Definitions:
@@ -503,7 +503,7 @@ World& World::inst()
     return d_instance;
 }
 
-} // End nspc sgdw
+} // End nspc sgds
 
 } // End nspc StevensDev
 

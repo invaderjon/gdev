@@ -1,5 +1,4 @@
 // actor.h
-#include "world.h"
 #ifndef INCLUDED_ACTOR
 #define INCLUDED_ACTOR
 
@@ -7,12 +6,12 @@
 #include <engine/rendering/renderable_sprite.h>
 #include <engine/scene/collision.h>
 #include <engine/scene/icollider.h>
-#include "world.h"
+#include <engine/scene/world.h>
 
 namespace StevensDev
 {
 
-namespace sgdw
+namespace mgo
 {
 
 typedef unsigned int ActorID;
@@ -86,32 +85,32 @@ class Actor : public sgds::ICollider
     const std::string& name() const;
       // Gets the actor's name.
 
-    const sgdr::RenderableSprite& sprite() const;
+    virtual const sgdr::RenderableSprite& sprite() const;
       // Gets the actor's sprite.
 
     virtual const sgds::RectangleBounds& bounds() const;
       // Gets the actor's collision bounds (WU).
 
-    float getPositionX() const;
+    virtual float getPositionX() const;
       // Gets the actor's x position (WU).
 
-    float getPositionY() const;
+    virtual float getPositionY() const;
       // Gets the actor's y position (WU).
 
     virtual unsigned short flags() const;
       // Gets the actor's collision flags.
 
-    const sgdd::JsonEntity& properties() const;
+    virtual const sgdd::JsonEntity& properties() const;
       // Gets the actor's properties.
 
     // MUTATOR FUNCTIONS
     virtual void setFlags( unsigned short flags );
       // Sets the actor's collision flags.
 
-    void setPosition( float x, float y );
+    virtual void setPosition( float x, float y );
       // Sets the actor's position in the world (WU).
 
-    void move( float x, float y );
+    virtual void move( float x, float y );
       // Moves the actor by the specified offset (WU).
 
     // MEMBER FUNCTIONS
@@ -246,7 +245,7 @@ void Actor::setPosition( float x, float y )
 inline
 void Actor::move( float x, float y )
 {
-    World& w = World::inst();
+    sgds::World& w = sgds::World::inst();
     d_sprite.move( w.wuToDP( x ), w.wuToDP( y ) );
     d_bounds.setPosition( d_bounds.x() + x, d_bounds.y() + y );
 }
@@ -271,7 +270,7 @@ ActorID Actor::nextID()
     return d_nextID++;
 }
 
-} // End nspc sgdw
+} // End nspc mgo
 
 } // End nspc StevensDev
 

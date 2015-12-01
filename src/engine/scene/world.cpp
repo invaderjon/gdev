@@ -5,7 +5,7 @@
 namespace StevensDev
 {
 
-namespace sgdw
+namespace sgds
 {
 
 // GLOBALS
@@ -117,6 +117,6 @@ sgds::RectangleBounds World::calculateViewSpace(
     }
 }
 
-} // End nspc sgdw
+} // End nspc sgds
 
 } // End nspc StevensDev
