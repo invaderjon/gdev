@@ -60,10 +60,6 @@ class PlainTextFileReader : public IStringReader
     ~PlainTextFileReader();
       // Destructs the reader.
 
-    // MEMBER FUNCTIONS
-    void load( std::string path );
-      // Loads the specified file.
-
     virtual char get();
       // Gets the next character in the file.
       //
@@ -126,7 +122,6 @@ inline
 PlainTextFileReader& PlainTextFileReader::operator=(
     const PlainTextFileReader& reader )
 {
-    d_stream = std::ifstream();
     d_buffer = reader.d_buffer;
     d_position = reader.d_position;
     d_bufferSize = reader.d_bufferSize;
@@ -136,14 +131,6 @@ PlainTextFileReader& PlainTextFileReader::operator=(
 }
 
 // MEMBER FUNCTIONS
-inline
-void PlainTextFileReader::load( std::string path )
-{
-    assert( !d_stream.is_open() );
-    d_stream = std::ifstream( path );
-    assert( d_stream.is_open() );
-}
-
 inline
 unsigned long PlainTextFileReader::position() const
 {
