@@ -147,6 +147,9 @@ class DynamicArray
       // Throws runtime_error when:
       // index is out of bounds
 
+    bool doesContain( const T& value ) const;
+      // Checks if the array contains the given value.
+
     unsigned int size() const;
       // Gets the size of the array.
 };
@@ -424,6 +427,22 @@ inline
 unsigned int DynamicArray<T>::size() const
 {
     return d_size;
+}
+
+template <typename T>
+bool DynamicArray<T>::doesContain( const T& value ) const
+{
+    unsigned int i;
+    bool found;
+    for ( i = 0, found = false; !found && i < d_size; ++i )
+    {
+        if ( ( *this )[i] == value )
+        {
+            found = true;
+        }
+    }
+
+    return found;
 }
 
 // HELPER FUNCTIONS
