@@ -25,26 +25,26 @@ TEST( BasicStringReaderTest, Reading )
     std::string full = oss.str();
     BasicStringReader r( full );
 
-    oss = std::ostringstream();
+    std::ostringstream oss2;
 
     while ( !r.isEnd() )
     {
-        oss << r.get();
+        oss2 << r.get();
         r.advance( 1 );
     }
 
-    ASSERT_STREQ( full.c_str(), oss.str().c_str() );
+    ASSERT_STREQ( full.c_str(), oss2.str().c_str() );
 
-    oss = std::ostringstream();
+    std::stringstream oss3;
 
     r = BasicStringReader( full );
     while ( !r.isEnd() )
     {
-        oss << r.get( 10 );
+        oss3 << r.get( 10 );
         r.advance( 10 );
     }
 
-    ASSERT_STREQ( full.c_str(), oss.str().c_str() );
+    ASSERT_STREQ( full.c_str(), oss3.str().c_str() );
 }
 
 TEST( BasicStringReaderTest, Print )
