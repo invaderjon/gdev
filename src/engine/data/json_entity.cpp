@@ -54,21 +54,21 @@ JsonEntity::JsonEntity( JsonEntity&& other ) : d_type( other.d_type )
     {
         case OBJECT:
             d_mapAlloc = other.d_mapAlloc;
-            d_map = other.d_map;
+            d_map = std::move( other.d_map );
 
             other.d_map = nullptr;
             break;
 
         case ARRAY:
             d_arrAlloc = other.d_arrAlloc;
-            d_array = other.d_array;
+            d_array = std::move( other.d_array );
 
             other.d_array = nullptr;
             break;
 
         case STRING:
             d_strAlloc = other.d_strAlloc;
-            d_string = other.d_string;
+            d_string = std::move( other.d_string );
 
             other.d_string = nullptr;
             break;
@@ -218,21 +218,21 @@ JsonEntity& JsonEntity::operator=( JsonEntity&& other )
     {
         case OBJECT:
             d_mapAlloc = other.d_mapAlloc;
-            d_map = other.d_map;
+            d_map = std::move( other.d_map );
 
             other.d_map = nullptr;
             break;
 
         case ARRAY:
             d_arrAlloc = other.d_arrAlloc;
-            d_array = other.d_array;
+            d_array = std::move( other.d_array );
 
             other.d_array = nullptr;
             break;
 
         case STRING:
             d_strAlloc = other.d_strAlloc;
-            d_string = other.d_string;
+            d_string = std::move( other.d_string );
 
             other.d_string = nullptr;
             break;
