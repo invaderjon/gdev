@@ -61,6 +61,112 @@ set( CONFIGURED build )
 configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.g.h )
 configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.g.cpp )
 
+# GENERATE RESOURCES INDEX FILE AND DATABASE FILE
+file( REMOVE "${RES_DIR}/res.db" )
+file( REMOVE "${SOURCE_DIR}/game/res.g.h" )
+file( REMOVE "S{SOURCE_DIR/game/res.g.cpp" )
+file( GLOB_RECURSE RESOURCES "${RES_DIR}/*.*" )
+
+# create cpp for header
+file(
+    WRITE "${SOURCE_DIR}/game/res.g.cpp"
+    "// res.g.cpp\n"
+    "\#include \"res.g.h\""
+    "\n"
+    "namespace StevensDev\n"
+    "{\n"
+    "\n"
+    "namespace mgr\n"
+    "{\n"
+    "\n"
+    "    // CONSTANTS\n"
+)
+
+# open res header
+file (
+    WRITE "${SOURCE_DIR}/game/res.g.h"
+    "// res.g.h\n"
+    "\#ifndef INCLUDED_RES\n"
+    "\#define INCLUDED_RES\n"
+    "\n"
+    "#include <engine/assets/resource_manager.h>\n"
+    "\n"
+    "namespace StevensDev\n"
+    "{\n"
+    "\n"
+    "namespace mgr\n"
+    "{\n"
+    "\n"
+    "typedef sgda::ResourceID ResourceID;\n"
+    "\n"
+    "struct R\n"
+    "{\n"
+    "    // CONSTANTS\n"
+)
+
+set( CONFIG_ID 0 )
+set( TEX_ID 0 )
+set( TEX_ID 0 )
+foreach( RES ${RESOURCES} )
+    # determine rid
+    if( RES MATCHES "(.*)texture(.*)" )
+        set( RID ${TEX_ID} )
+        math( EXPR TEX_ID "${TEX_ID} + 1" )
+    elseif( RES MATCHES "(.*)config(.*)" )
+        set( RID ${CONFIG_ID} )
+        math( EXPR CONFIG_ID "${CONFIG_ID} + 1" )
+    else()
+        set( RID -1 )
+    endif()
+
+    # add to res header
+    string( REPLACE "${RES_DIR}" "" RNAME ${RES} )
+    string( REGEX REPLACE "\\..*" "" RNAME "${RNAME}" )
+    string( REPLACE "/" " " RNAME "${RNAME}" )
+    string( STRIP "${RNAME}" RNAME )
+    string( REPLACE " " "_" RNAME "${RNAME}" )
+    string( TOUPPER "${RNAME}" RNAME )
+    file(
+        APPEND "${SOURCE_DIR}/game/res.g.h"
+        "    static const ResourceID ${RNAME};\n"
+    )
+
+    # add to res cpp
+    file(
+        APPEND "${SOURCE_DIR}/game/res.g.cpp"
+        "const ResourceID R::${RNAME} = ( ResourceID )${RID};\n"
+    )
+
+    # add to database
+    string( REPLACE ${RES_DIR} "" RELATIVE_RES ${RES} )
+    set( RELATIVE_RES "res${RELATIVE_RES}" )
+    file(
+        APPEND "${RES_DIR}/res.db"
+        "${RID} ${RELATIVE_RES}\n"
+    )
+endforeach()
+
+# close res header
+file(
+    APPEND "${SOURCE_DIR}/game/res.g.h"
+    "};\n"
+    "\n"
+    "} // End nspc mgr\n"
+    "\n"
+    "} // End nspc StevensDev\n"
+    "\n"
+    "\#endif"
+)
+
+# close res cpp
+file(
+    APPEND "${SOURCE_DIR}/game/res.g.cpp"
+    "\n"
+    "} // End nspc mgr\n"
+    "\n"
+    "} // End nspc StevensDev\n"
+)
+
 # CMAKE CONFIGURATION
 set( CMAKE_CXX_FLAGS "-std=c++0x" )
 
@@ -73,14 +179,16 @@ include_directories(
 # ENGINE SOURCES
 set(
     ENGINE_FILES
-#    src/engine/assets/data_manager.cpp
-#    src/engine/assets/data_manager.h
+    src/engine/assets/config_data_factory.cpp
+    src/engine/assets/config_data_factory.h
+    src/engine/assets/data_manager.cpp
+    src/engine/assets/data_manager.h
     src/engine/assets/handle.cpp
     src/engine/assets/handle.h
     src/engine/assets/handle_manager.cpp
     src/engine/assets/handle_manager.h
-#    src/engine/assets/idata_factory.cpp
-#    src/engine/assets/idata_factory.h
+    src/engine/assets/idata_factory.cpp
+    src/engine/assets/idata_factory.h
     src/engine/build.g.cpp
     src/engine/build.g.h
     src/engine/data/json_printer.cpp
@@ -89,10 +197,18 @@ set(
     src/engine/containers/dynamic_array.h
     src/engine/containers/map.cpp
     src/engine/containers/map.h
+    src/engine/data/basic_string_reader.cpp
+    src/engine/data/basic_string_reader.h
+    src/engine/data/ireader.cpp
+    src/engine/data/ireader.h
+    src/engine/data/istringreader.cpp
+    src/engine/data/istringreader.h
     src/engine/data/json_entity.cpp
     src/engine/data/json_entity.h
     src/engine/data/json_parser.cpp
     src/engine/data/json_parser.h
+    src/engine/data/plain_text_file_reader.cpp
+    src/engine/data/plain_text_file_reader.h
     src/engine/events/event_bus.cpp
     src/engine/events/event_bus.h
     src/engine/events/event_dispatcher.cpp
@@ -134,10 +250,8 @@ set(
 # SFML DEPENDENT ENGINE SOURCES
 set(
     ENGINE_SFML_DEP_FILES
-#    src/engine/assets/resource_manager.cpp
-#    src/engine/assets/resource_manager.h
-#    src/engine/game/resource_manager.cpp
-#    src/engine/game/resource_manager.h
+    src/engine/assets/resource_manager.cpp
+    src/engine/assets/resource_manager.h
     src/engine/input/input.cpp
     src/engine/input/input.h
     src/engine/rendering/renderable_sprite.cpp
@@ -148,11 +262,15 @@ set(
     src/engine/scene/scene.h
     src/engine/util/input_utils.cpp
     src/engine/util/input_utils.h
+    src/engine/assets/image_data_factory.cpp
+    src/engine/assets/image_data_factory.h
 )
 
 # GAME SOURCES
 set(
     GAME_FILES
+    src/game/res.g.cpp
+    src/game/res.g.h
 )
 
 # SFML DEPENDENT GAME SOURCES
@@ -160,8 +278,8 @@ set(
     GAME_SFML_DEP_FILES
     src/game/objects/actor.cpp
     src/game/objects/actor.h
-    src/game/objects/iactor_factory.cpp
-    src/game/objects/iactor_factory.h
+#    src/game/objects/iactor_factory.cpp
+#    src/game/objects/iactor_factory.h
     src/game/controllers/player_controller.cpp
     src/game/controllers/player_controller.h
 )
@@ -173,10 +291,11 @@ set(
     ${GAME_FILES}
     ${GAME_SFML_DEP_FILES}
     ${ENGINE_FILES}
-    ${ENGINE_SFML_DEP_FILES} )
+    ${ENGINE_SFML_DEP_FILES}
+)
 
 # GAME RESOURCES (COPY)
-file( GLOB RESOURCES "${RES_DIR}/*")
+file( GLOB RESOURCES "${RES_DIR}/*" )
 file( COPY ${RESOURCES} DESTINATION "${CMAKE_BINARY_DIR}/res" )
 
 # TRAVIS-CI GUARD
@@ -213,14 +332,21 @@ if ( BUILD_TESTS OR CLION )
         ${GAME_FILES}
         ${ENGINE_FILES}
         test/trival_tests.cpp
+        test/engine/assets/data_manager.t.cpp
+        test/engine/assets/handle.t.cpp
+        test/engine/assets/handle_manager.t.cpp
+        test/engine/assets/test_data_factory.cpp
+        test/engine/assets/test_data_factory.h
         test/engine/memory/allocator_guard.t.cpp
         test/engine/memory/counting_allocator.t.cpp
         test/engine/memory/default_allocator.t.cpp
         test/engine/containers/dynamic_array.t.cpp
         test/engine/containers/map.t.cpp
+        test/engine/data/basic_string_reader.t.cpp
         test/engine/data/json_entity.t.cpp
         test/engine/data/json_parser.t.cpp
         test/engine/data/json_printer.t.cpp
+        test/engine/data/plain_text_file_reader.t.cpp
         test/engine/events/test_event.cpp
         test/engine/events/test_event.h
         test/engine/events/test_listener.cpp
@@ -236,18 +362,20 @@ if ( BUILD_TESTS OR CLION )
         test/engine/util/string_utils.t.cpp
         test/engine/scene/nxn_scene_graph.t.cpp
         test/engine/scene/rectangle_bounds.t.cpp
-        test/engine/assets/handle.t.cpp test/engine/assets/handle_manager.t.cpp )
+    )
 
     # SFML DEPENDENT TESTS
     set(
         TEST_SFML_DEP_FILES
+        test/engine/assets/resource_manager.t.cpp
         test/engine/input/input.t.cpp
         test/engine/rendering/renderable_sprite.t.cpp
         test/engine/rendering/renderer.t.cpp
         test/engine/scene/scene.t.cpp
         test/engine/scene/test_input_controller.cpp
         test/engine/scene/test_input_controller.h
-        test/game/controllers/player_controller.t.cpp )
+#        test/game/controllers/player_controller.t.cpp
+    )
 
     # TRAVIS-CI GUARD
     if( NOT DEFINED TRAVIS_CI )
@@ -272,6 +400,10 @@ if ( BUILD_TESTS OR CLION )
         ${SFLML_LIBRARIES_FOR_TEST}
         ${LIB_GEL}
     )
+
+    # GAME RESOURCES (COPY)
+    file( GLOB RESOURCES "${RES_DIR}/*")
+    file( COPY ${RESOURCES} DESTINATION "${CMAKE_BINARY_DIR}/res" )
 
     # MAKE TESTS
     include( CTest )
