@@ -49,21 +49,21 @@ class DataManager
     HandleManager<Tag, Data> d_handleManager;
       // The handle manager.
 
-    sgdc::Map<Descriptor> d_descriptors;
-      // Maps resource ids to the associated file descriptors.
-
     sgdc::Map<Object> d_objects;
       // Maps the file paths to the associated handles along with some garbage
       // collection information.
       //
       // This can also be used to check if a file already has a handle yet.
 
+    sgdc::DynamicArray<Descriptor> d_descriptors;
+      // Maps resource ids to the associated file descriptors.
+
     sgdc::DynamicArray<Object> d_oldVersions;
       // A list of old objects for when objects are reloaded during
       // hot-swapping.
       // todo: use this
 
-    Object& get( const std::string& rid );
+    Object& get( unsigned int rid );
       // Gets the resource with the given path.
 
     Object* find( const Handle<Tag>& handle );
@@ -91,16 +91,15 @@ class DataManager
       // Makes this a copy of the give manager.
 
     // MEMBER FUNCTIONS
-    void addFile( const std::string& rid, const std::string& path,
-                  size_t size );
+    void addFile( unsigned int rid, const std::string& path, size_t size );
       // Add to the list of known files
 
-    const Handle<Tag>& acquire( const std::string& rid );
+    const Handle<Tag>& acquire( unsigned int rid );
       // Gets a handle for the resource with the given id.
       //
       // If a handle does not exist for the resource it will be created.
 
-    void load( const std::string& rid, bool isPermanent = false );
+    void load( unsigned int rid, bool isPermanent = false );
       // Loads the resource with the given id.
       //
       // Permanence only affects the garbage collector therefore permanent
@@ -116,17 +115,17 @@ class DataManager
       //
       // Undefined behavior if the handle is invalid.
 
-    bool unload( const std::string& rid );
+    bool unload( unsigned int rid );
       // Unloads the resource with the given id and returns if it was
       // successful.
 
     bool release( const Handle<Tag>& handle );
       // Releases the handle and returns it to the pool.
 
-    bool isLoaded( const std::string& rid ) const;
+    bool isLoaded( unsigned int rid ) const;
       // Checks if the given resource is loaded.
 
-    bool hasHandle( const std::string& rid ) const;
+    bool hasHandle( unsigned int rid ) const;
       // Checks if the resource with the given id has a pre-existing handle
       // associated with it.
 
@@ -134,18 +133,28 @@ class DataManager
       // Perform garbage collection.
 };
 
+// FREE OPERATORS
+template <typename T, typename D>
+inline
+std::ostream& operator<<( std::ostream& stream, const DataManager<T, D>& mgr )
+{
+    return stream << "{  }";
+}
+
 // CONSTRUCTORS
 template <typename T, typename D>
 inline
 DataManager<T, D>::DataManager() : d_factory( nullptr ), d_handleManager(),
-                                   d_descriptors(), d_objects()
+                                   d_objects(), d_descriptors(),
+                                   d_oldVersions()
 {
 }
 
 template <typename T, typename D>
 inline
 DataManager<T, D>::DataManager( IDataFactory<D>* factory )
-    : d_factory( factory ), d_handleManager(), d_descriptors(), d_objects()
+    : d_factory( factory ), d_handleManager(), d_objects(), d_descriptors(),
+      d_oldVersions()
 {
 }
 
@@ -154,7 +163,8 @@ inline
 DataManager<T, D>::DataManager( const sgda::DataManager<T, D>& manager )
     : d_factory( manager.d_factory ),
       d_handleManager( manager.d_handleManager ),
-      d_descriptors( manager.d_descriptors ), d_objects( manager.d_objects )
+      d_objects( manager.d_objects ), d_descriptors( manager.d_descriptors ),
+      d_oldVersions( manager.d_oldVersions )
 {
 }
 
@@ -172,25 +182,26 @@ DataManager<T, D>& DataManager<T, D>::operator=(
 {
     d_factory = manager.d_factory;
     d_handleManager = manager.d_handleManager;
-    d_descriptors = manager.d_descriptors;
     d_objects = manager.d_objects;
+    d_descriptors = manager.d_descriptors;
+    d_oldVersions = manager.d_oldVersions;
 
     return *this;
 }
 
 // MEMBER FUNCTIONS
 template <typename T, typename D>
-void DataManager<T, D>::addFile( const std::string& rid,
+void DataManager<T, D>::addFile( unsigned int rid,
                                  const std::string& path, size_t size )
 {
     Descriptor desc;
     desc.path = path;
     desc.size = size;
-    d_descriptors[rid] = desc;
+    d_descriptors.insertAt( rid, desc );
 }
 
 template <typename T, typename D>
-const Handle<T>& DataManager<T, D>::acquire( const std::string& rid )
+const Handle<T>& DataManager<T, D>::acquire( unsigned int rid )
 {
     Object& obj = get( rid );
     ++obj.references;
@@ -198,7 +209,7 @@ const Handle<T>& DataManager<T, D>::acquire( const std::string& rid )
 }
 
 template <typename T, typename D>
-void DataManager<T, D>::load( const std::string& rid, bool isPermanent )
+void DataManager<T, D>::load( unsigned int rid, bool isPermanent )
 {
     Object& obj = get( rid );
 
@@ -229,7 +240,7 @@ const D& DataManager<T, D>::dereference( const Handle<T>& handle ) const
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::unload( const std::string& rid )
+bool DataManager<T, D>::unload( unsigned int rid )
 {
     Object& obj = get( rid );
 
@@ -260,9 +271,9 @@ bool DataManager<T, D>::release( const Handle<T>& handle )
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::isLoaded( const std::string& rid ) const
+bool DataManager<T, D>::isLoaded( unsigned int rid ) const
 {
-    assert( d_descriptors.has( rid ) );
+    assert( rid < d_descriptors.size() );
 
     const Descriptor& desc = d_descriptors[rid];
 
@@ -270,9 +281,9 @@ bool DataManager<T, D>::isLoaded( const std::string& rid ) const
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::hasHandle( const std::string& rid ) const
+bool DataManager<T, D>::hasHandle( unsigned int rid ) const
 {
-    assert( d_descriptors.has( rid ) );
+    assert( rid < d_descriptors.size() );
 
     return d_objects.has( d_descriptors[rid].path );
 }
@@ -326,9 +337,9 @@ void DataManager<T, D>::clean()
 // HELPER FUNCTIONS
 template <typename T, typename D>
 typename DataManager<T, D>::Object&
-DataManager<T, D>::get( const std::string& rid )
+DataManager<T, D>::get( unsigned int rid )
 {
-    assert( d_descriptors.has( rid ) );
+    assert( rid < d_descriptors.size() );
 
     const Descriptor& desc = d_descriptors[rid];
 
