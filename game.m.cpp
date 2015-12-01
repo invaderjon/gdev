@@ -1,6 +1,7 @@
 // game.m.cpp
-#include <engine/world/actor.h>
+#include <game/objects/actor.h>
 #include <game/controllers/player_controller.h>
+#include <engine/assets/handle.h>
 #include "engine/build.g.h"
 #include "engine/input/input.h"
 #include "engine/rendering/renderer.h"
@@ -29,19 +30,19 @@ int main( int argc, char *argv[] )
     cout << endl;
 
     // set up game
-    sgdw::World::initialize( sgds::RectangleBounds( 0, 0, 800, 600 ),
+    sgds::World::initialize( sgds::RectangleBounds( 0, 0, 800, 600 ),
                              sgds::RectangleBounds( 0, 0, 800, 600 ),
                              sgds::RectangleBounds( 0, 0, 800, 600 ),
                              1.0f );
     sgdi::Input& input = sgdi::Input::inst();
     sgds::Scene& scene = sgds::Scene::inst();
-    sgdw::World& world = sgdw::World::inst();
+    sgds::World& world = sgds::World::inst();
     sgdr::Renderer renderer;
 
     assert( renderer.loadTexture( "block", "res/texture/block.png" ) );
     sgdr::RenderableSprite sprite( renderer.getTexture( "block" ) );
 
-    sgdw::Actor actor(
+    mgo::Actor actor(
         "test", sprite,
         sgds::RectangleBounds( world.dpToWU( sprite.getPositionX() ),
                                world.dpToWU( sprite.getPositionY() ),
