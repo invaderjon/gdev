@@ -15,7 +15,7 @@ class IReader
     virtual ~IReader() = 0;
       // Destructs the reader.
 
-    virtual T get() const = 0;
+    virtual T get() = 0;
       // Gets the current item.
 
     virtual void advance( unsigned int n ) = 0;

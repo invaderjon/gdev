@@ -17,10 +17,10 @@ class IStringReader : public IReader<char>
     virtual ~IStringReader() = 0;
       // Destructs the string reader.
 
-    virtual char get() const = 0;
+    virtual char get() = 0;
       // Gets the current character.
 
-    virtual std::string get( unsigned int n ) const = 0;
+    virtual std::string get( unsigned int n ) = 0;
       // Gets up to the next n characters.
       //
       // If there are not n characters remaining it will return as many as

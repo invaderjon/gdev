@@ -39,15 +39,14 @@ class BasicStringReader : public IStringReader
       // Makes this a copy of the other reader.
 
     // MEMBER FUNCTIONS
-    virtual char get() const;
+    virtual char get();
       // Gets the current character.
 
-    virtual std::string get( unsigned int n ) const;
+    virtual std::string get( unsigned int n );
       // Gets up to the next n characters.
       //
       // If there are not n characters remaining it will return as many as
       // it can.
-
 
     virtual void advance( unsigned int n );
       // Advances the reader n characters.
@@ -103,14 +102,14 @@ BasicStringReader& BasicStringReader::operator=(
 
 // MEMBER FUNCTIONS
 inline
-char BasicStringReader::get() const
+char BasicStringReader::get()
 {
     assert( !isEnd() );
     return d_string[d_position];
 }
 
 inline
-std::string BasicStringReader::get( unsigned int n ) const
+std::string BasicStringReader::get( unsigned int n )
 {
     assert( !isEnd() );
     if ( d_position + n > d_string.length() )
