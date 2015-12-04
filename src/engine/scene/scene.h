@@ -53,6 +53,12 @@ class Scene
     void tick();
       // Updates the scene.
 
+    void addRenderable( const sgdr::RenderableSprite* sprite );
+      // Add a sprite to the scene.
+
+    void removeRenderable( const sgdr::RenderableSprite* sprite );
+      // Removes a sprite from the scene.
+
     void addTickable( ITickable* tickable );
       // Adds a tickable to the scene.
 
@@ -113,6 +119,20 @@ float Scene::getHeight() const
 {
     assert( d_renderer != nullptr );
     return d_renderer->height();
+}
+
+inline
+void Scene::addRenderable( const sgdr::RenderableSprite* sprite )
+{
+    assert( sprite != nullptr );
+    d_renderer->addSprite( sprite );
+}
+
+inline
+void Scene::removeRenderable( const sgdr::RenderableSprite* sprite )
+{
+    assert( sprite != nullptr );
+    d_renderer->removeSprite( sprite );
 }
 
 inline
