@@ -63,7 +63,7 @@ void PlayerController::tick( float dt )
     using namespace gel::math;
 
     const sgds::RectangleBounds& b = d_subject->bounds();
-    World& w = World::inst();
+    WorldView& w = WorldView::inst();
 
     // check if it meets the minimum velocity for movement
     bool hasMinVelocity = Vec::length( d_velocity ) > MIN_VELOCITY;

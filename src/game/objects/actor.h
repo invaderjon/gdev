@@ -6,7 +6,7 @@
 #include <engine/rendering/renderable_sprite.h>
 #include <engine/scene/collision.h>
 #include <engine/scene/icollider.h>
-#include <engine/scene/world.h>
+#include <engine/scene/world_view.h>
 
 namespace StevensDev
 {
@@ -245,7 +245,7 @@ void Actor::setPosition( float x, float y )
 inline
 void Actor::move( float x, float y )
 {
-    sgds::World& w = sgds::World::inst();
+    sgds::WorldView& w = sgds::WorldView::inst();
     d_sprite.move( w.wuToDP( x ), w.wuToDP( y ) );
     d_bounds.setPosition( d_bounds.x() + x, d_bounds.y() + y );
 }
