@@ -13,7 +13,7 @@ TEST( RenderableSpriteTest, Construction )
     Renderer renderer;
 
     // can't continue if can't find the texture
-    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/block.png" ) );
+    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/actor/block/block.png" ) );
 
     RenderableSprite texture( renderer.getTexture( "test" ) );
     RenderableSprite sprite( sf::Sprite( renderer.getTexture( "test" ) ) );
@@ -28,7 +28,7 @@ TEST( RenderableSpriteTest, Position )
     Renderer renderer;
 
     // can't continue if can't find the texture
-    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/block.png" ) );
+    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/actor/block/block.png" ) );
 
     RenderableSprite sprite( renderer.getTexture( "test" ) );
 
@@ -50,7 +50,7 @@ TEST( RenderableSpriteTest, Print )
     Renderer renderer;
 
     // can't continue if can't find the texture
-    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/block.png" ) );
+    ASSERT_TRUE( renderer.loadTexture( "test", "res/texture/actor/block/block.png" ) );
 
     RenderableSprite sprite( renderer.getTexture( "test" ) );
     sprite.setPosition( 0.0f, 0.0f );
