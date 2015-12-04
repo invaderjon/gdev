@@ -61,100 +61,109 @@ set( CONFIGURED build )
 configure_file( build.cmake.in ${SOURCE_DIR}/engine/build.g.h )
 configure_file( configured.cmake.in ${SOURCE_DIR}/engine/build.g.cpp )
 
-# GENERATE RESOURCES INDEX FILE AND DATABASE FILE
-file( REMOVE "${RES_DIR}/res.db" )
-file( REMOVE "${SOURCE_DIR}/game/res.g.h" )
-file( REMOVE "S{SOURCE_DIR/game/res.g.cpp" )
-file( GLOB_RECURSE RESOURCES "${RES_DIR}/*.*" )
-
-# create cpp for header
-file(
-    WRITE "${SOURCE_DIR}/game/res.g.cpp"
-    "// res.g.cpp\n"
-    "\#include \"res.g.h\""
-    "\n"
-    "namespace StevensDev\n"
-    "{\n"
-    "\n"
-    "namespace mgr\n"
-    "{\n"
-    "\n"
-    "    // CONSTANTS\n"
-)
-
-# open res header
-file (
-    WRITE "${SOURCE_DIR}/game/res.g.h"
-    "// res.g.h\n"
-    "\#ifndef INCLUDED_RES\n"
-    "\#define INCLUDED_RES\n"
-    "\n"
-    "#include <engine/assets/resource_manager.h>\n"
-    "\n"
-    "namespace StevensDev\n"
-    "{\n"
-    "\n"
-    "namespace mgr\n"
-    "{\n"
-    "\n"
-    "typedef sgda::ResourceID ResourceID;\n"
-    "\n"
-    "struct R\n"
-    "{\n"
-    "    // CONSTANTS\n"
-)
-
-set( RID 0 )
-foreach( RES ${RESOURCES} )
-    # add to res header
-    string( REPLACE "${RES_DIR}" "" RNAME ${RES} )
-    string( REGEX REPLACE "\\..*" "" RNAME "${RNAME}" )
-    string( REPLACE "/" " " RNAME "${RNAME}" )
-    string( STRIP "${RNAME}" RNAME )
-    string( REPLACE " " "_" RNAME "${RNAME}" )
-    string( TOUPPER "${RNAME}" RNAME )
-    file(
-        APPEND "${SOURCE_DIR}/game/res.g.h"
-        "    static const ResourceID ${RNAME};\n"
-    )
-
-    # add to res cpp
-    file(
-        APPEND "${SOURCE_DIR}/game/res.g.cpp"
-        "const ResourceID R::${RNAME} = ( ResourceID )${RID};\n"
-    )
-
-    # add to database
-    string( REPLACE ${RES_DIR} "" RELATIVE_RES ${RES} )
-    set( RELATIVE_RES "res${RELATIVE_RES}" )
-    file(
-        APPEND "${RES_DIR}/res.db"
-        "${RID} ${RELATIVE_RES}\n"
-    )
-
-    math( EXPR RID "${RID} + 1" )
-endforeach()
-
-# close res header
-file(
-    APPEND "${SOURCE_DIR}/game/res.g.h"
-    "};\n"
-    "\n"
-    "} // End nspc mgr\n"
-    "\n"
-    "} // End nspc StevensDev\n"
-    "\n"
-    "\#endif"
-)
-
-# close res cpp
-file(
-    APPEND "${SOURCE_DIR}/game/res.g.cpp"
-    "\n"
-    "} // End nspc mgr\n"
-    "\n"
-    "} // End nspc StevensDev\n"
-)
+## GENERATE RESOURCES INDEX FILE AND DATABASE FILE
+#file( REMOVE "${RES_DIR}/res.db" )
+#file( REMOVE "${SOURCE_DIR}/game/res.g.h" )
+#file( REMOVE "S{SOURCE_DIR/game/res.g.cpp" )
+#file( GLOB_RECURSE RESOURCES "${RES_DIR}/*.*" )
+#
+## create cpp for header
+#file(
+#    WRITE "${SOURCE_DIR}/game/res.g.cpp"
+#    "// res.g.cpp\n"
+#    "\#include \"res.g.h\""
+#    "\n"
+#    "namespace StevensDev\n"
+#    "{\n"
+#    "\n"
+#    "namespace mgr\n"
+#    "{\n"
+#    "\n"
+#    "    // CONSTANTS\n"
+#)
+#
+## open res header
+#file (
+#    WRITE "${SOURCE_DIR}/game/res.g.h"
+#    "// res.g.h\n"
+#    "\#ifndef INCLUDED_RES\n"
+#    "\#define INCLUDED_RES\n"
+#    "\n"
+#    "#include <engine/assets/resource_database.h>\n"
+#    "\n"
+#    "namespace StevensDev\n"
+#    "{\n"
+#    "\n"
+#    "namespace mgr\n"
+#    "{\n"
+#    "\n"
+#    "typedef sgda::ResourceID ResourceID;\n"
+#    "\n"
+#    "struct R\n"
+#    "{\n"
+#    "    // CONSTANTS\n"
+#)
+#
+#list( LENGTH RESOURCES RES_COUNT )
+#file( WRITE "${RES_DIR}/res.db" "${RES_COUNT}\n" )
+#
+#foreach( RES ${RESOURCES} )
+#    # add to res header
+#    string( REPLACE "${RES_DIR}" "" RID ${RES} )
+#    string( REGEX REPLACE "\\..*" "" RID "${RID}" )
+#    string( REPLACE " " "_" RID "${RID}" )
+#    string( REPLACE "/" " " RID "${RID}" )
+#    string( STRIP "${RNAME}" RID )
+#    string( REPLACE " " "." RID "${RID}" )
+#    set( RID "R.${RID}" )
+#
+#    # add to res header
+#    string( REPLACE "${RES_DIR}" "" RNAME ${RES} )
+#    string( REGEX REPLACE "\\..*" "" RNAME "${RNAME}" )
+#    string( REPLACE "/" " " RNAME "${RNAME}" )
+#    string( STRIP "${RNAME}" RNAME )
+#    string( REPLACE " " "_" RNAME "${RNAME}" )
+#    string( TOUPPER "${RNAME}" RNAME )
+#    file(
+#        APPEND "${SOURCE_DIR}/game/res.g.h"
+#        "    static const ResourceID ${RNAME};\n"
+#    )
+#
+#    # add to res cpp
+#    file(
+#        APPEND "${SOURCE_DIR}/game/res.g.cpp"
+#        "const ResourceID R::${RNAME} = ( ResourceID )\"${RID}\";\n"
+#    )
+#
+#    # add to database
+#    string( REPLACE ${RES_DIR} "" RELATIVE_RES ${RES} )
+#    set( RELATIVE_RES "res${RELATIVE_RES}" )
+#    file(
+#        APPEND "${RES_DIR}/res.db"
+#        "${RID} ${RELATIVE_RES}\n"
+#    )
+#endforeach()
+#
+## close res header
+#file(
+#    APPEND "${SOURCE_DIR}/game/res.g.h"
+#    "};\n"
+#    "\n"
+#    "} // End nspc mgr\n"
+#    "\n"
+#    "} // End nspc StevensDev\n"
+#    "\n"
+#    "\#endif"
+#)
+#
+## close res cpp
+#file(
+#    APPEND "${SOURCE_DIR}/game/res.g.cpp"
+#    "\n"
+#    "} // End nspc mgr\n"
+#    "\n"
+#    "} // End nspc StevensDev\n"
+#)
 
 # CMAKE CONFIGURATION
 set( CMAKE_CXX_FLAGS "-std=c++0x" )
@@ -269,8 +278,8 @@ set(
     GAME_SFML_DEP_FILES
     src/game/base/game.cpp
     src/game/base/game.h
-    src/game/res.g.cpp
-    src/game/res.g.h
+    src/game/res.cpp
+    src/game/res.h
     src/game/objects/actor.cpp
     src/game/objects/actor.h
     src/game/controllers/player_controller.cpp

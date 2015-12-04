@@ -1,0 +1,6 @@
+5
+R.test.res res/test/res.db
+R.texture.actor.block.block res/texture/actor/block/block.png
+R.font.ubuntu_mono_r res/font/ubuntu_mono_r.ttf
+R.config.actor.block.player res/config/actor/block/player.conf
+R.config.actor.block.enemy res/config/actor/block/enemy.conf

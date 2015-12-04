@@ -7,6 +7,3 @@ build/*
 # CMake Generated Files
 *.g.h
 *.g.cpp
-
-# Resource Database
-res/res.db
