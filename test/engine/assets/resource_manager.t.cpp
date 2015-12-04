@@ -1,6 +1,6 @@
 // resource_manager.t.cpp
 #include <engine/assets/resource_manager.h>
-#include <game/res.g.h>
+#include <game/res.h>
 #include <gtest/gtest.h>
 
 TEST( ResourceManagerTest, Images )
@@ -8,6 +8,10 @@ TEST( ResourceManagerTest, Images )
     using namespace StevensDev::sgda;
     using namespace StevensDev::mgr;
 
+    ResourceDatabase rdb;
+    rdb.addPackageResources( "res/res.db" );
+
+    ResourceManager::init( &rdb );
     ResourceManager& manager = ResourceManager::inst();
 
     Handle<ImageTag> handle =
@@ -24,6 +28,10 @@ TEST( ResourceManagerTest, Configs )
     using namespace StevensDev::sgdd;
     using namespace StevensDev::mgr;
 
+    ResourceDatabase rdb;
+    rdb.addPackageResources( "res/res.db" );
+
+    ResourceManager::init( &rdb );
     ResourceManager& manager = ResourceManager::inst();
 
     Handle<ConfigTag> handle =
