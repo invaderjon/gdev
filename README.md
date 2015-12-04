@@ -33,11 +33,6 @@ To also build the unit tests call **cmake .. -DBUILD_TESTS=ON** instead of
 To run it from the project root directory simply call **./build/gdev**.
 To run the tests call **./build/tests**.
 
-## Game ##
-
-Currently all that is available is a simple test that allows you to control a
-block. To move the block press the left, up, down, or right arrows.
-
 ## See ##
 
 [Standards Document][Standards]
