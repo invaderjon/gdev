@@ -1,8 +1,8 @@
 // renderable_sprite.h
 #ifndef INCLUDED_RENDERABLE_SPRITE
 #define INCLUDED_RENDERABLE_SPRITE
-#include "../data/json_printer.h"
-#include <engine/scene/world.h>
+#include "engine/data/json_printer.h"
+#include "engine/scene/world_view.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
@@ -123,42 +123,42 @@ const sf::Sprite& RenderableSprite::sprite() const
 inline
 void RenderableSprite::setPosition( float x, float y )
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     d_sprite.setPosition( w.dpToPX( x ), w.dpToPX( y ) );
 }
 
 inline
 float RenderableSprite::getPositionX() const
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     return w.pxToDP( d_sprite.getPosition().x );
 }
 
 inline
 float RenderableSprite::getPositionY() const
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     return w.pxToDP( d_sprite.getPosition().y );
 }
 
 inline
 void RenderableSprite::move( float x, float y )
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     d_sprite.move( w.dpToPX( x ), w.dpToPX( y ) );
 }
 
 inline
 float RenderableSprite::getWidth() const
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     return w.pxToDP( d_sprite.getGlobalBounds().width );
 }
 
 inline
 float RenderableSprite::getHeight() const
 {
-    const sgds::World& w = sgds::World::inst();
+    const sgds::WorldView& w = sgds::WorldView::inst();
     return w.pxToDP( d_sprite.getGlobalBounds().height );
 }
 

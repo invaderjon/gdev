@@ -3,7 +3,7 @@
 // View Space scaling and motion is currently unsupported.
 // View Spaces of different sizes than the window are currently unsupported.
 // DP resolution scaling is currently unsupported.
-// See World for more information.
+// See WorldView for more information.
 //
 // todo: add support for aforementioned features
 #ifndef INCLUDED_RENDERER
