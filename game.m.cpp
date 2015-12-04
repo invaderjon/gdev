@@ -2,6 +2,8 @@
 #include <game/objects/actor.h>
 #include <game/controllers/player_controller.h>
 #include <engine/assets/handle.h>
+#include <assert.h>
+#include <game/base/game.h>
 #include "engine/build.g.h"
 #include "engine/input/input.h"
 #include "engine/rendering/renderer.h"
@@ -29,40 +31,25 @@ int main( int argc, char *argv[] )
     }
     cout << endl;
 
-    // set up game
-    sgds::World::initialize( sgds::RectangleBounds( 0, 0, 800, 600 ),
-                             sgds::RectangleBounds( 0, 0, 800, 600 ),
-                             sgds::RectangleBounds( 0, 0, 800, 600 ),
-                             1.0f );
-    sgdi::Input& input = sgdi::Input::inst();
-    sgds::Scene& scene = sgds::Scene::inst();
-    sgds::World& world = sgds::World::inst();
-    sgdr::Renderer renderer;
-
-    assert( renderer.loadTexture( "block", "res/texture/block.png" ) );
-    sgdr::RenderableSprite sprite( renderer.getTexture( "block" ) );
-
-    mgo::Actor actor(
-        "test", sprite,
-        sgds::RectangleBounds( world.dpToWU( sprite.getPositionX() ),
-                               world.dpToWU( sprite.getPositionY() ),
-                               world.dpToWU( sprite.getWidth() ),
-                               world.dpToWU( sprite.getHeight() ) ),
-        0, sgdd::JsonEntity() );
-
-
-
-    renderer.addSprite( &actor.sprite() );
-    scene.addTickable( &input );
-    scene.addTickable( new mgc::PlayerController( &actor ) );
-    scene.setRenderer( &renderer );
-
-    renderer.setupWindow( 800, 600 );
-
-    while ( renderer.isActive() )
+    mgb::Game game;
+    game.initialize( "Simulation" );
+    while ( game.poll() != mgb::Game::EngineEvent::STATUS_INITIALIZED )
     {
-        scene.tick();
+        // wait for initialization
     }
+
+    game.startup();
+    while ( game.poll() != mgb::Game::EngineEvent::STATUS_STARTED )
+    {
+        // wait for startup
+    }
+
+    while ( game.isRunning() )
+    {
+        game.update();
+    }
+
+    game.shutdown();
 
     cout << "Finished. Exiting..." << endl;
 
