@@ -29,8 +29,6 @@ struct ConfigTag
 {
 };
 
-typedef unsigned int ResourceID;
-
 class ResourceManager : public sgds::ITickable
 {
   private:
@@ -76,19 +74,13 @@ class ResourceManager : public sgds::ITickable
       // Gets a reference to the resource manager.
 
     static void init( ResourceDatabase* db );
-      // Constrcts a resource manager that is using the given database.
+      // Constructs a resource manager that is using the given database.
 
     // CONSTRUCTORS
     ~ResourceManager();
       // Destructs the resource manager.
 
     // MEMBER FUNCTIONS
-    void loadDatabase();
-      // Loads the resource database.
-
-    void applyPatch( std::string dbPath );
-      // Apply a resource database patch.
-
     const Handle<ImageTag>& getImageHandle( const ResourceID& rid );
       // Gets a handle for the image with the given id.
 

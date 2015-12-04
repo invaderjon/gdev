@@ -181,7 +181,7 @@ DataManager<T, D>& DataManager<T, D>::operator=(
 
 // MEMBER FUNCTIONS
 template <typename T, typename D>
-const Handle<T>& DataManager<T, D>::acquire( unsigned int rid )
+const Handle<T>& DataManager<T, D>::acquire( ResourceID rid )
 {
     Object& obj = get( rid );
     ++obj.references;
@@ -189,7 +189,7 @@ const Handle<T>& DataManager<T, D>::acquire( unsigned int rid )
 }
 
 template <typename T, typename D>
-void DataManager<T, D>::load( unsigned int rid, bool isPermanent )
+void DataManager<T, D>::load( ResourceID rid, bool isPermanent )
 {
     Object& obj = get( rid );
 
@@ -220,7 +220,7 @@ const D& DataManager<T, D>::dereference( const Handle<T>& handle ) const
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::unload( unsigned int rid )
+bool DataManager<T, D>::unload( ResourceID rid )
 {
     Object& obj = get( rid );
 
@@ -251,7 +251,7 @@ bool DataManager<T, D>::release( const Handle<T>& handle )
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::isLoaded( unsigned int rid ) const
+bool DataManager<T, D>::isLoaded( ResourceID rid ) const
 {
     if ( !d_database->hasEntryFor( rid ) )
     {
@@ -263,7 +263,7 @@ bool DataManager<T, D>::isLoaded( unsigned int rid ) const
 }
 
 template <typename T, typename D>
-bool DataManager<T, D>::hasHandle( unsigned int rid ) const
+bool DataManager<T, D>::hasHandle( ResourceID rid ) const
 {
     if ( !d_database->hasEntryFor( rid ) )
     {
@@ -322,9 +322,9 @@ void DataManager<T, D>::clean()
 // HELPER FUNCTIONS
 template <typename T, typename D>
 typename DataManager<T, D>::Object&
-DataManager<T, D>::get( unsigned int rid )
+DataManager<T, D>::get( ResourceID rid )
 {
-    assert( !d_database->hasEntryFor( rid ) );
+    assert( d_database->hasEntryFor( rid ) );
 
     const ResourceEntry& entry = d_database->getEntry( rid );
 

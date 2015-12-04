@@ -9,13 +9,14 @@ namespace sgda
 {
 
 
-void ResourceDatabase::addPackageResources( const std::string& dbPath,
-                                            ResourceID offset )
+void ResourceDatabase::addPackageResources( const std::string& dbPath )
 {
-    std::ifstream ifs( "res/res.db" );
+    std::ifstream ifs( dbPath );
     ResourceEntry entry;
 
-    while ( !ifs.eof() )
+    int lines;
+    ifs >> lines;
+    while ( lines-- )
     {
         ifs >> entry.id;
         ifs >> entry.path;
@@ -24,7 +25,7 @@ void ResourceDatabase::addPackageResources( const std::string& dbPath,
         entry.dateCreated = 0;
         entry.version = 1;
 
-        d_entries[offset + entry.id] = entry;
+        d_entries[entry.id] = entry;
     }
 }
 

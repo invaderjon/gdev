@@ -24,7 +24,7 @@ void Game::initialize( const std::string& name )
     d_name = name;
 
     // load resources
-    d_resources.addPackageResources( "res/res.db", 0 );
+    d_resources.addPackageResources( "res/res.db" );
 
     // load resource information
     sgda::ResourceManager::init( &d_resources );

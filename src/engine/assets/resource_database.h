@@ -14,8 +14,8 @@
 #ifndef INCLUDED_RESOURCE_DATABASE
 #define INCLUDED_RESOURCE_DATABASE
 
-#include <engine/containers/fast_map.h>
 #include "engine/containers/dynamic_array.h"
+#include "engine/containers/map.h"
 
 namespace StevensDev
 {
@@ -23,7 +23,7 @@ namespace StevensDev
 namespace sgda
 {
 
-typedef unsigned int ResourceID;
+typedef std::string ResourceID;
   // Defines a resource identifier.
 
 // Provides basic information about a resource.
@@ -55,7 +55,7 @@ class ResourceDatabase
 {
   private:
     // MEMBERS
-    sgdc::FastMap<ResourceEntry> d_entries;
+    sgdc::Map<ResourceEntry> d_entries;
       // The list of known resources.
 
   public:
@@ -74,11 +74,10 @@ class ResourceDatabase
       // Makes this a copy of the given database.
 
     // MEMBER FUNCTIONS
-    void addPackageResources( const std::string& dbPath, ResourceID offset );
+    void addPackageResources( const std::string& dbPath );
       // Loads the package's resources' information into the database.
       //
       // All duplicate items will be replaced.
-      // All new items will use the specified id offset.
 
     const ResourceEntry& getEntry( ResourceID rid ) const;
       // Get the entry will the given id.
