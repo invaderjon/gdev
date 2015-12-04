@@ -34,34 +34,34 @@ class FastMap
       // easily changed.
 
     // CONSTANTS
-    const Bin BIN_EMPTY = -1;
+    static const Bin BIN_EMPTY;
       // Defines a bin that is empty.
 
-    const Bin BIN_DELETED = -2;
+    static const Bin BIN_DELETED;
       // Defines a bin that was deleted.
 
-    const Bin BIN_INVALID = -3;
+    static const Bin BIN_INVALID;
       // Defines a bin that is invalid.
 
-    const unsigned int FNV_OFFSET = 2166136261;
+    static const unsigned int FNV_OFFSET;
       // Defines the initial offset used by the FNV-1A hashing function.
       // From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
 
-    const unsigned int FNV_PRIME_32 = 16777619;
+    static const unsigned int FNV_PRIME_32;
       // Defines the prime number used by the FNV-1A hashing function.
       // From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
 
-    const unsigned int GROW_THRESHOLD = 75;
+    static const unsigned int GROW_THRESHOLD;
       // Grows once more than 75% full.
 
-    const unsigned int SHRINK_THRESHOLD = 30;
+    static const unsigned int SHRINK_THRESHOLD;
       // Shrink once less than 25% full.
 
-    const unsigned int MIN_TRANSFER = 16;
+    static const unsigned int MIN_TRANSFER;
       // The minimum number of items that must be transferred with each
       // progressive copy pass.
 
-    const unsigned int MIN_BINS = 32;
+    static const unsigned int MIN_BINS;
       // The minimum number of bins.
     
     // MEMBERS
@@ -219,6 +219,46 @@ class FastMap
     const DynamicArray<T>& values() const;
       // Gets all of the mapped values.
 };
+
+// CONSTANTS
+template <typename T>
+const typename FastMap<T>::Bin FastMap<T>::BIN_EMPTY = -1;
+// Defines a bin that is empty.
+
+template <typename T>
+const typename FastMap<T>::Bin FastMap<T>::BIN_DELETED = -2;
+// Defines a bin that was deleted.
+
+template <typename T>
+const typename FastMap<T>::Bin FastMap<T>::BIN_INVALID = -3;
+// Defines a bin that is invalid.
+
+template <typename T>
+const unsigned int FastMap<T>::FNV_OFFSET = 2166136261;
+// Defines the initial offset used by the FNV-1A hashing function.
+// From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
+
+template <typename T>
+const unsigned int FastMap<T>::FNV_PRIME_32 = 16777619;
+// Defines the prime number used by the FNV-1A hashing function.
+// From: http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
+
+template <typename T>
+const unsigned int FastMap<T>::GROW_THRESHOLD = 75;
+// Grows once more than 75% full.
+
+template <typename T>
+const unsigned int FastMap<T>::SHRINK_THRESHOLD = 30;
+// Shrink once less than 25% full.
+
+template <typename T>
+const unsigned int FastMap<T>::MIN_TRANSFER = 16;
+// The minimum number of items that must be transferred with each
+// progressive copy pass.
+
+template <typename T>
+const unsigned int FastMap<T>::MIN_BINS = 32;
+// The minimum number of bins.
 
 // FREE OPERATORS
 template<typename T>
