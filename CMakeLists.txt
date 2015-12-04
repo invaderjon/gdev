@@ -104,21 +104,8 @@ file (
     "    // CONSTANTS\n"
 )
 
-set( CONFIG_ID 0 )
-set( TEX_ID 0 )
-set( TEX_ID 0 )
+set( RID 0 )
 foreach( RES ${RESOURCES} )
-    # determine rid
-    if( RES MATCHES "(.*)texture(.*)" )
-        set( RID ${TEX_ID} )
-        math( EXPR TEX_ID "${TEX_ID} + 1" )
-    elseif( RES MATCHES "(.*)config(.*)" )
-        set( RID ${CONFIG_ID} )
-        math( EXPR CONFIG_ID "${CONFIG_ID} + 1" )
-    else()
-        set( RID -1 )
-    endif()
-
     # add to res header
     string( REPLACE "${RES_DIR}" "" RNAME ${RES} )
     string( REGEX REPLACE "\\..*" "" RNAME "${RNAME}" )
@@ -144,6 +131,8 @@ foreach( RES ${RESOURCES} )
         APPEND "${RES_DIR}/res.db"
         "${RID} ${RELATIVE_RES}\n"
     )
+
+    math( EXPR RID "${RID} + 1" )
 endforeach()
 
 # close res header
@@ -189,12 +178,16 @@ set(
     src/engine/assets/handle_manager.h
     src/engine/assets/idata_factory.cpp
     src/engine/assets/idata_factory.h
+    src/engine/assets/resource_database.cpp
+    src/engine/assets/resource_database.h
     src/engine/build.g.cpp
     src/engine/build.g.h
     src/engine/data/json_printer.cpp
     src/engine/data/json_printer.h
     src/engine/containers/dynamic_array.cpp
     src/engine/containers/dynamic_array.h
+    src/engine/containers/fast_map.cpp
+    src/engine/containers/fast_map.h
     src/engine/containers/map.cpp
     src/engine/containers/map.h
     src/engine/data/basic_string_reader.cpp
@@ -215,6 +208,8 @@ set(
     src/engine/events/event_dispatcher.h
     src/engine/events/ievent.cpp
     src/engine/events/ievent.h
+#    src/engine/events/resource_event.cpp
+#    src/engine/events/resource_event.h
     src/engine/memory/allocator_guard.cpp
     src/engine/memory/allocator_guard.h
     src/engine/memory/default_allocator.cpp
@@ -241,10 +236,8 @@ set(
     src/engine/scene/rectangle_bounds.h
     src/engine/scene/nxn_scene_graph.cpp
     src/engine/scene/nxn_scene_graph.h
-    src/engine/scene/world.cpp
-    src/engine/scene/world.h
-#    src/engine/events/resource_event.cpp
-#    src/engine/events/resource_event.h
+    src/engine/scene/world_view.cpp
+    src/engine/scene/world_view.h
 )
 
 # SFML DEPENDENT ENGINE SOURCES
@@ -274,17 +267,19 @@ set(
 # SFML DEPENDENT GAME SOURCES
 set(
     GAME_SFML_DEP_FILES
+    src/game/base/game.cpp
+    src/game/base/game.h
     src/game/res.g.cpp
     src/game/res.g.h
     src/game/objects/actor.cpp
     src/game/objects/actor.h
-#    src/game/objects/iactor_factory.cpp
-#    src/game/objects/iactor_factory.h
+    src/game/objects/iactor_factory.cpp
+    src/game/objects/iactor_factory.h
     src/game/controllers/player_controller.cpp
     src/game/controllers/player_controller.h
 )
 
-#
+# COMBINED SOURCES
 set(
     GAME_SOURCE_FILES
     game.m.cpp
