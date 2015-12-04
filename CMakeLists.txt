@@ -273,8 +273,6 @@ set(
     src/game/res.g.h
     src/game/objects/actor.cpp
     src/game/objects/actor.h
-    src/game/objects/iactor_factory.cpp
-    src/game/objects/iactor_factory.h
     src/game/controllers/player_controller.cpp
     src/game/controllers/player_controller.h
 )
