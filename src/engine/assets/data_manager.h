@@ -6,6 +6,7 @@
 #include <engine/assets/idata_factory.h>
 #include <engine/containers/map.h>
 #include <engine/scene/itickable.h>
+#include "resource_database.h"
 
 namespace StevensDev
 {
@@ -18,15 +19,6 @@ class DataManager
 {
   private:
     // STRUCTURES
-    struct Descriptor
-    {
-        std::string path;
-          // The file path.
-
-        size_t size;
-          // The file size.
-    };
-
     struct Object
     {
         Handle<Tag> handle;
@@ -43,6 +35,10 @@ class DataManager
     };
 
     // MEMBERS
+    ResourceDatabase* d_database;
+      // The resource database that provides basic information about
+      // resources.
+
     IDataFactory<Data>* d_factory;
       // Loads and constructs the data given a file path.
 
@@ -55,15 +51,12 @@ class DataManager
       //
       // This can also be used to check if a file already has a handle yet.
 
-    sgdc::DynamicArray<Descriptor> d_descriptors;
-      // Maps resource ids to the associated file descriptors.
-
     sgdc::DynamicArray<Object> d_oldVersions;
       // A list of old objects for when objects are reloaded during
       // hot-swapping.
       // todo: use this
 
-    Object& get( unsigned int rid );
+    Object& get( ResourceID rid );
       // Gets the resource with the given path.
 
     Object* find( const Handle<Tag>& handle );
@@ -76,9 +69,9 @@ class DataManager
       //
       // This manager will be incapable of loading new items.
 
-    explicit DataManager( IDataFactory<Data>* factory );
-      // Constructs a new data manager that uses the given factory to load
-      // files.
+    DataManager( ResourceDatabase* database, IDataFactory<Data>* factory );
+      // Constructs a new data manager that uses the given database and
+       // factory to load resources.
 
     DataManager( const DataManager<Tag, Data>& manager );
       // Constructs a copy of the given manager.
@@ -91,15 +84,12 @@ class DataManager
       // Makes this a copy of the give manager.
 
     // MEMBER FUNCTIONS
-    void addFile( unsigned int rid, const std::string& path, size_t size );
-      // Add to the list of known files
-
-    const Handle<Tag>& acquire( unsigned int rid );
+    const Handle<Tag>& acquire( ResourceID rid );
       // Gets a handle for the resource with the given id.
       //
       // If a handle does not exist for the resource it will be created.
 
-    void load( unsigned int rid, bool isPermanent = false );
+    void load( ResourceID rid, bool isPermanent = false );
       // Loads the resource with the given id.
       //
       // Permanence only affects the garbage collector therefore permanent
@@ -115,17 +105,17 @@ class DataManager
       //
       // Undefined behavior if the handle is invalid.
 
-    bool unload( unsigned int rid );
+    bool unload( ResourceID rid );
       // Unloads the resource with the given id and returns if it was
       // successful.
 
     bool release( const Handle<Tag>& handle );
       // Releases the handle and returns it to the pool.
 
-    bool isLoaded( unsigned int rid ) const;
+    bool isLoaded( ResourceID rid ) const;
       // Checks if the given resource is loaded.
 
-    bool hasHandle( unsigned int rid ) const;
+    bool hasHandle( ResourceID rid ) const;
       // Checks if the resource with the given id has a pre-existing handle
       // associated with it.
 
@@ -144,27 +134,27 @@ std::ostream& operator<<( std::ostream& stream, const DataManager<T, D>& mgr )
 // CONSTRUCTORS
 template <typename T, typename D>
 inline
-DataManager<T, D>::DataManager() : d_factory( nullptr ), d_handleManager(),
-                                   d_objects(), d_descriptors(),
-                                   d_oldVersions()
+DataManager<T, D>::DataManager()
+    : d_database( nullptr ), d_factory( nullptr ), d_handleManager(),
+      d_objects(), d_oldVersions()
 {
 }
 
 template <typename T, typename D>
 inline
-DataManager<T, D>::DataManager( IDataFactory<D>* factory )
-    : d_factory( factory ), d_handleManager(), d_objects(), d_descriptors(),
-      d_oldVersions()
+DataManager<T, D>::DataManager( ResourceDatabase* database,
+                                IDataFactory<D>* factory )
+    : d_database( database ), d_factory( factory ), d_handleManager(),
+      d_objects(), d_oldVersions()
 {
 }
 
 template <typename T, typename D>
 inline
 DataManager<T, D>::DataManager( const sgda::DataManager<T, D>& manager )
-    : d_factory( manager.d_factory ),
+    : d_database( manager.d_database ), d_factory( manager.d_factory ),
       d_handleManager( manager.d_handleManager ),
-      d_objects( manager.d_objects ), d_descriptors( manager.d_descriptors ),
-      d_oldVersions( manager.d_oldVersions )
+      d_objects( manager.d_objects ), d_oldVersions( manager.d_oldVersions )
 {
 }
 
@@ -180,26 +170,16 @@ inline
 DataManager<T, D>& DataManager<T, D>::operator=(
     const sgda::DataManager<T, D>& manager )
 {
+    d_database = manager.d_database;
     d_factory = manager.d_factory;
     d_handleManager = manager.d_handleManager;
     d_objects = manager.d_objects;
-    d_descriptors = manager.d_descriptors;
     d_oldVersions = manager.d_oldVersions;
 
     return *this;
 }
 
 // MEMBER FUNCTIONS
-template <typename T, typename D>
-void DataManager<T, D>::addFile( unsigned int rid,
-                                 const std::string& path, size_t size )
-{
-    Descriptor desc;
-    desc.path = path;
-    desc.size = size;
-    d_descriptors.insertAt( rid, desc );
-}
-
 template <typename T, typename D>
 const Handle<T>& DataManager<T, D>::acquire( unsigned int rid )
 {
@@ -221,8 +201,8 @@ void DataManager<T, D>::load( unsigned int rid, bool isPermanent )
     obj.isPermanent = isPermanent;
     obj.isLoaded = true;
 
-    const Descriptor& desc = d_descriptors[rid];
-    d_handleManager.set( obj.handle, d_factory->get( desc.path ) );
+    const ResourceEntry& entry = d_database->getEntry( rid );
+    d_handleManager.set( obj.handle, d_factory->get( entry.path ) );
 }
 
 template <typename T, typename D>
@@ -273,19 +253,24 @@ bool DataManager<T, D>::release( const Handle<T>& handle )
 template <typename T, typename D>
 bool DataManager<T, D>::isLoaded( unsigned int rid ) const
 {
-    assert( rid < d_descriptors.size() );
+    if ( !d_database->hasEntryFor( rid ) )
+    {
+        return false;
+    }
 
-    const Descriptor& desc = d_descriptors[rid];
-
-    return d_objects.has( desc.path ) && d_objects[desc.path].isLoaded;
+    const ResourceEntry& entry = d_database->getEntry( rid );
+    return d_objects.has( entry.path ) && d_objects[entry.path].isLoaded;
 }
 
 template <typename T, typename D>
 bool DataManager<T, D>::hasHandle( unsigned int rid ) const
 {
-    assert( rid < d_descriptors.size() );
+    if ( !d_database->hasEntryFor( rid ) )
+    {
+        return false;
+    }
 
-    return d_objects.has( d_descriptors[rid].path );
+    return d_objects.has( d_database->getEntry( rid ).path );
 }
 
 template <typename T, typename D>
@@ -339,21 +324,21 @@ template <typename T, typename D>
 typename DataManager<T, D>::Object&
 DataManager<T, D>::get( unsigned int rid )
 {
-    assert( rid < d_descriptors.size() );
+    assert( !d_database->hasEntryFor( rid ) );
 
-    const Descriptor& desc = d_descriptors[rid];
+    const ResourceEntry& entry = d_database->getEntry( rid );
 
-    if ( !d_objects.has( desc.path ) )
+    if ( !d_objects.has( entry.path ) )
     {
         Object obj;
         obj.handle = d_handleManager.acquire();
         obj.references = 0;
         obj.isPermanent = false;
         obj.isLoaded = false;
-        d_objects[desc.path] = obj;
+        d_objects[entry.path] = obj;
     }
 
-    return d_objects[desc.path];
+    return d_objects[entry.path];
 }
 
 template <typename T, typename D>

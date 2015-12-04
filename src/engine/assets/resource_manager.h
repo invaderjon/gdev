@@ -51,12 +51,18 @@ class ResourceManager : public sgds::ITickable
     DataManager<ConfigTag, sgdd::JsonEntity> d_configs;
       // The configuration resources.
 
+    ResourceDatabase* d_database;
+      // The resource database
+
     unsigned int d_frame;
       // Frame counter for scheduling garbage collection.
 
     // CONSTRUCTORS
     ResourceManager();
-      // Constructs a new resource manager.
+      // Constructs a new resource manager without a database.
+
+    ResourceManager( ResourceDatabase* database );
+      // Constructs a new resource manager that is using the given database.
 
     ResourceManager( const ResourceManager& manager );
       // Constructs a copy of the given manager.
@@ -69,11 +75,20 @@ class ResourceManager : public sgds::ITickable
     static ResourceManager& inst();
       // Gets a reference to the resource manager.
 
+    static void init( ResourceDatabase* db );
+      // Constrcts a resource manager that is using the given database.
+
     // CONSTRUCTORS
     ~ResourceManager();
       // Destructs the resource manager.
 
     // MEMBER FUNCTIONS
+    void loadDatabase();
+      // Loads the resource database.
+
+    void applyPatch( std::string dbPath );
+      // Apply a resource database patch.
+
     const Handle<ImageTag>& getImageHandle( const ResourceID& rid );
       // Gets a handle for the image with the given id.
 
@@ -135,27 +150,26 @@ ResourceManager& ResourceManager::inst()
     return d_manager;
 }
 
+inline
+void ResourceManager::init( ResourceDatabase* db )
+{
+    d_manager = ResourceManager( db );
+}
+
 // CONSTRUCTORS
 inline
 ResourceManager::ResourceManager()
-    : d_images( &d_imageFactory ), d_configs( &d_configFactory ), d_frame( 0 )
+    : d_images( nullptr, &d_imageFactory ),
+      d_configs( nullptr, &d_configFactory ),
+      d_frame( 0 )
 {
-    std::ifstream ifs( "res/res.db" );
-    ResourceID rid;
-    std::string path;
-    while ( !ifs.eof() )
-    {
-        ifs >> rid;
-        ifs >> path;
-        if ( path.find( "texture" ) != std::string::npos )
-        {
-            d_images.addFile( rid, path, 0 );
-        }
-        else if ( path.find( "config" ) != std::string::npos )
-        {
-            d_configs.addFile( rid, path, 0 );
-        }
-    }
+}
+
+inline
+ResourceManager::ResourceManager( ResourceDatabase* database )
+    : d_database( database ), d_images( database, &d_imageFactory ),
+      d_configs( database, & d_configFactory ), d_frame( 0 )
+{
 }
 
 inline
