@@ -46,7 +46,7 @@ TEST( RendererTest, TextureLoading )
     Renderer renderer;
 
     EXPECT_FALSE( renderer.loadTexture( "null", "null" ) );
-    EXPECT_TRUE( renderer.loadTexture( "block", "res/texture/block.png" ) );
+    EXPECT_TRUE( renderer.loadTexture( "block", "res/texture/actor/block/block.png" ) );
 }
 
 TEST( RendererTest, Print )
