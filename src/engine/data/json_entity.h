@@ -133,6 +133,12 @@ class JsonEntity
       // value is an array
       // index is not out of bounds
 
+    bool has( const std::string& key ) const;
+      // Checks if the object has a mapping for the given key.
+      //
+      // Requirements:
+      // value is an object
+
     // MEMBER FUNCTIONS
     const sgdc::DynamicArray<std::string>& keys() const;
       // Gets the list of keys in the object.
@@ -308,6 +314,12 @@ inline
 const JsonEntity& JsonEntity::operator[]( int index ) const
 {
     return ( *d_array )[index];
+}
+
+inline
+bool JsonEntity::has( const std::string& key ) const
+{
+    return d_map->has( key );
 }
 
 // MEMBER FUNCTIONS
