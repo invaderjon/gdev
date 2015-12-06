@@ -21,3 +21,10 @@ TEST( StringUtilsTest, Compare )
 
     EXPECT_EQ( 0, StringUtils::compare( "Johnny Bravo", "Johnny Bravo" ));
 }
+
+TEST( StringUtilsTest, CompileTime )
+{
+    using namespace StevensDev::sgdu;
+
+    EXPECT_EQ( StringUtils::hash( "testing" ), chash( "testing" ) );
+}
