@@ -18,6 +18,9 @@ struct Collision
     static const Flags NO_COLLISION = 0x8000;
       // No collision flag.
 
+    static const Flags ACTOR_COLLISION = 0x0001;
+      // Collide with actors.
+
     static bool canCollide( Flags a, Flags b );
       // Checks if two sets of collision flags can collide with each other.
 
