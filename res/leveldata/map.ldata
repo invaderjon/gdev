@@ -1,3 +1,102 @@
 {
-
+  "board":
+  {
+    "spaces": [
+      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+      false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true,  true,  true,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true,  true,  true,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false,  true, false, false,  true, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true, false, false,  true, false, false, false, false, false, false, false, false, false, false,  true, false, false,  true, false,
+      false,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false,
+      false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+    ],
+    "width": 20,
+    "height": 20
+  },
+  "entities": [
+    {
+      "actor": "R.config.actor.pac.player",
+      "row": 18,
+      "column": 9,
+      "controllers": [
+        {
+          "class": "PlayerController"
+        },
+        {
+          "class": "MotionController",
+          "speed": 3.0
+        }
+      ]
+    },
+    {
+      "actor": "R.config.actor.ghost.inky",
+      "row": 8,
+      "column": 11,
+      "controllers": [
+        {
+          "class": "GhostController"
+        },
+        {
+          "class": "MotionController",
+          "speed": 2.95
+        }
+      ]
+    },
+    {
+      "actor": "R.config.actor.ghost.blinky",
+      "row": 8,
+      "column": 11,
+      "controllers": [
+        {
+          "class": "GhostController"
+        },
+        {
+          "class": "MotionController",
+          "speed": 3.0
+        }
+      ]
+    },
+    {
+      "actor": "R.config.actor.ghost.pinky",
+      "row": 11,
+      "column": 8,
+      "controllers": [
+        {
+          "class": "GhostController"
+        },
+        {
+          "class": "MotionController",
+          "speed": 3.1
+        }
+      ]
+    },
+    {
+      "actor": "R.config.actor.ghost.clyde",
+      "row": 11,
+      "column": 11,
+      "controllers": [
+        {
+          "class": "GhostController"
+        },
+        {
+          "class": "MotionController",
+          "speed": 2.9
+        }
+      ]
+    }
+  ],
+  "controllers": [ ]
 }
