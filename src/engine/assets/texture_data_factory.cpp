@@ -1,5 +1,5 @@
 // image_data_factory.cpp
-#include "image_data_factory.h"
+#include "texture_data_factory.h"
 
 namespace StevensDev
 {
@@ -8,9 +8,9 @@ namespace sgda
 {
 
 // MEMBER FUNCTIONS
-sf::Image* ImageDataFactory::get( const std::string& path )
+sf::Texture* TextureDataFactory::get( const std::string& path )
 {
-    sf::Image* ptr = d_alloc.get( 1 );
+    sf::Texture* ptr = d_alloc.get( 1 );
 
     if ( !ptr->loadFromFile( path ) )
     {

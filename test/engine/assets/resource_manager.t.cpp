@@ -14,12 +14,12 @@ TEST( ResourceManagerTest, Images )
     ResourceManager::init( &rdb );
     ResourceManager& manager = ResourceManager::inst();
 
-    Handle<ImageTag> handle =
-        manager.getImageHandle( R::TEXTURE_ACTOR_BLOCK_BLOCK );
+    Handle<TextureTag> handle =
+        manager.getTextureHandle( R::TEXTURE_ACTOR_BLOCK_BLOCK );
 
-    manager.loadImage( R::TEXTURE_ACTOR_BLOCK_BLOCK );
+    manager.loadTexture( R::TEXTURE_ACTOR_BLOCK_BLOCK );
 
-    sf::Image& image = manager.get( handle );
+    sf::Texture& tex = manager.get( handle );
 }
 
 TEST( ResourceManagerTest, Configs )

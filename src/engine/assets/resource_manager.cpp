@@ -11,7 +11,7 @@ namespace sgda
 
 // GLOBALS
 ResourceManager ResourceManager::d_manager = ResourceManager();
-ImageDataFactory ResourceManager::d_imageFactory = ImageDataFactory();
+TextureDataFactory ResourceManager::d_textureFactory = TextureDataFactory();
 ConfigDataFactory ResourceManager::d_configFactory = ConfigDataFactory();
 
 // MEMBER FUNCTIONS
@@ -24,7 +24,7 @@ void ResourceManager::postTick()
 
     if ( !( ++d_frame % 8 ) )
     {
-        d_images.clean();
+        d_textures.clean();
     }
     else if ( ( d_frame + 4 ) % 8 )
     {
