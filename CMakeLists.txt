@@ -286,6 +286,8 @@ set(
         src/game/controllers/ghost_controller.h
         src/game/controllers/motion_controller.cpp
         src/game/controllers/motion_controller.h
+        src/game/controllers/pacman_controller.cpp
+        src/game/controllers/pacman_controller.h
         src/game/controllers/player_controller.cpp
         src/game/controllers/player_controller.h
         src/game/controllers/spawn_controller.cpp
