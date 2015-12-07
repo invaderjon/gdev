@@ -254,6 +254,8 @@ set(
         ENGINE_SFML_DEP_FILES
         src/engine/assets/resource_manager.cpp
         src/engine/assets/resource_manager.h
+        src/engine/assets/texture_data_factory.cpp
+        src/engine/assets/texture_data_factory.h
         src/engine/input/input.cpp
         src/engine/input/input.h
         src/engine/rendering/renderable_sprite.cpp
@@ -264,8 +266,6 @@ set(
         src/engine/scene/scene.h
         src/engine/util/input_utils.cpp
         src/engine/util/input_utils.h
-        src/engine/assets/texture_data_factory.cpp
-        src/engine/assets/texture_data_factory.h
 )
 
 # GAME SOURCES
@@ -273,7 +273,7 @@ set(
         GAME_FILES
         src/game/world/board.cpp
         src/game/world/board.h
-        src/game/world/level_factory.cpp src/game/world/level_factory.h)
+)
 
 # SFML DEPENDENT GAME SOURCES
 set(
@@ -282,30 +282,32 @@ set(
         src/game/base/game.h
         src/game/controllers/controller_factory.cpp
         src/game/controllers/controller_factory.h
+        src/game/controllers/ghost_controller.cpp
+        src/game/controllers/ghost_controller.h
         src/game/controllers/motion_controller.cpp
         src/game/controllers/motion_controller.h
         src/game/controllers/player_controller.cpp
         src/game/controllers/player_controller.h
+        src/game/controllers/spawn_controller.cpp
+        src/game/controllers/spawn_controller.h
         src/game/objects/actor.cpp
         src/game/objects/actor.h
+        src/game/objects/actor_factory.cpp
+        src/game/objects/actor_factory.h
+        src/game/objects/ghost.cpp
+        src/game/objects/ghost.h
         src/game/objects/piece.cpp
         src/game/objects/piece.h
+        src/game/objects/token_factory.cpp
+        src/game/objects/token_factory.h
         src/game/res.cpp
         src/game/res.h
         src/game/world/level_manager.cpp
         src/game/world/level_manager.h
         src/game/world/level.cpp
         src/game/world/level.h
-        src/game/controllers/spawn_controller.cpp
-        src/game/controllers/spawn_controller.h
-        src/game/objects/actor_factory.cpp
-        src/game/objects/actor_factory.h
-        src/game/objects/token_factory.cpp
-        src/game/objects/token_factory.h
-        src/game/objects/ghost.cpp
-        src/game/objects/ghost.h
-        src/game/controllers/ghost_controller.cpp
-        src/game/controllers/ghost_controller.h
+        src/game/world/level_factory.cpp
+        src/game/world/level_factory.h
 )
 
 # COMBINED SOURCES
