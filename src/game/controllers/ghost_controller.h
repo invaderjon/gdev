@@ -18,6 +18,10 @@ class GhostController : public sgds::ITickable
     mgo::Ghost* d_ghost;
       // The ghost that is being controlled.
 
+    // HELPER FUNCTIONS
+    void navigateTo( const gel::math::IVec2& target );
+      // Navigate to the specified position on the board.
+
   public:
     // CONSTRUCTORS
     GhostController();
@@ -44,7 +48,7 @@ class GhostController : public sgds::ITickable
       // Does nothing
 
     virtual void postTick();
-      //
+      // does nothing
 };
 
 // CONSTRUCTORS
