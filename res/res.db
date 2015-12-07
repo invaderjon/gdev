@@ -1,6 +1,19 @@
-5
-R.test.res res/test/res.db
-R.texture.actor.block.block res/texture/actor/block/block.png
-R.font.ubuntu_mono_r res/font/ubuntu_mono_r.ttf
-R.config.actor.block.player res/config/actor/block/player.conf
+19
 R.config.actor.block.enemy res/config/actor/block/enemy.conf
+R.config.actor.block.player res/config/actor/block/player.conf
+R.config.actor.ghost.blinky res/config/actor/ghost/blinky.conf
+R.config.actor.ghost.clyde res/config/actor/ghost/clyde.conf
+R.config.actor.ghost.ghost res/config/actor/ghost/ghost.conf
+R.config.actor.ghost.inky res/config/actor/ghost/inky.conf
+R.config.actor.ghost.pinky res/config/actor/ghost/pinky.conf
+R.config.actor.pac.player res/config/actor/pac/player.conf
+R.font.ubuntu res/font/ubuntu.tff
+R.leveldata.map res/leveldata/map.ldata
+R.texture.actor.block.block res/texture/actor/block/block.png
+R.texture.actor.ghost.blinky res/texture/actor/ghost/blinky.png
+R.texture.actor.ghost.inky res/texture/actor/ghost/inky.png
+R.texture.actor.ghost.pinky res/texture/actor/ghost/pinky.png
+R.texture.actor.ghost.clyde res/texture/actor/ghost/clyde.png
+R.texture.actor.ghost.ghost res/texture/actor/ghost/ghost.png
+R.texture.actor.ghost.dying res/texture/actor/ghost/dying.png
+R.texture.actor.pac.pacman res/texture/actor/pac/pacman.png
