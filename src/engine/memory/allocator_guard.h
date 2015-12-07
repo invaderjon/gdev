@@ -154,6 +154,8 @@ AllocatorGuard<T>& AllocatorGuard<T>::operator=(
     {
         d_allocator = &d_default;
     }
+
+    return *this;
 }
 
 // MEMBER FUNCTIONS
