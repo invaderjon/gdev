@@ -8,6 +8,11 @@ namespace StevensDev
 namespace mgo
 {
 
+namespace
+{
+
+} // End nspc anonymous
+
 void TokenFactory::getActorToken( const sgdd::JsonEntity& info,
                                   ActorToken* token )
 {

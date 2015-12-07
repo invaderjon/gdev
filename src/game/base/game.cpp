@@ -53,6 +53,8 @@ void Game::startup()
     sgds::Scene& scene = sgds::Scene::inst();
     sgds::WorldView& world = sgds::WorldView::inst();
 
+    scene.addTickable( &input );
+
     d_isRunning = true;
     d_events.push( STATUS_STARTED );
 

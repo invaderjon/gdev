@@ -12,14 +12,17 @@ void MotionController::tick( float dtS )
 {
     using namespace gel::math;
 
-    if ( d_piece->getTargetCount() <= 0 )
+    if ( d_piece->getTargetCount() <= 0 || Math::eq( dtS, 0 ) )
     {
         return;
     }
 
     Vec2 dir = getDir();
 
-    assert( dir != Vec2( 0, 0 ) );
+    if ( dir == Vec2( 0 ) )
+    {
+        return;
+    }
 
     Vec2 trans = Vec::normalize( dir ) * d_speed * dtS;
 

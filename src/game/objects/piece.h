@@ -62,6 +62,13 @@ class Piece : public Actor
     void setCurrentSpace( const gel::math::IVec2& current );
       // Sets the current space to the specified location.
 
+    gel::math::IVec2 getDirection( unsigned int n ) const;
+      // Gets the direction to the nth target.
+      //
+      // 0 means the direction to the 1st target from the current path node.
+      // 1 means the direction to the 2nd target from the 1st target.
+      // ...
+
     void addTarget( const gel::math::IVec2& target );
       // Adds a new target to the motion path.
 
@@ -75,6 +82,11 @@ class Piece : public Actor
             const gel::math::IVec2& space ) const;
       // Gets the world position the piece would have if it were in the
       // specified space.
+
+    virtual gel::math::Vec2 getWorldPositionForSpace(
+        const gel::math::IVec2& space, const mgw::Board& board ) const;
+    // Gets the world position the piece would have if it were in the
+    // specified space.
 };
 
 // CONSTRUCTORS
@@ -156,20 +168,10 @@ void Piece::jumpToNextTarget()
 }
 
 inline
-gel::math::Vec2 Piece::getWorldPositionForSpace(
-    const gel::math::IVec2& space ) const
+gel::math::IVec2 Piece::getDirection( unsigned int n ) const
 {
-    const mgw::Board& board = mgw::Board::get();
-    const sgds::RectangleBounds& obj = bounds();
-
-    // center the sprite in the space
-    float x = space.x * board.spaceWidth() +
-        ( board.spaceWidth() - obj.width() ) / 2.0f;
-
-    float y = space.y * board.spaceHeight() +
-        ( board.spaceHeight() - obj.height() ) / 2.0f;
-
-    return gel::math::Vec2( x, y );
+    assert( n + 1 < d_motionPath.size() );
+    return d_motionPath[n + 1] - d_motionPath[n];
 }
 
 } // End nspc mgo

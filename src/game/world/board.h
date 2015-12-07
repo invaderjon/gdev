@@ -217,7 +217,7 @@ bool Board::isTraversable( unsigned int column, unsigned int row ) const
         return false;
     }
 
-    return d_spaces[column * d_height + row].isTraversable;
+    return d_spaces[row * d_width + column].isTraversable;
 }
 
 inline
