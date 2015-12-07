@@ -28,10 +28,11 @@ void parseValue( Allocator alloc, JsonEntity* entity, IStringReader* raw );
   // stores it in the given entity.
 
 inline
-void fail( const std::string& reason, unsigned long pos )
+void fail( const std::string& reason, IStringReader* reader )
 {
     std::ostringstream oss;
-    oss << "Parsing Error: " << reason << " Encountered at " << pos << ".";
+    oss << "Parsing Error: " << reason << " Encountered at "
+        << reader->position() << ": \"" << reader->get(20) << "\"";
 
     std::string what = oss.str();
     throw std::runtime_error( what );
@@ -47,7 +48,7 @@ void skipWhiteSpace( IStringReader* reader, bool checkNotEnd = true )
 
     if ( checkNotEnd && reader->isEnd() )
     {
-        fail( "Reached end while parsing!", reader->position() );
+        fail( "Reached end while parsing!", reader );
     }
 }
 
@@ -55,7 +56,7 @@ void parseKey( std::string* storage, IStringReader* reader )
 {
     if ( reader->get() != '"' )
     {
-        fail( "Invalid key!", reader->position() );
+        fail( "Invalid key!", reader );
     }
 
     std::ostringstream oss;
@@ -68,7 +69,7 @@ void parseKey( std::string* storage, IStringReader* reader )
 
     if ( reader->isEnd() )
     {
-        fail( "Unclosed key string!", reader->position() );
+        fail( "Unclosed key string!", reader );
     }
 
     reader->advance( 1 );
@@ -76,7 +77,7 @@ void parseKey( std::string* storage, IStringReader* reader )
 
     if ( reader->get() != ':' )
     {
-        fail( "Incomplete key-value pair!", reader->position() );
+        fail( "Incomplete key-value pair!", reader );
     }
 
     *storage = oss.str();
@@ -89,13 +90,13 @@ void parseEmpty( JsonEntity* entity, IStringReader* reader )
 
     if ( reader->get( 4 ).length() < 4 )
     {
-        fail( "Unclosed value!", reader->position() );
+        fail( "Unclosed value!", reader );
     }
 
     // valid?
     if ( !sgdu::StringUtils::areEqual( reader->get( 4 ), "null" ) )
     {
-        fail( "Invalid null value!", reader->position() );
+        fail( "Invalid null value!", reader );
     }
 
     *entity = std::move( JsonEntity() );
@@ -109,13 +110,13 @@ void parseTrue( JsonEntity* entity, IStringReader* reader )
 
     if ( reader->get( 4 ).length() < 4 )
     {
-        fail( "Unclosed value!", reader->position() );
+        fail( "Unclosed value!", reader );
     }
 
     // valid?
     if ( !sgdu::StringUtils::areEqual( reader->get( 4 ), "true" ) )
     {
-        fail( "Invalid true value!", reader->position() );
+        fail( "Invalid true value!", reader );
     }
 
     JsonEntity e ( true );
@@ -130,13 +131,13 @@ void parseFalse( JsonEntity* entity, IStringReader* reader )
 
     if ( reader->get( 5 ).length() < 5 )
     {
-        fail( "Unclosed value!", reader->position() );
+        fail( "Unclosed value!", reader );
     }
 
     // valid?
     if ( !sgdu::StringUtils::areEqual( reader->get( 5 ), "false" ) )
     {
-        fail( "Invalid false value!", reader->position() );
+        fail( "Invalid false value!", reader );
     }
 
     *entity = std::move( JsonEntity( false ) );
@@ -161,7 +162,7 @@ void parseNumber( JsonEntity* entity, IStringReader* reader )
     // still valid?
     if ( reader->isEnd() || !isdigit( reader->get() ) )
     {
-        fail( "Invalid number!", reader->position() );
+        fail( "Invalid number!", reader );
     }
 
     // integral portion
@@ -174,7 +175,7 @@ void parseNumber( JsonEntity* entity, IStringReader* reader )
     // shouldn't reach the end of a string while parsing a value
     if ( reader->isEnd() )
     {
-        fail( "Unclosed value!", reader->position() );
+        fail( "Unclosed value!", reader );
     }
 
     // integral?
@@ -190,7 +191,7 @@ void parseNumber( JsonEntity* entity, IStringReader* reader )
     reader->advance( 1 );
     if ( reader->isEnd() || !isdigit( reader->get() ) )
     {
-        fail( "Invalid number!", reader->position() );
+        fail( "Invalid number!", reader );
     }
 
     // fraction portion
@@ -205,7 +206,7 @@ void parseNumber( JsonEntity* entity, IStringReader* reader )
     // shouldn't reach the end of a string while parsing a value
     if ( reader->isEnd() )
     {
-        fail( "Unclosed value!", reader->position() );
+        fail( "Unclosed value!", reader );
     }
 
     *entity = std::move( JsonEntity( sign * value ) );
@@ -226,7 +227,7 @@ void parseString( JsonEntity* entity, IStringReader* reader )
 
     if ( reader->isEnd() )
     {
-        fail( "Unclosed string!", reader->position() );
+        fail( "Unclosed string!", reader );
     }
 
     sgdm::AllocatorGuard<std::string> alloc;
@@ -283,7 +284,7 @@ void parseArray( Allocator alloc, JsonEntity* entity,
 
     if ( reader->get() != ']' )
     {
-        fail( "Invalid array!", reader->position() );
+        fail( "Invalid array!", reader );
     }
 
     *entity = std::move( JsonEntity( arr, nullptr ) );
@@ -337,7 +338,7 @@ void parseObject( Allocator alloc, JsonEntity* entity,
 
     if ( reader->get() != '}' )
     {
-        fail( "Invalid object!", reader->position() );
+        fail( "Invalid object!", reader );
     }
 
     *entity = std::move( JsonEntity( obj, nullptr ) );
@@ -385,7 +386,7 @@ void parseValue( Allocator alloc, JsonEntity* entity, IStringReader* reader )
             break;
 
         default:
-            fail( "Invalid value type!", reader->position() );
+            fail( "Invalid value type!", reader );
     }
 }
 
@@ -418,7 +419,7 @@ JsonEntity* parseJson( sgdm::IAllocator<JsonEntity>* alloc,
             break;
 
         default:
-            fail( "Invalid json!", reader->position() );
+            fail( "Invalid json!", reader );
     }
 
     return root;
