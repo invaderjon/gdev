@@ -5,6 +5,8 @@
 #include "engine/scene/world_view.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <engine/containers/dynamic_array.h>
+#include <engine/containers/map.h>
 
 namespace StevensDev
 {
@@ -15,8 +17,18 @@ namespace sgdr
 class RenderableSprite
 {
   private:
-    sf::Sprite d_sprite;
-      // The sprite that is rendered.
+    // CONSTANTS
+    static const std::string DEFAULT_STATE;
+
+    // MEMBERS
+    sgdc::Map<sgdc::DynamicArray<sf::Sprite>> d_sprites;
+      // The sprite set that is rendered.
+
+    std::string d_state;
+      // The current state.
+
+    unsigned int d_frame;
+      // The current frame.
 
   public:
     // CONSTRUCTORS
@@ -32,7 +44,7 @@ class RenderableSprite
     RenderableSprite( const RenderableSprite& other );
       // Constructs a copy of another renderable sprite.
 
-    ~RenderableSprite();
+    virtual ~RenderableSprite();
       // Deconstructs a renderable sprite.
 
     // OPERATORS
@@ -40,10 +52,17 @@ class RenderableSprite
       // Makes this a copy of another renderable sprite.
 
     // ACCESSOR FUNCTIONS
-    const sf::Sprite& sprite() const;
+    virtual const sf::Sprite& sprite() const;
       // Gets the sprite drawn by this.
 
+    // MUTATOR FUNCTIONS
+    void setState( const std::string& state );
+      // Changes the renderable sprite's state.
+
     // MEMBER FUNCTIONS
+    void nextFrame();
+      // Moves on to the next frame.
+
     void setPosition( float x, float y );
       // Sets the absolute position (DP).
 
@@ -84,19 +103,22 @@ RenderableSprite::RenderableSprite()
 
 inline
 RenderableSprite::RenderableSprite( const sf::Texture& texture )
-    : d_sprite( sf::Sprite( texture ) )
+    : d_sprites(), d_state( DEFAULT_STATE ), d_frame( 0 )
 {
+    d_sprites[DEFAULT_STATE].push( sf::Sprite( texture ) );
 }
 
 inline
 RenderableSprite::RenderableSprite( const sf::Sprite& sprite )
-    : d_sprite( sprite )
+    : d_sprites(), d_state( DEFAULT_STATE ), d_frame( 0 )
 {
+    d_sprites[DEFAULT_STATE].push( sprite );
 }
 
 inline
 RenderableSprite::RenderableSprite( const RenderableSprite& other )
-    : d_sprite( other.d_sprite )
+    : d_sprites( other.d_sprites ), d_state( other.d_state ),
+      d_frame( other.d_frame )
 {
 }
 
@@ -109,57 +131,86 @@ RenderableSprite::~RenderableSprite()
 inline
 RenderableSprite& RenderableSprite::operator=( const RenderableSprite& other )
 {
-    d_sprite = other.d_sprite;
+    d_sprites = other.d_sprites;
+    d_state = other.d_state;
+    d_frame = other.d_frame;
+
+    return *this;
 }
 
 // ACCESSOR FUNCTIONS
 inline
 const sf::Sprite& RenderableSprite::sprite() const
 {
-    return d_sprite;
+    return d_sprites[d_state][d_frame];
+}
+
+// MUTATOR FUNCTIONS
+inline
+void RenderableSprite::setState( const std::string& state )
+{
+    assert( d_sprites.has( state ) );
+
+    sf::Vector2f pos = d_sprites[d_state][d_frame].getPosition();
+    d_sprites[state][d_frame].setPosition( pos );
+    d_state = state;
 }
 
 // MEMBER FUNCTIONS
 inline
+void RenderableSprite::nextFrame()
+{
+    unsigned int next = ( d_frame + 1 ) % d_sprites[d_state].size();
+    if ( next == d_frame )
+    {
+        return;
+    }
+
+    sf::Vector2f pos = d_sprites[d_state][d_frame].getPosition();
+    d_sprites[d_state][next].setPosition( pos );
+    d_frame = next;
+}
+
+inline
 void RenderableSprite::setPosition( float x, float y )
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    d_sprite.setPosition( w.dpToPX( x ), w.dpToPX( y ) );
+    d_sprites[d_state][d_frame].setPosition( w.dpToPX( x ), w.dpToPX( y ) );
 }
 
 inline
 float RenderableSprite::getPositionX() const
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    return w.pxToDP( d_sprite.getPosition().x );
+    return w.pxToDP( d_sprites[d_state][d_frame].getPosition().x );
 }
 
 inline
 float RenderableSprite::getPositionY() const
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    return w.pxToDP( d_sprite.getPosition().y );
+    return w.pxToDP( d_sprites[d_state][d_frame].getPosition().y );
 }
 
 inline
 void RenderableSprite::move( float x, float y )
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    d_sprite.move( w.dpToPX( x ), w.dpToPX( y ) );
+    d_sprites[d_state][d_frame].move( w.dpToPX( x ), w.dpToPX( y ) );
 }
 
 inline
 float RenderableSprite::getWidth() const
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    return w.pxToDP( d_sprite.getGlobalBounds().width );
+    return w.pxToDP( d_sprites[d_state][d_frame].getGlobalBounds().width );
 }
 
 inline
 float RenderableSprite::getHeight() const
 {
     const sgds::WorldView& w = sgds::WorldView::inst();
-    return w.pxToDP( d_sprite.getGlobalBounds().height );
+    return w.pxToDP( d_sprites[d_state][d_frame].getGlobalBounds().height );
 }
 
 } // End nspc sgdr
