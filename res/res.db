@@ -1,4 +1,4 @@
-19
+25
 R.config.actor.block.enemy res/config/actor/block/enemy.conf
 R.config.actor.block.player res/config/actor/block/player.conf
 R.config.actor.ghost.blinky res/config/actor/ghost/blinky.conf
@@ -17,3 +17,9 @@ R.texture.actor.ghost.clyde res/texture/actor/ghost/clyde.png
 R.texture.actor.ghost.ghost res/texture/actor/ghost/ghost.png
 R.texture.actor.ghost.dying res/texture/actor/ghost/dying.png
 R.texture.actor.pac.pacman res/texture/actor/pac/pacman.png
+R.texture.actor.pac.pac_none res/texture/actor/pac/pac_none.png
+R.texture.actor.pac.pac_left res/texture/actor/pac/pac_left.png
+R.texture.actor.pac.pac_up res/texture/actor/pac/pac_up.png
+R.texture.actor.pac.pac_down res/texture/actor/pac/pac_down.png
+R.texture.actor.pac.pac_right res/texture/actor/pac/pac_right.png
+R.texture.world.traversable res/texture/world/traversable.png

@@ -33,25 +33,25 @@
       "column": 9,
       "controllers": [
         {
-          "class": "PlayerController"
+          "class": "PacmanController"
         },
         {
           "class": "MotionController",
-          "speed": 3.0
+          "speed": 1500.0
         }
       ]
     },
     {
       "actor": "R.config.actor.ghost.inky",
       "row": 8,
-      "column": 11,
+      "column": 8,
       "controllers": [
         {
           "class": "GhostController"
         },
         {
           "class": "MotionController",
-          "speed": 2.95
+          "speed": 1479.75
         }
       ]
     },
@@ -65,7 +65,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 3.0
+          "speed": 1500.0
         }
       ]
     },
@@ -79,7 +79,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 3.1
+          "speed": 1550.0
         }
       ]
     },
@@ -93,7 +93,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 2.9
+          "speed": 1450.0
         }
       ]
     }
