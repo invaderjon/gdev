@@ -37,7 +37,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 1500.0
+          "speed": 750.0
         }
       ]
     },
@@ -51,7 +51,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 1479.75
+          "speed": 739.875
         }
       ]
     },
@@ -65,7 +65,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 1500.0
+          "speed": 750.0
         }
       ]
     },
@@ -79,7 +79,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 1550.0
+          "speed": 775.0
         }
       ]
     },
@@ -93,7 +93,7 @@
         },
         {
           "class": "MotionController",
-          "speed": 1450.0
+          "speed": 725.0
         }
       ]
     }
