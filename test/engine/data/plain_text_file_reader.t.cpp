@@ -10,7 +10,7 @@ TEST( PlainTextFileReaderTest, Construction )
     PlainTextFileReader r2( "res/config/actor/block/player.conf" );
 }
 
-TEST( PlainTextFileREaderTest, Reading )
+TEST( PlainTextFileReaderTest, Reading )
 {
     using namespace StevensDev::sgdd;
 
@@ -19,11 +19,11 @@ TEST( PlainTextFileREaderTest, Reading )
     ASSERT_EQ( '{', r.get() );
     ASSERT_STREQ( "{\n", r.get( 2 ).c_str() );
     ASSERT_STRNE( "{\n", r.get( 15 ).c_str() );
-    ASSERT_NO_FATAL_FAILURE( r.get( 3000000 ) );
+    ASSERT_NO_THROW( r.get( 3000000 ) );
 
     while( !r.isEnd() )
     {
-        ASSERT_NO_FATAL_FAILURE( r.advance( 7 ) );
+        EXPECT_NO_FATAL_FAILURE( r.advance( 255 ) );
     }
 }
 

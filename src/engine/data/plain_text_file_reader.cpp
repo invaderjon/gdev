@@ -59,13 +59,6 @@ std::string PlainTextFileReader::get( unsigned int n )
     // copy remainder
     oss << d_buffer[i].substr( offset, n );
 
-    std::string data = oss.str();
-
-    if ( data.length() != desired )
-    {
-        std::cout << "FAILURE";
-    }
-
      return oss.str();
 }
 

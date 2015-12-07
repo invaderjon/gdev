@@ -114,7 +114,11 @@ char BasicStringReader::get()
 inline
 std::string BasicStringReader::get( unsigned int n )
 {
-    assert( !isEnd() );
+    if ( isEnd() )
+    {
+        return "";
+    }
+
     if ( d_position + n > d_string.length() )
     {
         n = ( unsigned int )( d_string.length() - d_position );
