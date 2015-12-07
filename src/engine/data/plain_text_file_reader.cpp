@@ -31,6 +31,7 @@ char PlainTextFileReader::get()
 std::string PlainTextFileReader::get( unsigned int n )
 {
     long count;
+    long desired = n;
     while ( d_bufferPos + n > d_bufferSize )
     {
         count = readLine();
@@ -49,7 +50,7 @@ std::string PlainTextFileReader::get( unsigned int n )
     unsigned int i;
     unsigned int offset;
     for ( i = 0, offset = d_bufferPos;
-          n >= d_buffer[i].length();
+          n >= ( d_buffer[i].length() - offset );
           n -= d_buffer[i].length() - offset, offset = 0, ++i )
     {
         oss << d_buffer[i].substr( offset, d_buffer[i].length() - offset );
@@ -57,6 +58,13 @@ std::string PlainTextFileReader::get( unsigned int n )
 
     // copy remainder
     oss << d_buffer[i].substr( offset, n );
+
+    std::string data = oss.str();
+
+    if ( data.length() != desired )
+    {
+        std::cout << "FAILURE";
+    }
 
      return oss.str();
 }
