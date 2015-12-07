@@ -72,6 +72,9 @@ class Piece : public Actor
     void addTarget( const gel::math::IVec2& target );
       // Adds a new target to the motion path.
 
+    bool hasTarget( const gel::math::IVec2& target );
+      // Checks if the piece has the target at some point in its motion path.
+
     void clearTargets();
       // Clears all targets in the piece's motion path.
 
@@ -154,6 +157,12 @@ inline
 void Piece::addTarget( const gel::math::IVec2& target )
 {
     d_motionPath.push( target );
+}
+
+inline
+bool Piece::hasTarget( const gel::math::IVec2& target )
+{
+    return d_motionPath.doesContain( target );
 }
 
 inline

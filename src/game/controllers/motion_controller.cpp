@@ -17,7 +17,14 @@ void MotionController::tick( float dtS )
         return;
     }
 
-    Vec2 dir = getDir();
+    Vec2 dir;
+
+    while (  d_piece->getTargetCount() > 0 &&
+        ( dir = getDir() ) == Vec2( 0 ) )
+    {
+        d_piece->jumpToNextTarget();
+        dir = getDir();
+    }
 
     if ( dir == Vec2( 0 ) )
     {
