@@ -7,6 +7,7 @@
 #include <engine/scene/collision.h>
 #include <engine/scene/icollider.h>
 #include <engine/scene/world_view.h>
+#include <engine/assets/resource_manager.h>
 
 namespace StevensDev
 {
@@ -14,10 +15,23 @@ namespace StevensDev
 namespace mgo
 {
 
+// TYPES
 typedef unsigned int ActorID;
   // Defines a unique actor ID.
   // This is defined as a type since it may change in the future.
 
+// STRUCTS
+struct ActorToken
+{
+    std::string name;
+    sgda::Handle<sgda::TextureTag> sprite;
+    sgds::RectangleBounds bounds;
+    sgds::RectangleBounds spriteSize;
+    sgdd::JsonEntity properties;
+    unsigned short flags;
+};
+
+// CLASSES
 class Actor : public sgds::ICollider
 {
   private:
@@ -32,6 +46,9 @@ class Actor : public sgds::ICollider
     // MEMBERS
     sgdr::RenderableSprite d_sprite;
       // The actor's sprite.
+
+    sgda::Handle<sgda::TextureTag> d_texture;
+      // The actor's sprite's texture.
 
     sgds::RectangleBounds d_bounds;
       // The actor's collision bounds.
@@ -59,11 +76,7 @@ class Actor : public sgds::ICollider
     Actor();
       // Constructs an invalid actor (id = INVALID).
 
-    Actor( const std::string& name,
-           const sgdr::RenderableSprite& sprite,
-           const sgds::RectangleBounds& bounds,
-           unsigned short flags,
-           const sgdd::JsonEntity& properties );
+    Actor( const ActorToken& token );
       // Constructs a new actor with the given information.
       //
       // The bounds are in world units.
@@ -138,26 +151,57 @@ std::ostream& operator<<( std::ostream& stream,
 
 // CONSTRUCTORS
 inline
-Actor::Actor() : d_sprite(), d_bounds(), d_properties(), d_name(),
-                 d_id( ActorID( INVALID ) ),
+Actor::Actor() : d_sprite(), d_texture(), d_bounds(), d_properties(),
+                 d_name(), d_id( ActorID( INVALID ) ),
                  d_flags( sgds::Collision::NO_COLLISION )
 {
 }
 
 inline
-Actor::Actor( const std::string& name, const sgdr::RenderableSprite& sprite,
-              const sgds::RectangleBounds& bounds, unsigned short flags,
-              const sgdd::JsonEntity& properties )
-    : d_sprite( sprite ), d_bounds( bounds ), d_properties( properties ),
-      d_name( name ), d_id( nextID() ), d_flags( flags )
+Actor::Actor( const ActorToken& token )
+    : d_texture( token.sprite ), d_properties( token.properties ), d_bounds(),
+      d_name( token.name ), d_id( nextID() ), d_flags( token.flags )
 {
+    sgda::ResourceManager& mgr = sgda::ResourceManager::inst();
+
+    sf::Texture& tex = mgr.get( d_texture );
+    sgds::WorldView& wv = sgds::WorldView::inst();
+
+    // determine scaling for desired size
+    float scale;
+    if ( tex.getSize().x > tex.getSize().y )
+    {
+        scale = wv.dpToPX( wv.wuToDP( token.spriteSize.width() ) ) /
+            tex.getSize().x;
+    }
+    else
+    {
+        scale = wv.dpToPX( wv.wuToDP( token.spriteSize.height() ) ) /
+            tex.getSize().y;
+    }
+
+    sf::Sprite sprite( tex );
+    sprite.scale( scale, scale );
+
+    d_sprite = sgdr::RenderableSprite( sprite );
+
+    // calculate bounds based on percentage of sprite size
+    d_bounds.setWidth( wv.dpToWU( token.bounds.width() *
+                                  d_sprite.getWidth() ) );
+
+    d_bounds.setHeight( wv.dpToWU( token.bounds.height() *
+                                   d_sprite.getHeight() ) );
+
+    d_bounds.setX( wv.dpToWU( token.bounds.x() * d_sprite.getWidth() ) );
+
+    d_bounds.setY( wv.dpToWU( token.bounds.y() * d_sprite.getHeight() ) );
 }
 
 inline
 Actor::Actor( const Actor& actor )
-    : d_sprite( actor.d_sprite ), d_bounds( actor.d_bounds ),
-      d_properties( actor.d_properties ), d_name( actor.d_name ),
-      d_id( actor.d_id ), d_flags( actor.d_flags )
+    : d_sprite( actor.d_sprite ), d_texture( actor.d_texture ),
+      d_bounds( actor.d_bounds ), d_properties( actor.d_properties ),
+      d_name( actor.d_name ), d_id( actor.d_id ), d_flags( actor.d_flags )
 {
 }
 
