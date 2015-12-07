@@ -4,6 +4,7 @@
 #include <engine/assets/handle.h>
 #include <assert.h>
 #include <game/base/game.h>
+#include <engine/data/plain_text_file_reader.h>
 #include "engine/build.g.h"
 #include "engine/input/input.h"
 #include "engine/rendering/renderer.h"
@@ -32,7 +33,7 @@ int main( int argc, char *argv[] )
     cout << endl;
 
     mgb::Game game;
-    game.initialize( "Simulation" );
+    game.initialize( "Pacman" );
     while ( game.poll() != mgb::Game::EngineEvent::STATUS_INITIALIZED )
     {
         // wait for initialization
