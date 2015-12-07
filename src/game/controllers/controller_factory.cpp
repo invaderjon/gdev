@@ -4,6 +4,7 @@
 #include "motion_controller.h"
 #include "spawn_controller.h"
 #include "ghost_controller.h"
+#include "pacman_controller.h"
 #include <engine/util/string_utils.h>
 
 namespace StevensDev
@@ -22,6 +23,7 @@ sgds::ITickable* ControllerFactory::get( mgo::Actor* actor,
     using namespace sgdu;
 
     sgds::ITickable* controller;
+    std::string conf = config["class"].asString();
     switch( StringUtils::hash( config["class"].asString() ) )
     {
         case chash( "PlayerController" ):
@@ -37,6 +39,11 @@ sgds::ITickable* ControllerFactory::get( mgo::Actor* actor,
         case chash( "GhostController" ):
             controller = new GhostController(
                 dynamic_cast<mgo::Ghost*>( actor ) );
+            break;
+
+        case chash( "PacmanController" ):
+            controller = new PacmanController(
+                dynamic_cast<mgo::Piece*>( actor ) );
             break;
 
         default:
