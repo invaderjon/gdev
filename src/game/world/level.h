@@ -27,6 +27,7 @@ struct LevelTag
 class Level : public sgds::ITickable
 {
   private:
+    // MEMBERS
     sgdc::DynamicArray<sgda::Handle<sgda::ConfigTag>> d_configs;
       // The set of configurations associated with the level.
 
@@ -45,11 +46,21 @@ class Level : public sgds::ITickable
     sgdc::DynamicArray<sgds::ITickable*> d_newControllers;
       // Controllers waiting to be added.
 
+    sgdc::DynamicArray<sgdr::RenderableSprite> d_mapSprites;
+      // The sprites used for drawing the map.
+
     mgw::Board d_board;
       // The board used by the level.
 
+    sgda::Handle<sgda::TextureTag> d_mapTexHandle;
+      // The map texture handle.
+
     std::string d_name;
       // The level name.
+
+    // HELPER FUNCTIONS
+    void buildMap();
+      // Builds the drawable map.
 
   public:
     // CONSTRUCTORS
@@ -145,28 +156,6 @@ void Level::setBoard( mgw::Board board )
 }
 
 // MEMBER FUNCTIONS
-inline
-void Level::open()
-{
-    sgds::Scene& s = sgds::Scene::inst();
-
-    mgo::Actor* actor;
-    while ( d_newActors.size() > 0 )
-    {
-        actor = d_newActors.popFront();
-        s.addRenderable( &actor->sprite() );
-        d_actors.push( actor );
-    }
-
-    sgds::ITickable* controller;
-    while ( d_newControllers.size() > 0 )
-    {
-        controller = d_newControllers.popFront();
-        s.addTickable( controller );
-        d_controllers.push( controller );
-    }
-}
-
 inline
 void Level::addActor( mgo::Actor* actor )
 {

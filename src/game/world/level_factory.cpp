@@ -21,6 +21,8 @@ Level* LevelFactory::get( const sgda::Handle<sgda::LevelDataTag>& handle )
 
     assert( data.has( "board" ) );
 
+
+
     buildMap( level, data["board"] );
 
     if ( data.has( "entities" ) )
@@ -47,7 +49,7 @@ void LevelFactory::buildMap( Level* level, const sgdd::JsonEntity& map )
     sgds::WorldView& wv = sgds::WorldView::inst();
 
     float spaceWidth = wv.width() / map["width"].asInt();
-    float spaceHeight = wv.width() / map["height"].asInt();
+    float spaceHeight = wv.height() / map["height"].asInt();
 
     Board board( map["spaces"], ( unsigned int )map["width"].asInt(),
                  ( unsigned int )map["height"].asInt(), spaceWidth,
@@ -59,6 +61,8 @@ void LevelFactory::buildMap( Level* level, const sgdd::JsonEntity& map )
 void LevelFactory::buildEntities( Level* level,
                                   const sgdd::JsonEntity& entities )
 {
+    using namespace gel::math;
+
     mgo::ActorFactory& aFactory = mgo::ActorFactory::inst();
     mgc::ControllerFactory& cFactory = mgc::ControllerFactory::inst();
 
@@ -69,6 +73,18 @@ void LevelFactory::buildEntities( Level* level,
     {
         mgo::Actor* actor = aFactory.get(
             entities[i]["actor"].asString() );
+
+        if ( mgo::Piece* piece = dynamic_cast<mgo::Piece*>( actor ) )
+        {
+            piece->setCurrentSpace(
+                IVec2( entities[i]["column"].asInt(),
+                       entities[i]["row"].asInt() ) );
+
+            Vec2 pos = piece->getWorldPositionForSpace(
+                piece->getCurrentSpace(), level->board() );
+
+            piece->setPosition( pos.x, pos.y );
+        }
 
         level->addActor( actor );
 
