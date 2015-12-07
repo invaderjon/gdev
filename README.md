@@ -44,5 +44,5 @@ to figure out how to set up the GTest library and how to integrate
 it into Travis-CI.
 
 [Standards]: https://goo.gl/BE4d1N
-[Travis Badge]: https://travis-ci.org/invaderjon/gdev.svg?branch=master
+[Travis Badge]: https://travis-ci.org/invaderjon/gdev.svg?branch=pacman
 [Travis Link]: https://travis-ci.org/invaderjon/gdev
