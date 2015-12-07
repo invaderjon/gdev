@@ -1,11 +1,7 @@
 // game.cpp
 #include "game.h"
-#include <assert.h>
 #include <game/objects/actor.h>
 #include <game/controllers/player_controller.h>
-#include "engine/assets/resource_manager.h"
-#include "engine/scene/world_view.h"
-#include "engine/input/input.h"
 #include "engine/scene/scene.h"
 
 namespace StevensDev
@@ -40,6 +36,8 @@ void Game::initialize( const std::string& name )
 
     scene.setRenderer( &d_renderer );
 
+    d_levelManager.addLevel( "world", "R.leveldata.map" );
+
     d_events.push( STATUS_INITIALIZED );
 }
 
@@ -57,6 +55,9 @@ void Game::startup()
 
     d_isRunning = true;
     d_events.push( STATUS_STARTED );
+
+    d_levelManager.prepare( "world" );
+    d_levelManager.open( "world" );
 }
 
 void Game::update()

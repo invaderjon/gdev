@@ -6,6 +6,7 @@
 #include "engine/containers/dynamic_array.h"
 #include "engine/rendering/renderer.h"
 #include <string>
+#include <game/world/level_manager.h>
 
 namespace StevensDev
 {
@@ -19,6 +20,9 @@ class Game
     // MEMBERS
     sgda::ResourceDatabase d_resources;
       // The game's resource database.
+
+    mgw::LevelManager d_levelManager;
+      // The game's level manager.
 
     sgdr::Renderer d_renderer;
       // The game's renderer.
