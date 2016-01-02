@@ -16,7 +16,7 @@ getKeys( StevensDev::sgdm::IAllocator<std::string>* allocator )
 
     int i;
     int j;
-    for ( i = 0; i < 128; ++i )
+    for ( i = 0; i < 512; ++i )
     {
         std::ostringstream oss;
         for ( j = 0; j <= i; ++j )

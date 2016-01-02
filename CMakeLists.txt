@@ -247,7 +247,7 @@ set(
         src/engine/scene/nxn_scene_graph.h
         src/engine/scene/world_view.cpp
         src/engine/scene/world_view.h
-)
+        src/engine/util/hash_utils.cpp src/engine/util/hash_utils.h)
 
 # SFML DEPENDENT ENGINE SOURCES
 set(
