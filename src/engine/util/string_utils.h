@@ -10,21 +10,6 @@ namespace StevensDev
 namespace sgdu
 {
 
-// chash is a compile-time function that computes the hash code for the given
-// string.
-//
-// This helper exists to reduce code redundancy.
-//
-// For example, this shortens the following call
-// StringUtils::compileTimeHash<sizeof( "Hello" )>( "Hello" );
-// to
-// chash( "Hello" )
-//
-// This can be used to do accomplish tasks such as using strings in switch
-// statements
-#define chash( string ) \
-StevensDev::sgdu::StringUtils::compileTimeHash<sizeof( string ) - 1>( string )
-
 struct StringUtils
 {
     static constexpr unsigned int FNV_OFFSET = 2166136261;
@@ -45,15 +30,6 @@ struct StringUtils
       // Returns 0 if equal
       // Returns > 0 if first is greater than second
       // Returns < 0 if first is less than second
-
-    static unsigned int hash( const std::string& str );
-      // Obtains an fnv hash code for a string.
-
-    template <int length>
-    static constexpr unsigned int compileTimeHash( const char* str );
-      // Computes the fnv hash code at compile time.
-      //
-      // This can only be used with constants. Unknown behavior otherwise.
 
 };
 
@@ -88,37 +64,6 @@ int StringUtils::compare( const std::string& first,
     }
 
     return d;
-}
-
-inline
-unsigned int StringUtils::hash( const std::string& str )
-{
-    unsigned int hash = FNV_OFFSET;
-    int i;
-
-    for ( i = 0; i < str.length(); ++i )
-    {
-        hash ^= str[i];
-        hash *= FNV_PRIME_32;
-    }
-
-    return hash;
-}
-
-template <>
-inline
-constexpr unsigned int
-StringUtils::compileTimeHash<int( 0 )>( const char* str )
-{
-    return StringUtils::FNV_OFFSET;
-}
-
-template <int rem>
-inline
-constexpr unsigned int StringUtils::compileTimeHash( const char* str )
-{
-    return ( compileTimeHash<rem - 1>( str ) ^ str[rem - 1] ) *
-        StringUtils::FNV_PRIME_32;
 }
 
 } // End nspc sgdu

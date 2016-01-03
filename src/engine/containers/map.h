@@ -8,7 +8,7 @@
 #include "engine/memory/allocator_guard.h"
 #include "engine/memory/iallocator.h"
 #include "engine/memory/mem.h"
-#include "engine/util/hash_utils.h"
+#include "engine/util/hasher.h"
 #include <functional>
 #include <search.h>
 #include <string>
@@ -154,10 +154,24 @@ class Map
     // CONSTRUCTORS
     Map();
       // Constructs a new map using the default allocator.
+      // This will use the default Hasher specialization as its hash function.
+
+    Map( const HashFunc& hashFunc );
+      // Constructs a map that is using the given hash function and the default
+      // allocator.
 
     Map( unsigned int capacity );
       // Constructs a new map using the given capacity and the default
       // allocator.
+      // This will use the default Hasher specialization as its hash function.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
+
+    Map( unsigned int capacity, const HashFunc& hashFunc );
+      // Constructs a new map using the given capacity, hash function, and
+      // the default allocator.
       // This constructor should be used in the event that it is known that a
       // large number of key-value pairs will be stored. This helps to reduce
       // allocations by initializing the internal key and value arrays to the
@@ -165,9 +179,23 @@ class Map
 
     Map( sgdm::IAllocator<T>* allocator );
       // Constructs a new map using the given allocator.
+      // This will use the default Hasher specialization as its hash function.
+
+    Map( sgdm::IAllocator<T>* allocator, const HashFunc& hashFunc );
+      // Constructs a new map using the given allocator and hash function.
 
     Map( sgdm::IAllocator<T>* allocator, unsigned int capacity );
-      // Constructs a new map with the given key and value storage capacities.
+      // Constructs a new map with the given capacity and allocator.
+      // This will use the default Hasher specialization as its hash function.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
+
+    Map( sgdm::IAllocator<T>* allocator, unsigned int capacity,
+         const HashFunc& hashFunc );
+      // Constructs a new map with the given capacity, hash function,
+      // and allocator..
       // This constructor should be used in the event that it is known that a
       // large number of key-value pairs will be stored. This helps to reduce
       // allocations by initializing the internal key and value arrays to the
@@ -274,17 +302,37 @@ std::ostream& operator<<( std::ostream& stream,
 template <typename T, typename K>
 inline
 Map<T, K>::Map() : d_binAllocator(),
-                d_keys(),
-                d_values(),
-                d_entries(),
-                d_bins( nullptr ),
-                d_binsInUse( 0 ),
-                d_binCount( MIN_BINS ),
-                d_oldBins( nullptr ),
-                d_oldBinIndex( 0 ),
-                d_oldBinCount( 0 )
+                   d_keys(),
+                   d_values(),
+                   d_entries(),
+                   d_bins( nullptr ),
+                   d_binsInUse( 0 ),
+                   d_binCount( MIN_BINS ),
+                   d_oldBins( nullptr ),
+                   d_oldBinIndex( 0 ),
+                   d_oldBinCount( 0 )
 {
     d_hashFunc = &sgdu::Hasher<K>::hash;
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+
+template <typename T, typename K>
+Map<T, K>::Map( const HashFunc& hashFunc )
+        : d_binAllocator(),
+          d_keys(),
+          d_values(),
+          d_entries(),
+          d_hashFunc( hashFunc ),
+          d_bins( nullptr ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
     d_bins = d_binAllocator.get( d_binCount );
     sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
                          d_binCount );
@@ -293,17 +341,41 @@ Map<T, K>::Map() : d_binAllocator(),
 template <typename T, typename K>
 inline
 Map<T, K>::Map( unsigned int capacity ) : d_binAllocator(),
-                                       d_keys(),
-                                       d_values(),
-                                       d_entries(),
-                                       d_bins( nullptr ),
-                                       d_binsInUse( 0 ),
-                                       d_binCount( MIN_BINS ),
-                                       d_oldBins( nullptr ),
-                                       d_oldBinIndex( 0 ),
-                                       d_oldBinCount( 0 )
+                                          d_keys(),
+                                          d_values(),
+                                          d_entries(),
+                                          d_bins( nullptr ),
+                                          d_binsInUse( 0 ),
+                                          d_binCount( MIN_BINS ),
+                                          d_oldBins( nullptr ),
+                                          d_oldBinIndex( 0 ),
+                                          d_oldBinCount( 0 )
 {
     d_hashFunc = &sgdu::Hasher<K>::hash;
+    while ( d_binCount < capacity )
+    {
+        d_binCount <<= 1;
+    }
+
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
+Map<T, K>::Map( unsigned int capacity, const HashFunc& hashFunc )
+        : d_binAllocator(),
+          d_keys(),
+          d_values(),
+          d_entries(),
+          d_hashFunc( hashFunc ),
+          d_bins( nullptr ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
     while ( d_binCount < capacity )
     {
         d_binCount <<= 1;
@@ -334,6 +406,24 @@ Map<T, K>::Map( sgdm::IAllocator<T>* allocator )
 }
 
 template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* allocator, const HashFunc& hashFunc )
+        : d_binAllocator(),
+          d_keys(),
+          d_values( allocator ),
+          d_entries(),
+          d_hashFunc( hashFunc ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
 inline
 Map<T, K>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity )
     : d_binAllocator(),
@@ -347,6 +437,30 @@ Map<T, K>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity )
       d_oldBinCount( 0 )
 {
     d_hashFunc = &sgdu::Hasher<K>::hash;
+    while ( d_binCount < capacity )
+    {
+        d_binCount <<= 1;
+    }
+
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity,
+                const HashFunc& hashFunc )
+        : d_binAllocator(),
+          d_keys( nullptr, capacity ),
+          d_values( allocator, capacity ),
+          d_entries( nullptr, capacity ),
+          d_hashFunc( hashFunc ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
     while ( d_binCount < capacity )
     {
         d_binCount <<= 1;

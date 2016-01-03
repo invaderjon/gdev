@@ -1,6 +1,6 @@
 // actor_factory.cpp
 #include <engine/assets/resource_manager.h>
-#include <engine/util/string_utils.h>
+#include <engine/util/hasher.h>
 #include "actor_factory.h"
 #include "token_factory.h"
 
@@ -10,20 +10,6 @@ namespace StevensDev
 namespace mgo
 {
 
-namespace
-{
-
-// ACTOR CLASSES
-static const unsigned int PLAYER = sgdu::StringUtils::hash( "Player" );
-static const unsigned int BLINKY = sgdu::StringUtils::hash( "Blinky" );
-static const unsigned int PINKY = sgdu::StringUtils::hash( "Pinky" );
-static const unsigned int INKY = sgdu::StringUtils::hash( "Inky" );
-static const unsigned int CLYDE = sgdu::StringUtils::hash( "Clyde" );
-static const unsigned int GEN_GHOST =
-    sgdu::StringUtils::hash( "GenericGhost" );
-
-} // End nspc anonymous
-
 // GLOBALS
 ActorFactory ActorFactory::d_instance  = ActorFactory();
 
@@ -32,6 +18,7 @@ Actor* ActorFactory::get( const sgda::ResourceID& actor )
 {
     using namespace sgda;
     using namespace sgdd;
+    using namespace sgdu;
 
     ResourceManager& mgr = ResourceManager::inst();
     Handle<ConfigTag> configHandle = mgr.getConfigHandle( actor );
@@ -43,7 +30,7 @@ Actor* ActorFactory::get( const sgda::ResourceID& actor )
 
     // construct based on hash
     Actor* inst;
-    switch ( sgdu::StringUtils::hash( cls ) )
+    switch ( Hasher<std::string>::hash( cls ) )
     {
         case chash( "Piece" ):
         {

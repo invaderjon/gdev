@@ -1,11 +1,11 @@
 // controller_factory.cpp
 #include "controller_factory.h"
-#include "player_controller.h"
-#include "motion_controller.h"
-#include "spawn_controller.h"
+#include "engine/util/hasher.h"
 #include "ghost_controller.h"
+#include "motion_controller.h"
 #include "pacman_controller.h"
-#include <engine/util/string_utils.h>
+#include "player_controller.h"
+#include "spawn_controller.h"
 
 namespace StevensDev
 {
@@ -24,7 +24,7 @@ sgds::ITickable* ControllerFactory::get( mgo::Actor* actor,
 
     sgds::ITickable* controller;
     std::string conf = config["class"].asString();
-    switch( StringUtils::hash( config["class"].asString() ) )
+    switch( Hasher<std::string>::hash( config["class"].asString() ) )
     {
         case chash( "PlayerController" ):
             controller = new PlayerController( actor );
@@ -60,7 +60,7 @@ sgds::ITickable* ControllerFactory::get( mgw::Level* level,
     using namespace sgdu;
 
     sgds::ITickable* controller;
-    switch ( StringUtils::hash( config["class"].asString() ) )
+    switch ( Hasher<std::string>::hash( config["class"].asString() ) )
     {
         case chash( "SpawnController" ):
             controller = new SpawnController(
