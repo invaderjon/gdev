@@ -165,7 +165,6 @@ int CountingAllocator<T>::getOutstandingCount()
     return d_totalAllocationCount - d_totalReleaseCount;
 }
 
-
 } // End nspc sgdm
 
 } // End nspc StevensDev
