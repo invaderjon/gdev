@@ -217,20 +217,20 @@ class Map
     Map<T, K>& operator=( Map<T, K>&& source );
       // Moves the resources from the source to this instance.
 
-    const T& operator[]( const std::string& key ) const;
+    const T& operator[]( const K& key ) const;
       // Gets the value that is mapped to the given key.
       //
       // Requirements:
       // There must be a mapping for the key.
 
-    T& operator[]( const std::string& key );
+    T& operator[]( const K& key );
       // Sets the mapping for the given key.
 
     // MEMBER FUNCTIONS
-    bool has( const std::string& key ) const;
+    bool has( const K& key ) const;
       // Checks if there is a key-value mapping for the given value.
 
-    T remove( const std::string& key );
+    T remove( const K& key );
       // Removes the key-value mapping for the specified key.
       //
       // Given the nature of the dynamic array implementation this is the
@@ -239,7 +239,7 @@ class Map
       // Requirements:
       // A mapping for the given key must exist.
 
-    const DynamicArray<std::string>& keys() const;
+    const DynamicArray<K>& keys() const;
       // Gets all of the mapped keys.
 
     const DynamicArray<T>& values() const;
@@ -636,7 +636,7 @@ Map<T, K>& Map<T, K>::operator=( Map<T, K>&& source )
 }
 
 template <typename T, typename K>
-const T& Map<T, K>::operator[]( const std::string& key ) const
+const T& Map<T, K>::operator[]( const K& key ) const
 {
     sgdu::HashCode code = d_hashFunc( key );
 
@@ -653,7 +653,7 @@ const T& Map<T, K>::operator[]( const std::string& key ) const
 }
 
 template <typename T, typename K>
-T& Map<T, K>::operator[]( const std::string& key )
+T& Map<T, K>::operator[]( const K& key )
 {
     // pre-insertion operations
     if ( d_oldBins != nullptr )
@@ -700,7 +700,7 @@ T& Map<T, K>::operator[]( const std::string& key )
 
 // MEMBER FUNCTIONS
 template <typename T, typename K>
-bool Map<T, K>::has( const std::string& key ) const
+bool Map<T, K>::has( const K& key ) const
 {
     if ( d_keys.size() <= 0 )
     {
@@ -720,7 +720,7 @@ bool Map<T, K>::has( const std::string& key ) const
 }
 
 template <typename T, typename K>
-T Map<T, K>::remove( const std::string& key )
+T Map<T, K>::remove( const K& key )
 {
     // pre-removal operations
     if ( d_oldBins != nullptr )
@@ -785,7 +785,7 @@ T Map<T, K>::remove( const std::string& key )
 
 template <typename T, typename K>
 inline
-const DynamicArray<std::string>& Map<T, K>::keys() const
+const DynamicArray<K>& Map<T, K>::keys() const
 {
     return d_keys;
 }
