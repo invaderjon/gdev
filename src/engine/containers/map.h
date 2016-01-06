@@ -157,8 +157,8 @@ class Map
       // This will use the default Hasher specialization as its hash function.
 
     Map( const HashFunc& hashFunc );
-      // Constructs a map that is using the given hash function and the default
-      // allocator.
+      // Constructs a new map that is using the given hash function and
+      // the default allocator.
 
     Map( unsigned int capacity );
       // Constructs a new map using the given capacity and the default
@@ -341,9 +341,9 @@ Map<T, K>::Map( const HashFunc& hashFunc )
 template <typename T, typename K>
 inline
 Map<T, K>::Map( unsigned int capacity ) : d_binAllocator(),
-                                          d_keys(),
-                                          d_values(),
-                                          d_entries(),
+                                          d_keys( capacity ),
+                                          d_values( capacity ),
+                                          d_entries( capacity ),
                                           d_bins( nullptr ),
                                           d_binsInUse( 0 ),
                                           d_binCount( MIN_BINS ),
@@ -365,9 +365,9 @@ Map<T, K>::Map( unsigned int capacity ) : d_binAllocator(),
 template <typename T, typename K>
 Map<T, K>::Map( unsigned int capacity, const HashFunc& hashFunc )
         : d_binAllocator(),
-          d_keys(),
-          d_values(),
-          d_entries(),
+          d_keys( capacity ),
+          d_values( capacity ),
+          d_entries( capacity ),
           d_hashFunc( hashFunc ),
           d_bins( nullptr ),
           d_binsInUse( 0 ),
