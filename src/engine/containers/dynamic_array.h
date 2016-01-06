@@ -19,6 +19,9 @@ template<typename T>
 class DynamicArray
 {
   private:
+    static constexpr unsigned int MIN_SIZE = 32;
+      // The minimum capacity of an array.
+
     sgdm::AllocatorGuard<T> d_allocator;
       // The allocator used when growing the array.
 
@@ -154,6 +157,9 @@ class DynamicArray
       // Gets the size of the array.
 };
 
+template <typename T>
+constexpr unsigned int DynamicArray<T>::MIN_SIZE;
+
 // FREE OPERATORS
 template<typename T>
 inline
@@ -171,7 +177,8 @@ std::ostream& operator<<( std::ostream& stream,
 // CONSTRUCTORS
 template<typename T>
 DynamicArray<T>::DynamicArray() : d_allocator( nullptr ), d_array( nullptr ),
-                                  d_first( 0 ), d_size( 0 ), d_capacity( 32 )
+                                  d_first( 0 ), d_size( 0 ),
+                                  d_capacity( MIN_SIZE )
 {
     d_array = d_allocator.get( d_capacity );
 }
@@ -179,15 +186,19 @@ DynamicArray<T>::DynamicArray() : d_allocator( nullptr ), d_array( nullptr ),
 template <typename T>
 DynamicArray<T>::DynamicArray( unsigned int capacity )
     : d_allocator( nullptr ), d_array( nullptr ),
-      d_first( 0 ), d_size( 0 ), d_capacity( capacity )
+      d_first( 0 ), d_size( 0 ), d_capacity( MIN_SIZE )
 {
+    while ( d_capacity < capacity )
+    {
+        d_capacity <<= 1;
+    }
     d_array = d_allocator.get( d_capacity );
 }
 
 template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator )
     : d_allocator( allocator ), d_array( nullptr ), d_first( 0 ), d_size( 0 )
-    , d_capacity( 32 )
+    , d_capacity( MIN_SIZE )
 {
     d_array = d_allocator.get( d_capacity );
 }
@@ -196,8 +207,12 @@ template<typename T>
 DynamicArray<T>::DynamicArray( sgdm::IAllocator<T>* allocator,
                                unsigned int capacity )
     : d_allocator( allocator ), d_array( nullptr ), d_first( 0 ), d_size( 0 ),
-      d_capacity( capacity )
+      d_capacity( MIN_SIZE )
 {
+    while ( d_capacity < capacity )
+    {
+        d_capacity <<= 1;
+    }
     d_array = d_allocator.get( d_capacity );
 }
 
