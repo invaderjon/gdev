@@ -80,7 +80,6 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
     fScores[cur] = getManhattanDist( cur, tar );
 
     IVec2 neigh = cur;
-    IVec2 dir;
     unsigned i;
     float tentativeGScore;
     bool wasSuccessful = false;
