@@ -57,6 +57,11 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
     using namespace StevensDev::sgdc;
     const mgw::Board& board = mgw::Board::get();
 
+    if ( d_ghost->hasTarget( tar ) )
+    {
+        return;
+    }
+
     Set<IVec2> closed( &hash );
     Set<IVec2> open( &hash );
     Map<IVec2, IVec2> cameFrom( &hash );
@@ -115,6 +120,7 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
                 continue;
             }
 
+            // update path and scores
             cameFrom[neigh] = cur;
             gScores[neigh] = tentativeGScore;
             fScores[neigh] = gScores[neigh] + getManhattanDist( neigh, tar );
