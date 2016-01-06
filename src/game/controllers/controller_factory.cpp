@@ -1,6 +1,6 @@
 // controller_factory.cpp
 #include "controller_factory.h"
-#include "engine/util/hasher.h"
+#include <engine/util/hasher.h>
 #include "ghost_controller.h"
 #include "motion_controller.h"
 #include "pacman_controller.h"

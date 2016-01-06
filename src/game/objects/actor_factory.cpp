@@ -1,7 +1,7 @@
 // actor_factory.cpp
+#include "actor_factory.h"
 #include <engine/assets/resource_manager.h>
 #include <engine/util/hasher.h>
-#include "actor_factory.h"
 #include "token_factory.h"
 
 namespace StevensDev

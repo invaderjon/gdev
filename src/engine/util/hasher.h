@@ -53,4 +53,5 @@ HashCode Hasher<int>::hash( const int& value )
 } // End nspc sgdu
 
 } // End nspc StevensDev
+
 #endif

@@ -23,7 +23,7 @@ class Set
       // Constructs a new set using the default allocator.
       // This will use the default Hasher specialization as its hash function.
 
-    Set( const Map::HashFunc& hashFunc );
+    Set( const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set set using the default allocator and given hash
       // function.
 
@@ -35,7 +35,7 @@ class Set
       // allocations by initializing the internal key and value arrays to the
       // given capacity.
 
-    Set( unsigned int capacity, const Map::HashFunc& hashFunc );
+    Set( unsigned int capacity, const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set with the given capacity and hash function using
       // the default allocator.
 
@@ -43,7 +43,8 @@ class Set
       // Constructs a new set using the given allocator.
       // This will use the default Hasher specialization as its hash function.
 
-    Set( sgdm::IAllocator<T>* allocator, const Map::HashFunc& hashFunc );
+    Set( sgdm::IAllocator<T>* allocator,
+         const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set using the given allocator and hash function.
 
     Set( sgdm::IAllocator<T>* allocator, unsigned int capacity );
@@ -55,7 +56,7 @@ class Set
       // given capacity.
 
     Set( sgdm::IAllocator<T>* allocator, unsigned int capacity,
-         const Map::HashFunc& hashFunc );
+         const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set with the given capacity, hash function,
       // and allocator.
       // This constructor should be used in the event that it is known that a
@@ -106,6 +107,9 @@ class Set
     unsigned int size() const;
       // Gets the size of the set.
 
+    bool isEmpty() const;
+      // Checks if the set is empty.
+
     const DynamicArray<T>& values() const;
       // Gets the values as an array.
 };
@@ -127,7 +131,7 @@ Set<T>::Set() : d_map()
 
 template <typename T>
 inline
-Set<T>::Set( const Map::HashFunc& hashFunc ) : d_map( hashFunc )
+Set<T>::Set( const typename Map<T, T>::HashFunc& hashFunc ) : d_map( hashFunc )
 {
 }
 
@@ -139,7 +143,8 @@ Set<T>::Set( unsigned int capacity ) : d_map( capacity )
 
 template <typename T>
 inline
-Set<T>::Set( unsigned int capacity, const Map::HashFunc& hashFunc )
+Set<T>::Set( unsigned int capacity,
+             const typename Map<T, T>::HashFunc& hashFunc )
         : d_map( capacity, hashFunc )
 {
 }
@@ -152,7 +157,8 @@ Set<T>::Set( sgdm::IAllocator<T>* allocator ) : d_map( allocator )
 
 template <typename T>
 inline
-Set<T>::Set( sgdm::IAllocator<T>* allocator, const Map::HashFunc& hashFunc )
+Set<T>::Set( sgdm::IAllocator<T>* allocator,
+             const typename Map<T, T>::HashFunc& hashFunc )
         : d_map( allocator, hashFunc )
 {
 }
@@ -167,7 +173,7 @@ Set<T>::Set( sgdm::IAllocator<T>* allocator, unsigned int capacity )
 template <typename T>
 inline
 Set<T>::Set( sgdm::IAllocator<T>* allocator, unsigned int capacity,
-             const Map::HashFunc& hashFunc )
+             const typename Map<T, T>::HashFunc& hashFunc )
         : d_map( allocator, capacity, hashFunc )
 {
 }
@@ -243,6 +249,13 @@ inline
 unsigned int Set<T>::size() const
 {
     return d_map.values().size();
+}
+
+template <typename T>
+inline
+bool Set<T>::isEmpty() const
+{
+    return d_map.values().size() <= 0;
 }
 
 template <typename T>
