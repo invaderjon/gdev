@@ -25,7 +25,6 @@ class Scene
 
     sf::Clock d_clock;
       // The clock used for timing.
-
     // CONSTRUCTORS
     Scene();
       // Constructs a new scene.

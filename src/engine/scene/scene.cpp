@@ -12,6 +12,8 @@ Scene Scene::d_instance = Scene();
 void Scene::tick()
 {
     unsigned int i;
+    float elapsed = d_clock.getElapsedTime().asSeconds();
+    d_clock.restart();
 
     // pre-tick cycle
     for ( i = 0; i < d_tickables.size(); ++i )
@@ -22,7 +24,7 @@ void Scene::tick()
     // tick cycle
     for ( i = 0; i < d_tickables.size(); ++i )
     {
-        d_tickables[i]->tick( d_clock.getElapsedTime().asSeconds() );
+        d_tickables[i]->tick( elapsed );
     }
 
     // draw if possible
@@ -36,8 +38,6 @@ void Scene::tick()
     {
         d_tickables[i]->postTick();
     }
-
-    d_clock.restart();
 }
 
 } // End nspc sgds

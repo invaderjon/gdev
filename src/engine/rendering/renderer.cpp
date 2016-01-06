@@ -38,7 +38,7 @@ void StevensDev::sgdr::Renderer::setupWindow( int width, int height )
     d_window.create( sf::VideoMode( static_cast<unsigned int>( width ),
                                     static_cast<unsigned int>( height ) ),
                      "Game" );
-    d_window.setFramerateLimit( 60 );
+    d_window.setFramerateLimit( 120 );
 }
 
 bool StevensDev::sgdr::Renderer::loadTexture( const std::string& name,
