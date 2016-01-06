@@ -5,6 +5,7 @@
 #include <engine/containers/set.h>
 #include <engine/scene/itickable.h>
 #include <game/objects/ghost.h>
+#include <engine/memory/cached_allocator.h>
 
 namespace StevensDev
 {
@@ -18,6 +19,18 @@ class GhostController : public sgds::ITickable
     // MEMBERS
     mgo::Ghost* d_ghost;
       // The ghost that is being controlled.
+
+    sgdm::CachedAllocator<gel::math::IVec2> d_vecAlloc;
+      // Allocates 2D vectors.
+
+    sgdm::CachedAllocator<sgdc::Bin> d_binAlloc;
+      // Allocates bins for sets and maps.
+
+    sgdm::CachedAllocator<sgdu::HashCode> d_hashAlloc;
+      // Allocates hash codes.
+
+    sgdm::CachedAllocator<float> d_floatAlloc;
+      // Allocates 32-bit floating point values.
 
     // HELPER FUNCTIONS
     void navigateTo( const gel::math::IVec2& target );

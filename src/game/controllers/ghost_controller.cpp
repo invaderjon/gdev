@@ -62,11 +62,14 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
         return;
     }
 
-    Set<IVec2> closed( &hash );
-    Set<IVec2> open( &hash );
-    Map<IVec2, IVec2> cameFrom( &hash );
-    Map<float, IVec2> gScores;
-    Map<float, IVec2> fScores;
+    Set<IVec2> closed( &d_vecAlloc, &d_binAlloc, &d_hashAlloc, 32, &hash );
+    Set<IVec2> open( &d_vecAlloc, &d_binAlloc, &d_hashAlloc, 32, &hash );
+    Map<IVec2, IVec2> cameFrom( &d_vecAlloc, &d_vecAlloc, &d_binAlloc,
+                                &d_hashAlloc, 32, &hash );
+    Map<float, IVec2> gScores( &d_floatAlloc, &d_vecAlloc, &d_binAlloc,
+                               &d_hashAlloc );
+    Map<float, IVec2> fScores( &d_floatAlloc, &d_vecAlloc, &d_binAlloc,
+                               &d_hashAlloc );
 
     IVec2 cur = ( d_ghost -> getTargetCount() > 0 ) ?
                 d_ghost->getTargetSpace( d_ghost->getTargetCount() - 1 ) :
@@ -132,7 +135,7 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
         return;
     }
 
-    DynamicArray<IVec2> path( cameFrom.keys().size() );
+    DynamicArray<IVec2> path( &d_vecAlloc, cameFrom.keys().size() );
     cur = tar;
     path.push( cur );
     while ( cameFrom.has( cur ) )
