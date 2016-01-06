@@ -223,6 +223,8 @@ set(
         src/engine/memory/allocator_guard.h
         src/engine/memory/default_allocator.cpp
         src/engine/memory/default_allocator.h
+        src/engine/memory/cached_allocator.cpp
+        src/engine/memory/cached_allocator.h
         src/engine/memory/counting_allocator.cpp
         src/engine/memory/counting_allocator.h
         src/engine/memory/iallocator.cpp
@@ -233,10 +235,6 @@ set(
         src/engine/memory/stack_guard.h
         src/engine/scene/itickable.cpp
         src/engine/scene/itickable.h
-        src/engine/util/game_utils.cpp
-        src/engine/util/game_utils.h
-        src/engine/util/string_utils.cpp
-        src/engine/util/string_utils.h
         src/engine/scene/collision.cpp
         src/engine/scene/collision.h
         src/engine/scene/icollider.cpp
@@ -247,10 +245,14 @@ set(
         src/engine/scene/nxn_scene_graph.h
         src/engine/scene/world_view.cpp
         src/engine/scene/world_view.h
+        src/engine/util/game_utils.cpp
+        src/engine/util/game_utils.h
         src/engine/util/hasher.cpp
         src/engine/util/hasher.h
         src/engine/util/hash_utils.cpp
         src/engine/util/hash_utils.h
+        src/engine/util/string_utils.cpp
+        src/engine/util/string_utils.h
 )
 
 # SFML DEPENDENT ENGINE SOURCES

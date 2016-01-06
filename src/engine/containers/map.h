@@ -19,18 +19,19 @@ namespace StevensDev
 namespace sgdc
 {
 
+// TYPES
+typedef int Bin;
+  // Defines a bin. The bin value is the index of the value in the array.
+  // Only positive values are valid where-as certain negative values have
+  // special meanings.
+
 template <typename T, typename K = std::string>
 class Map
 {
   public:
     // TYPES
-    typedef int Bin;
-    // Defines a bin. The bin value is the index of the value in the array.
-    // Only positive values are valid where-as certain negative values have
-    // special meanings.
-
     typedef std::function<sgdu::HashCode( const K& )> HashFunc;
-    // Defines a function that copmutes the hash of a given key.
+      // Defines a function that computes the hash of a given key.
 
   private:
     // CONSTANTS
@@ -177,12 +178,26 @@ class Map
       // allocations by initializing the internal key and value arrays to the
       // given capacity.
 
-    Map( sgdm::IAllocator<T>* allocator );
+    Map( sgdm::IAllocator<T>* valueAlloc );
       // Constructs a new map using the given allocator.
+      // This will use the default Hasher specialization as its hash function.
+
+    Map( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<K>* keyAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc );
+      // Constructs a new map using the given allocators.
       // This will use the default Hasher specialization as its hash function.
 
     Map( sgdm::IAllocator<T>* allocator, const HashFunc& hashFunc );
       // Constructs a new map using the given allocator and hash function.
+
+    Map( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<K>* keyAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         const HashFunc& hashFunc );
+      // Constructs a new map using the given allocators and hash function.
 
     Map( sgdm::IAllocator<T>* allocator, unsigned int capacity );
       // Constructs a new map with the given capacity and allocator.
@@ -192,14 +207,38 @@ class Map
       // allocations by initializing the internal key and value arrays to the
       // given capacity.
 
-    Map( sgdm::IAllocator<T>* allocator, unsigned int capacity,
-         const HashFunc& hashFunc );
-      // Constructs a new map with the given capacity, hash function,
-      // and allocator..
+    Map( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<K>* keyAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         unsigned int capacity );
+      // Constructs a new map with the given capacity and allocators.
+      // This will use the default Hasher specialization as its hash function.
       // This constructor should be used in the event that it is known that a
       // large number of key-value pairs will be stored. This helps to reduce
       // allocations by initializing the internal key and value arrays to the
       // given capacity.
+
+    Map( sgdm::IAllocator<T>* allocator, unsigned int capacity,
+         const HashFunc& hashFunc );
+      // Constructs a new map with the given capacity, hash function,
+      // and allocator.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
+
+    Map( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<K>* keyAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         unsigned int capacity, const HashFunc& hashFunc );
+    // Constructs a new map with the given capacity, hash function,
+    // and allocators.
+    // This constructor should be used in the event that it is known that a
+    // large number of key-value pairs will be stored. This helps to reduce
+    // allocations by initializing the internal key and value arrays to the
+    // given capacity.
 
     Map( const Map<T, K>& other );
       // Constructs a copy of the other map.
@@ -248,13 +287,13 @@ class Map
 
 // CONSTANTS
 template <typename T, typename K>
-constexpr typename Map<T, K>::Bin Map<T, K>::BIN_EMPTY;
+constexpr Bin Map<T, K>::BIN_EMPTY;
 
 template <typename T, typename K>
-constexpr typename Map<T, K>::Bin Map<T, K>::BIN_DELETED;
+constexpr Bin Map<T, K>::BIN_DELETED;
 
 template <typename T, typename K>
-constexpr typename Map<T, K>::Bin Map<T, K>::BIN_INVALID;
+constexpr Bin Map<T, K>::BIN_INVALID;
 
 template <typename T, typename K>
 constexpr unsigned int Map<T, K>::GROW_THRESHOLD;
@@ -406,11 +445,54 @@ Map<T, K>::Map( sgdm::IAllocator<T>* allocator )
 }
 
 template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* valueAlloc,
+                sgdm::IAllocator<K>* keyAlloc,
+                sgdm::IAllocator<Bin>* binAlloc,
+                sgdm::IAllocator<sgdu::HashCode>* hashAlloc )
+        : d_binAllocator( binAlloc ),
+          d_keys( keyAlloc ),
+          d_values( valueAlloc ),
+          d_entries( hashAlloc ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
+    d_hashFunc = &sgdu::Hasher<K>::hash;
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
 Map<T, K>::Map( sgdm::IAllocator<T>* allocator, const HashFunc& hashFunc )
         : d_binAllocator(),
           d_keys(),
           d_values( allocator ),
           d_entries(),
+          d_hashFunc( hashFunc ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* valueAlloc,
+                sgdm::IAllocator<K>* keyAlloc,
+                sgdm::IAllocator<Bin>* binAlloc,
+                sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+                const HashFunc& hashFunc )
+        : d_binAllocator( binAlloc ),
+          d_keys( keyAlloc ),
+          d_values( valueAlloc ),
+          d_entries( hashAlloc ),
           d_hashFunc( hashFunc ),
           d_binsInUse( 0 ),
           d_binCount( MIN_BINS ),
@@ -448,12 +530,66 @@ Map<T, K>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity )
 }
 
 template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* valueAlloc,
+                sgdm::IAllocator<K>* keyAlloc,
+                sgdm::IAllocator<Bin>* binAlloc,
+                sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+                unsigned int capacity )
+        : d_binAllocator( binAlloc ),
+          d_keys( keyAlloc, capacity ),
+          d_values( valueAlloc, capacity ),
+          d_entries( hashAlloc, capacity ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
+    d_hashFunc = &sgdu::Hasher<K>::hash;
+    while ( d_binCount < capacity )
+    {
+        d_binCount <<= 1;
+    }
+
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
 Map<T, K>::Map( sgdm::IAllocator<T>* allocator, unsigned int capacity,
                 const HashFunc& hashFunc )
         : d_binAllocator(),
           d_keys( nullptr, capacity ),
           d_values( allocator, capacity ),
           d_entries( nullptr, capacity ),
+          d_hashFunc( hashFunc ),
+          d_binsInUse( 0 ),
+          d_binCount( MIN_BINS ),
+          d_oldBins( nullptr ),
+          d_oldBinIndex( 0 ),
+          d_oldBinCount( 0 )
+{
+    while ( d_binCount < capacity )
+    {
+        d_binCount <<= 1;
+    }
+
+    d_bins = d_binAllocator.get( d_binCount );
+    sgdm::Mem::set<Bin>( d_binAllocator.allocator(), d_bins, BIN_EMPTY,
+                         d_binCount );
+}
+
+template <typename T, typename K>
+Map<T, K>::Map( sgdm::IAllocator<T>* valueAlloc,
+                sgdm::IAllocator<K>* keyAlloc,
+                sgdm::IAllocator<Bin>* binAlloc,
+                sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+                unsigned int capacity, const HashFunc& hashFunc )
+        : d_binAllocator( binAlloc ),
+          d_keys( keyAlloc, capacity ),
+          d_values( valueAlloc, capacity ),
+          d_entries( hashAlloc, capacity ),
           d_hashFunc( hashFunc ),
           d_binsInUse( 0 ),
           d_binCount( MIN_BINS ),

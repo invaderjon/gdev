@@ -43,12 +43,35 @@ class Set
       // Constructs a new set using the given allocator.
       // This will use the default Hasher specialization as its hash function.
 
+    Set( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc );
+      // Constructs a new set using the given allocators.
+      // This will use the default Hasher specialization as its hash function.
+
     Set( sgdm::IAllocator<T>* allocator,
          const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set using the given allocator and hash function.
 
+    Set( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         const typename Map<T, T>::HashFunc& hashFunc );
+      // Constructs a new set using the given allocators and hash function.
+
     Set( sgdm::IAllocator<T>* allocator, unsigned int capacity );
       // Constructs a new set with the given capacity and allocator.
+      // This will use the default Hasher specialization as its hash function.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
+
+    Set( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         unsigned int capacity );
+      // Constructs a new set with the given capacity and allocators.
       // This will use the default Hasher specialization as its hash function.
       // This constructor should be used in the event that it is known that a
       // large number of key-value pairs will be stored. This helps to reduce
@@ -59,6 +82,17 @@ class Set
          const typename Map<T, T>::HashFunc& hashFunc );
       // Constructs a new set with the given capacity, hash function,
       // and allocator.
+      // This constructor should be used in the event that it is known that a
+      // large number of key-value pairs will be stored. This helps to reduce
+      // allocations by initializing the internal key and value arrays to the
+      // given capacity.
+
+    Set( sgdm::IAllocator<T>* valueAlloc,
+         sgdm::IAllocator<Bin>* binAlloc,
+         sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+         unsigned int capacity, const typename Map<T, T>::HashFunc& hashFunc );
+      // Constructs a new set with the given capacity, hash function,
+      // and allocators.
       // This constructor should be used in the event that it is known that a
       // large number of key-value pairs will be stored. This helps to reduce
       // allocations by initializing the internal key and value arrays to the
@@ -157,9 +191,28 @@ Set<T>::Set( sgdm::IAllocator<T>* allocator ) : d_map( allocator )
 
 template <typename T>
 inline
+Set<T>::Set( sgdm::IAllocator<T>* valueAlloc,
+             sgdm::IAllocator<Bin>* binAlloc,
+             sgdm::IAllocator<sgdu::HashCode>* hashAlloc )
+        : d_map( valueAlloc, valueAlloc, binAlloc, hashAlloc )
+{
+}
+
+template <typename T>
+inline
 Set<T>::Set( sgdm::IAllocator<T>* allocator,
              const typename Map<T, T>::HashFunc& hashFunc )
         : d_map( allocator, hashFunc )
+{
+}
+
+template <typename T>
+inline
+Set<T>::Set( sgdm::IAllocator<T>* valueAlloc,
+             sgdm::IAllocator<Bin>* binAlloc,
+             sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+             const typename Map<T, T>::HashFunc& hashFunc )
+        : d_map( valueAlloc, valueAlloc, binAlloc, hashAlloc, hashFunc )
 {
 }
 
@@ -172,9 +225,31 @@ Set<T>::Set( sgdm::IAllocator<T>* allocator, unsigned int capacity )
 
 template <typename T>
 inline
+Set<T>::Set( sgdm::IAllocator<T>* valueAlloc,
+             sgdm::IAllocator<Bin>* binAlloc,
+             sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+             unsigned int capacity )
+        : d_map( valueAlloc, valueAlloc, binAlloc, hashAlloc, capacity )
+{
+}
+
+template <typename T>
+inline
 Set<T>::Set( sgdm::IAllocator<T>* allocator, unsigned int capacity,
              const typename Map<T, T>::HashFunc& hashFunc )
         : d_map( allocator, capacity, hashFunc )
+{
+}
+
+template <typename T>
+inline
+Set<T>::Set( sgdm::IAllocator<T>* valueAlloc,
+             sgdm::IAllocator<Bin>* binAlloc,
+             sgdm::IAllocator<sgdu::HashCode>* hashAlloc,
+             unsigned int capacity,
+             const typename Map<T, T>::HashFunc& hashFunc )
+        : d_map( valueAlloc, valueAlloc, binAlloc, hashAlloc, capacity,
+                 hashFunc )
 {
 }
 
