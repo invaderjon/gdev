@@ -2,6 +2,7 @@
 #ifndef INCLUDED_GHOST_CONTROLLER
 #define INCLUDED_GHOST_CONTROLLER
 
+#include <engine/containers/set.h>
 #include <engine/scene/itickable.h>
 #include <game/objects/ghost.h>
 
@@ -21,6 +22,15 @@ class GhostController : public sgds::ITickable
     // HELPER FUNCTIONS
     void navigateTo( const gel::math::IVec2& target );
       // Navigate to the specified position on the board.
+
+    float getManhattanDist( const gel::math::IVec2& source,
+                            const gel::math::IVec2& target ) const;
+      // Calculates the manhattan distance heuristic for the two positions.
+
+    gel::math::IVec2 getNextBest(
+            const StevensDev::sgdc::Set<gel::math::IVec2>& items,
+            const sgdc::Map<float, gel::math::IVec2>& fScores );
+      // Gets the item with the lowest fscore.
 
   public:
     // CONSTRUCTORS

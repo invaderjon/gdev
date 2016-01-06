@@ -195,10 +195,10 @@ set(
         src/engine/data/json_printer.h
         src/engine/containers/dynamic_array.cpp
         src/engine/containers/dynamic_array.h
-        src/engine/containers/fast_map.cpp
-        src/engine/containers/fast_map.h
         src/engine/containers/map.cpp
         src/engine/containers/map.h
+        src/engine/containers/set.cpp
+        src/engine/containers/set.h
         src/engine/data/basic_string_reader.cpp
         src/engine/data/basic_string_reader.h
         src/engine/data/ireader.cpp
@@ -391,10 +391,11 @@ if ( BUILD_TESTS OR CLION )
         test/engine/scene/test_collider.h
         test/engine/scene/test_tickable.cpp
         test/engine/scene/test_tickable.h
-        test/engine/util/string_utils.t.cpp
         test/engine/scene/nxn_scene_graph.t.cpp
         test/engine/scene/rectangle_bounds.t.cpp
-            test/engine/util/hash_utils.t.cpp)
+        test/engine/util/hash_utils.t.cpp
+        test/engine/util/string_utils.t.cpp
+    )
 
     # SFML DEPENDENT TESTS
     set(
