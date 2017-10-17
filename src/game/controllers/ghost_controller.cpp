@@ -62,6 +62,7 @@ void GhostController::navigateTo( const gel::math::IVec2& tar )
         return;
     }
 
+    // a* search
     Set<IVec2> closed( &d_vecAlloc, &d_binAlloc, &d_hashAlloc, 32, &hash );
     Set<IVec2> open( &d_vecAlloc, &d_binAlloc, &d_hashAlloc, 32, &hash );
     Map<IVec2, IVec2> cameFrom( &d_vecAlloc, &d_vecAlloc, &d_binAlloc,

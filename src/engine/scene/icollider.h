@@ -18,6 +18,16 @@ class ICollider
       // Destructs the collider.
 
     // ACCESSOR FUNCTIONS
+    virtual unsigned int id() const = 0;
+      // Gets the unique id of the collider.
+      //
+      // This helps identify the instance.
+
+    virtual const std::string& name() const = 0;
+      // Gets the name of the collider.
+      //
+      // This helps identify the type.
+
     virtual const RectangleBounds& bounds() const = 0;
       // Gets the collider bounds.
 

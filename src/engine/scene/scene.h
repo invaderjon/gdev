@@ -2,8 +2,9 @@
 #ifndef INCLUDED_SCENE
 #define INCLUDED_SCENE
 
-#include "../rendering/renderer.h"
-#include "itickable.h"
+#include "engine/rendering/renderer.h"
+#include "engine/scene/nxn_scene_graph.h"
+#include "engine/scene/itickable.h"
 
 namespace StevensDev
 {
@@ -14,17 +15,23 @@ namespace sgds
 class Scene
 {
   private:
+    // GLOBALS
     static Scene d_instance;
       // The singleton instance.
 
+    // MEMBERS
     sgdr::Renderer* d_renderer;
       // The renderer used to draw the scene.
 
     sgdc::DynamicArray<ITickable*> d_tickables;
       // The objects in the scene.
 
+    NxNSceneGraph d_sceneGraph;
+      // The scene graph.
+
     sf::Clock d_clock;
       // The clock used for timing.
+
     // CONSTRUCTORS
     Scene();
       // Constructs a new scene.
@@ -47,6 +54,13 @@ class Scene
 
     float getHeight() const;
       // Gets the height of the scene (window) in pixels.
+
+    NxNSceneGraph& sceneGraph() const;
+    // Gets the scene graph.
+
+    // MUTATOR FUNCTIONS
+    void setSceneGraph( const NxNSceneGraph& graph );
+    // Sets the scene graph.
 
     // MEMBER FUNCTIONS
     void tick();
@@ -121,6 +135,20 @@ float Scene::getHeight() const
 }
 
 inline
+NxNSceneGraph& Scene::sceneGraph() const
+{
+//    return d_sceneGraph;
+}
+
+// MUTATOR FUNCTIONS
+inline
+void Scene::setSceneGraph( const NxNSceneGraph& graph )
+{
+    d_sceneGraph = graph;
+}
+
+// MEMBER FUNCTIONS
+inline
 void Scene::addRenderable( const sgdr::RenderableSprite* sprite )
 {
     assert( sprite != nullptr );
@@ -151,7 +179,14 @@ void Scene::setRenderer( sgdr::Renderer* renderer )
 {
     d_renderer = renderer;
 }
+//
+//inline
+//void Scene::setSceneGraph( const NxNSceneGraph& graph )
+//{
+//
+//}
 
+// GLOBAL FUNCTIONS
 inline
 Scene& Scene::inst()
 {

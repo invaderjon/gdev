@@ -38,6 +38,7 @@ namespace sgds
 class NxNSceneGraph
 {
   private:
+    // STRUCTURES
     struct Cell
     {
         RectangleBounds bounds;
@@ -62,6 +63,7 @@ class NxNSceneGraph
           // The bottom-most row in the region.
     };
 
+    // MEMBERS
     sgdm::AllocatorGuard<Cell> d_cellAlloc;
       // Allocates the cells.
 
@@ -131,8 +133,8 @@ class NxNSceneGraph
 
     sgdc::DynamicArray<ICollider*> find( const RectangleBounds& bounds,
                                          unsigned short flags );
-      // Finds the flags in the specified rectangular region with the given
-      // flags.
+      // Finds the colliders in the specified rectangular region with the
+      // given flags.
 
     sgdc::DynamicArray<ICollider*> find( const ICollider* collider );
       // Gets the colliders that are colliding with the given object.

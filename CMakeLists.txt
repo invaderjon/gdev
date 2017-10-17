@@ -276,46 +276,50 @@ set(
 
 # GAME SOURCES
 set(
-        GAME_FILES
-        src/game/world/board.cpp
-        src/game/world/board.h
+    GAME_FILES
+    src/game/events/collision_event.cpp
+    src/game/events/collision_event.h
+    src/game/world/board.cpp
+    src/game/world/board.h
 )
 
 # SFML DEPENDENT GAME SOURCES
 set(
-        GAME_SFML_DEP_FILES
-        src/game/base/game.cpp
-        src/game/base/game.h
-        src/game/controllers/controller_factory.cpp
-        src/game/controllers/controller_factory.h
-        src/game/controllers/ghost_controller.cpp
-        src/game/controllers/ghost_controller.h
-        src/game/controllers/motion_controller.cpp
-        src/game/controllers/motion_controller.h
-        src/game/controllers/pacman_controller.cpp
-        src/game/controllers/pacman_controller.h
-        src/game/controllers/player_controller.cpp
-        src/game/controllers/player_controller.h
-        src/game/controllers/spawn_controller.cpp
-        src/game/controllers/spawn_controller.h
-        src/game/objects/actor.cpp
-        src/game/objects/actor.h
-        src/game/objects/actor_factory.cpp
-        src/game/objects/actor_factory.h
-        src/game/objects/ghost.cpp
-        src/game/objects/ghost.h
-        src/game/objects/piece.cpp
-        src/game/objects/piece.h
-        src/game/objects/token_factory.cpp
-        src/game/objects/token_factory.h
-        src/game/res.cpp
-        src/game/res.h
-        src/game/world/level_manager.cpp
-        src/game/world/level_manager.h
-        src/game/world/level.cpp
-        src/game/world/level.h
-        src/game/world/level_factory.cpp
-        src/game/world/level_factory.h
+    GAME_SFML_DEP_FILES
+    src/game/base/game.cpp
+    src/game/base/game.h
+    src/game/controllers/collision_controller.cpp
+    src/game/controllers/collision_controller.h
+    src/game/controllers/controller_factory.cpp
+    src/game/controllers/controller_factory.h
+    src/game/controllers/ghost_controller.cpp
+    src/game/controllers/ghost_controller.h
+    src/game/controllers/motion_controller.cpp
+    src/game/controllers/motion_controller.h
+    src/game/controllers/pacman_controller.cpp
+    src/game/controllers/pacman_controller.h
+    src/game/controllers/player_controller.cpp
+    src/game/controllers/player_controller.h
+    src/game/controllers/spawn_controller.cpp
+    src/game/controllers/spawn_controller.h
+    src/game/objects/actor.cpp
+    src/game/objects/actor.h
+    src/game/objects/actor_factory.cpp
+    src/game/objects/actor_factory.h
+    src/game/objects/ghost.cpp
+    src/game/objects/ghost.h
+    src/game/objects/piece.cpp
+    src/game/objects/piece.h
+    src/game/objects/token_factory.cpp
+    src/game/objects/token_factory.h
+    src/game/res.cpp
+    src/game/res.h
+    src/game/world/level_manager.cpp
+    src/game/world/level_manager.h
+    src/game/world/level.cpp
+    src/game/world/level.h
+    src/game/world/level_factory.cpp
+    src/game/world/level_factory.h
 )
 
 # COMBINED SOURCES
